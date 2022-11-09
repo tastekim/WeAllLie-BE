@@ -6,7 +6,7 @@ require('dotenv').config();
 // 연결할 url
 const url = process.env.MONGO_URI;
 // DB 이름
-const dbName = 'WeAreLie';
+const dbName = 'WeAllLie';
 
 // MongoClient를 생성
 const client = new MongoClient(url);
