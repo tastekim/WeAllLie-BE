@@ -4,7 +4,7 @@ const io = require('../socket');
 io.on("connection", (socket) =>{
     console.log("socket server connect") // 로비로 나오면 성공
 
-    io.to(socket.nickname).emit("lobby") // 닉네임을 가진 사람들에게 로비로 이동하는 함수를 실행
+    // io.to(socket.nickname).emit("lobby") // 닉네임을 가진 사람들에게 로비로 이동하는 함수를 실행
     // io.emit("newConnect") // 로비 채팅방 입장
     
     // socket.on("lobby", (lobby) => {// 로비로 이동
@@ -24,7 +24,7 @@ io.on("connection", (socket) =>{
     // 방입장
     socket.on("enterRoom", (roomId) =>{
         io.to(socket.nickname).emit(enterRoom(roomId));
-        io.emit("enterRoom", `방에 입장하였습니다.`, enterRoom)
+        io.emit("enterRoom", enterRoom)
     })
 
     // 방 퇴장
