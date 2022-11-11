@@ -3,7 +3,7 @@ const { Server } = require('http');
 const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
-const userRouter = require('./user/kakao-route');
+const userRouter = require('./users/user-route');
 const passportConfig = require('./middlewares/passport');
 
 require('dotenv').config();

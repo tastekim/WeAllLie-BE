@@ -1,5 +1,4 @@
 const { Schema, model, Types } = require('mongoose');
-const { isValidObjectId } = require('mongoose');
 
 const UserSchema = new Schema({
   userIndex: {
