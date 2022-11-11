@@ -1,39 +1,65 @@
 const io = require('../socket');
+const lobby = io.of('/room/lobby');
+const room = io.of('/room/lobby/roomIndex');
+const lobbyChat = io.of('/chat/lobby');
+const chat = io.of('/chat/lobby/roomIndex');
 
-// 로그인시 소켓에 연결되고 로비로 이동
-io.on("connection", (socket) =>{
-    console.log("socket server connect") // 로비로 나오면 성공
-
-    // io.to(socket.nickname).emit("lobby") // 닉네임을 가진 사람들에게 로비로 이동하는 함수를 실행
-    // io.emit("newConnect") // 로비 채팅방 입장
+io.on("connection", async (socket) =>{
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+      });
     
-    // socket.on("lobby", (lobby) => {// 로비로 이동
-    //     lobby;
-    //     socket.emit("lobby", `로비에 입장하였습니다.`, lobby) // 접속한 사람에게 로비로 보내는 함수를 에밋
-    // })
-
-    // socket.join(socket.id) // 로비로 이동
-    // io.to(socket.id).emit(lobby) // 접속한 사람에게 로비로 보내는 함수를 에밋
-
-    // 방생성
-    socket.on("createRoom", (gameMode, roomName, createRoom) => { // roomName 과 gameMode를 받아서 방 생성 함수를 실행
-        io.to(socket.nickname).emit(createRoom(gameMode, roomName)); // createRoom 함수는 백엔드에서 실행되는것이 아니라 프론트에서 실행됨
-        io.emit("createRoom", `방이 생성 되었습니다.`, createRoom)
+      // 로비로 이동 
+    await socket.once("connection", (socket) => {
+        if(socket.rooms.size === 1){ // 소켓 연결 후에는 private 룸 밖에 안가지기 때문에 로비에 접속 안되어있는 상태
+             io.to(nickname).join(lobby)
+             socket.emit(lobby)
+        }
     })
 
-    // 방입장
-    socket.on("enterRoom", (roomId) =>{
-        io.to(socket.nickname).emit(enterRoom(roomId));
-        io.emit("enterRoom", enterRoom)
+    socket.on('disconnect', () =>{
+      
     })
 
-    // 방 퇴장
-    socket.on("disconnect", () => { // 방에서 연결 해제 socket.rooms.size === 0
-        console.log(socket.nickname, "님이 퇴장하였습니다.")
-        io.to(socket.nickname.emit(roomDisconnection))
-    })
-
-    
-    
 })
 
+// 로비에 연결 되었을때 
+lobby.on('connection', async (socket) => {
+  console.log('로비에 입장')
+  const nickname =   await req.locals.user
+
+
+    // 게임방생성
+    await socket.on("createRoom", (gameMode, roomTitle, createRoom) => { // roomName 과 gameMode를 받아서 방 생성 함수를 실행
+     socket.to(socket.nickname).emit(createRoom(gameMode, roomTitle)); // createRoom 함수는 백엔드에서 실행되는것이 아니라 프론트에서 실행됨
+      socket.emit("createRoom", createRoom)
+})
+
+    // 게임방입장
+    await socket.on('enterRoom', (roomIndex) => {
+      socket.join(roomIndex, () => {
+        console.log(nickname + ' join a ' + roomIndex);
+        io.to(roomIndex).emit('enterRoom', nickname);
+    });
+  });
+
+})
+
+// 게임방에 입장 했을 때
+room.io('connection', async(socket) => {
+    console.log(nickname + ' join room ' + roomIndex + '!')
+
+     // 방 퇴장
+     await socket.on('disconnection', () => { 
+      console.log(nickname + ' go to lobby');
+      // 게임방을 나간다는것은 로비로 이동한다는 뜻이니까 leave를 안쓰고 로비로 이동하는 것으로 구현하는게 맞는걸까?
+      // leave를 쓰면 게임방의 상위 방인 로비로 자동으로 이동 하는걸까?
+      io.of(/room/lobby/roomIndex).io.to(nickname).join(lobby)
+    });
+
+    //게임시작
+    await socket.on('startGame', () => { // 특정 방을 찾아서 startGame이라는 이벤트를 실행
+      io.of(/room/lobby/roomIndex).emit('startGame') 
+    })
+
+})
