@@ -1,6 +1,7 @@
 const http = require('./app');
 require('dotenv').config();
 require('./socket');
+require('./game/game-socket')
 const mongodb = require('./schemas/index');
 
 mongodb();

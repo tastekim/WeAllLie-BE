@@ -1,9 +1,7 @@
-class GameProvider {
-    selectSpy = () => {
-    }
+const GameRepo = require('./game-repo')
 
-    vote = () => {
-    }
+class GameProvider {
+
 }
 
 module.exports = GameProvider;
