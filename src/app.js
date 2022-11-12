@@ -5,6 +5,7 @@ const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
 const passportConfig = require('./middlewares/passport');
+const cors = require('cors');
 
 require('dotenv').config();
 const app = express();
@@ -12,6 +13,7 @@ const http = Server(app);
 
 // middlewares
 passportConfig();
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
