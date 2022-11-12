@@ -20,7 +20,10 @@ app.use(
     secret: process.env.SESSION_KEY,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false },
+    cookie: {
+      httpOnly: true,
+      secure: false,
+    },
   })
 );
 
