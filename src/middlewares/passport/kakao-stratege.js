@@ -51,17 +51,18 @@ module.exports = () =>
         } else {
           // 3. DB에 존재하지 않는 유저라면 회원가입 후 로그인
           // 3-1. DB에 유저 정보 저장
-
-          // let nickname = `Agent${}`
+          // let defaultNum =
+          // let nickCount =
+          // let nickname = `Agent${nickCount}`
 
           console.log('여기는 kakaoStratege 에서 유저가 없을 때! else');
-          const userIndex = new Date().getTime().toString(36);
+
           const newUser = await User.create({
             _id: 1,
-            userIndex,
             email: profile._json.kakao_account.email,
-            nickname: userIndex,
+            nickname: 'Agent_001',
           });
+
           console.log('newUser :::', newUser); // DB에 지금 저장한 유저 정보 (출력 O)
 
           // exception.whenSignUp(newUser.authId); // ??

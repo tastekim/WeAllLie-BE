@@ -1,7 +1,11 @@
 const { Schema, model } = require('mongoose');
 
 const UserSchema = new Schema({
-  _id: Number,
+  _id: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
 
   // const userIndex = new Date().getTime().toString(36); 로 생성
   // 혹시라도 중복일 경우 대비하여 에러 핸들 추가
