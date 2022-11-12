@@ -1,5 +1,6 @@
 const http = require('./src/app');
 require('./src/socket');
+require('./src/game/game-socket')
 const connect = require('./src/schemas');
 connect();
 

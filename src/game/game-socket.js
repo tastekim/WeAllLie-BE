@@ -1,12 +1,13 @@
-const {game} = require('../socket')
+const game = require('../socket');
 const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
+    console.log('game-socket connected', socket.id)
     const gameProvider = new GameProvider();
 
     // 게임 플레이 종료 및 스파이 투표 시작.
-    socket.on('timeOut', () => {
-
+    socket.on('', (msg) => {
+        
     })
 
     // 게임 진행 중 스파이 투표 찬반 투표 실행.
