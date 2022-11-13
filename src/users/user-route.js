@@ -7,18 +7,9 @@ const axios = require('axios');
 const { User } = require('../schemas/user');
 const loginMiddleware = require('../middlewares/login-middleware');
 const jwtService = require('./jwt');
-// const numFn = require('../src/users/numFuntions');
-// const autoInc = numFn.autoIncrease();
-// let autoNum = autoInc();
 
 require('dotenv').config();
 
-// 카카오 로그인 후 성공 시 redirect 되는 URL
-router.get('/', (req, res) => {
-  console.log(req.user);
-  return res.send(req.user);
-});
-/*
 // 카카오 인가코드 받고 카카오에서 유저 정보 받아와서 전달
 router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
   console.log(req.query.code);
@@ -46,26 +37,21 @@ router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
   });
   console.log(user);
 
-  // user.properties.profile_image
-  // user.properties.thumbnail_image
-  // user.properties.nickname
-  // user.kakao_account.email
-  // _id  or  id 인지 확인
-
   let exUser = await User.findOne({
     email: user.kakao_account.email,
   });
 
-  // DB 의 유저 정보 확인하여 존재하는 유저일 경우?
+  // DB에 유저 정보 있음 => 로그인 처리
   if (exUser) {
     console.log('exUser :::', exUser);
     const { user } = res.locals;
-    // 1. res.locals.user에 토큰이 없다면 만료된 토큰이므로 재발급
+    // res.locals.user에 토큰이 없다면 재발급
     if (!user.accessToken) {
-      const accessToken = jwtService.createAccessToken(exUser.email);
+      const accessToken = await jwtService.createAccessToken(exUser.email);
       res.status(200).json({ accessToken });
     } else if (user.accessToken) res.status(200).json({ accessToken });
   } else {
+    // DB에 유저 정보 없음 => 회원가입 / 토큰발급 / 로그인 처리
     let nickNum, nickname, newUser;
     let allUser = await User.find();
 
@@ -102,21 +88,32 @@ router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
     res.status(201).json({ accessToken });
   }
 });
-*/
+
+// PASSPORT 로그인
 // 카카오 로그인(passport)
-router.get('/api/auth/kakao', passport.authenticate('kakao'));
+router.get('/api/passport/kakao', passport.authenticate('kakao'));
 
 // 카카오 콜백(passport)
 router.get(
-  '/api/auth/kakao/callback',
+  '/api/passport/kakao/callback',
   passport.authenticate('kakao', {
     successRedirect: '/',
-    failureRedirect: '/api/login',
+    failureRedirect: '/',
   }),
   (req, res) => {
     console.log('콜백api / req.user ===', req.user); // 로그인 후 이동할 페이지 (프론트 url)
     res.redirect('/');
   }
 );
+
+// 카카오 로그인 후 성공 시 redirect 되는 URL
+router.get('/', async (req, res) => {
+  console.log(
+    '여기가 패스포트 마지막 단계(req.user.accessToken)',
+    req.user.accessToken
+  );
+  const accessToken = await req.user.accessToken;
+  res.json({ accessToken });
+});
 
 module.exports = router;

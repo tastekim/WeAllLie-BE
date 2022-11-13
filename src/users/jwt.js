@@ -7,7 +7,7 @@ class jwtService {
   createAccessToken = async (_id) => {
     return jwt.sign(
       {
-        _id,
+        _id: _id,
       },
       process.env.SECRET_KEY,
       {

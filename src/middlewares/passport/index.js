@@ -6,19 +6,20 @@ const jwtService = require('../../users/jwt');
 module.exports = () => {
   passport.serializeUser((accessToken, done) => {
     console.log('/passport/index.js serializeUser');
-    console.log('user :::', accessToken);
-    done(null, accessToken);
+    console.log('accessToken :::', accessToken);
+    jwtService.validateAccessToken(accessToken).then((_id) => {
+      console.log('여기는 serializeUser / then!! _id: ', _id);
+      done(null, _id);
+    });
   });
 
-  passport.deserializeUser(async (accessToken, done) => {
+  passport.deserializeUser(async (_id, done) => {
     console.log('/passport/index.js DDDDDeserializeUser');
-    console.log(accessToken);
-    const { _id } = jwtService.validateAccessToken(accessToken).then((_id) => {
-      console.log(_id);
-      return _id;
-    });
+
     User.findOne({ _id })
       .then((user) => {
+        accessToken = jwtService.createAccessToken(_id);
+        user.accessToken = accessToken;
         console.log('여기는 then!! user: ', user);
         done(null, user);
       })
