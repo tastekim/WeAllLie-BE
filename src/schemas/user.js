@@ -25,7 +25,7 @@ const UserSchema = new Schema({
   profileImg: {
     type: String,
     required: true,
-    default: 'default img',
+    default: 'default',
   },
 
   spyPlayCount: {

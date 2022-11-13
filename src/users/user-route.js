@@ -5,7 +5,8 @@ const router = express.Router();
 const qs = require('qs');
 const axios = require('axios');
 const { User } = require('../schemas/user');
-const jwt = require('jsonwebtoken');
+const isLoginMiddleware = require('../middlewares/login-middleware');
+const jwtService = require('./jwt');
 
 require('dotenv').config();
 
@@ -14,9 +15,9 @@ router.get('/', (req, res) => {
   console.log(req.user);
   return res.send(req.user);
 });
-
+/*
 // 카카오 인가코드 받고 카카오에서 유저 정보 받아와서 전달
-router.get('/api/auth/kakao/callback', async (req, res) => {
+router.get('/api/auth/kakao/callback', isLoginMiddleware, async (req, res) => {
   console.log(req.query.code);
   let kakaoToken = await axios({
     method: 'POST',
@@ -42,29 +43,42 @@ router.get('/api/auth/kakao/callback', async (req, res) => {
   });
   console.log(user);
 
-  /*
-  user.properties.profile_image
-  user.properties.thumbnail_image
-  user.properties.nickname
-  user.kakao_account.email
-  _id  or  id 인지 확인
-  */
+  // user.properties.profile_image
+  // user.properties.thumbnail_image
+  // user.properties.nickname
+  // user.kakao_account.email
+  // _id  or  id 인지 확인
+
   let exUser = await User.findOne({
     email: user.kakao_account.email,
   });
 
-  // DB 의 유저 정보 확인하여 회원 가입 & 로그인 & 토큰 생성
+  // DB 의 유저 정보 확인하여 존재하는 유저일 경우?
   if (exUser) {
     console.log('exUser :::', exUser);
-
-    const token = jwt.sign({ email: exUser.email }, process.env.SECRET_KEY, {
-      expiresIn: '1h',
-    });
-
-    res.status(200).json({ token });
+    const { user } = res.locals;
+    // 1. res.locals.user에 토큰이 없다면 만료된 토큰이므로 재발급
+    if (!user.accessToken) {
+      const accessToken = jwtService.createAccessToken(exUser.email);
+      res.status(200).json({ accessToken });
+    } else if (user.accessToken) res.status(200).json({ accessToken });
   } else {
-    let nickNum, nickname;
+    let nickNum, nickname, newUser;
     let allUser = await User.find();
+    
+    if (allUser.length === 0) {
+      newUser = await User.create({
+        _id: 1,
+        email: profile._json.kakao_account.email,
+        nickname: 'Agent_001',
+        profileImg: profile._json.properties.thumbnail_image
+          ? profile._json.properties.thumbnail_image
+          : 'default',
+      });
+    } else {
+
+    }
+
     let lastNum = allUser.slice(-1)[0].nickname;
     let lastId = allUser.slice(-1)[0]['_id'];
     let n = +lastNum.slice(6) + 1;
@@ -82,15 +96,12 @@ router.get('/api/auth/kakao/callback', async (req, res) => {
       nickname,
       profileImg: user.properties.thumbnail_image || null,
     });
-    const token = jwt.sign({ email: newUser.email }, process.env.SECRET_KEY, {
-      // 토큰 만료시간 1시간으로 설정. 테스트를 위해.. (나중에 줄여줄 것!)
-      expiresIn: '1h',
-    });
-    res.status(201).json({ token });
+    const accessToken = jwtService.createAccessToken(newUser.email);
+    res.status(201).json({ accessToken });
   }
 });
+*/
 
-/*
 // 카카오 로그인(passport)
 router.get('/api/auth/kakao', passport.authenticate('kakao'));
 
@@ -106,6 +117,5 @@ router.get(
     res.redirect('/');
   }
 );
-*/
 
 module.exports = router;

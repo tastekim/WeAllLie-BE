@@ -2,7 +2,7 @@ const KakaoStrategy = require('passport-kakao').Strategy;
 const { Db } = require('mongodb');
 const passport = require('passport');
 const { User } = require('../../schemas/user');
-// const jwt = require('jsonwebtoken');
+const jwtService = require('../../users/jwt');
 require('dotenv').config();
 
 module.exports = () =>
@@ -11,11 +11,12 @@ module.exports = () =>
     new KakaoStrategy(
       {
         clientID: process.env.CLIENT_ID,
-        callbackURL: process.env.CALLBACK_URL, // 위에서 설정한 Redirect URI
+        callbackURL: process.env.CALLBACK_URL2, // 위에서 설정한 Redirect URI
       },
       async (accessToken, refreshToken, profile, done) => {
         console.log('여기는 kakaoStratege.js');
         console.log('----------------------------');
+        console.log(profile);
         console.log('profile.id :::', profile.id);
         console.log('profile.username :::', profile.username);
         console.log(
@@ -47,26 +48,53 @@ module.exports = () =>
           );
           console.log('exUser :::', exUser);
 
-          done(null, exUser); // 로그인 인증 완료
+          const accessToken = await jwtService.createAccessToken(exUser.email);
+          console.log('accessToken :::', accessToken);
+
+          done(null, accessToken); // 로그인 인증 완료
         } else {
           // 3. DB에 존재하지 않는 유저라면 회원가입 후 로그인
           // 3-1. DB에 유저 정보 저장
-          // let defaultNum =
-          // let nickCount =
-          // let nickname = `Agent${nickCount}`
-
           console.log('여기는 kakaoStratege 에서 유저가 없을 때! else');
+          let nickNum, nickname, newUser;
+          let allUser = await User.find();
+          if (allUser.length === 0) {
+            newUser = await User.create({
+              _id: 1,
+              email: profile._json.kakao_account.email,
+              nickname: 'Agent_001',
+              profileImg: profile._json.properties.thumbnail_image
+                ? profile._json.properties.thumbnail_image
+                : 'default',
+            });
+          } else {
+            let lastNum = allUser.slice(-1)[0].nickname;
+            let lastId = allUser.slice(-1)[0]['_id'];
+            let n = +lastNum.slice(6) + 1;
 
-          const newUser = await User.create({
-            _id: 1,
-            email: profile._json.kakao_account.email,
-            nickname: 'Agent_001',
-          });
+            if (n < 1000) {
+              nickNum = (0.001 * n).toFixed(3).toString().slice(2);
+              nickname = `Agent_${nickNum}`;
+            } else {
+              nickname = `Agent_${n}`;
+            }
+            newUser = await User.create({
+              _id: +lastId + 1,
+              email: profile._json.kakao_account.email,
+              nickname,
+              profileImg: profile._json.properties.thumbnail_image
+                ? profile._json.properties.thumbnail_image
+                : 'default',
+            });
+          }
+
+          const accessToken = await jwtService.createAccessToken(newUser.email);
+          console.log('newUser accessToken :::', accessToken);
 
           console.log('newUser :::', newUser); // DB에 지금 저장한 유저 정보 (출력 O)
 
           // exception.whenSignUp(newUser.authId); // ??
-          done(null, newUser); // 회원가입하고 로그인 인증 완료
+          done(null, accessToken); // 회원가입하고 로그인 인증 완료
         }
       }
     )
