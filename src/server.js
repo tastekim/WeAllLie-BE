@@ -2,6 +2,10 @@ const http = require('./app');
 require('dotenv').config();
 require('./socket');
 const mongodb = require('./schemas/index');
+require('./rooms/room-socket')
+const Room = require('./schemas/room')
+
+Room.collection.drop()
 
 mongodb();
 
