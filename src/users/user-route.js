@@ -5,8 +5,11 @@ const router = express.Router();
 const qs = require('qs');
 const axios = require('axios');
 const { User } = require('../schemas/user');
-const isLoginMiddleware = require('../middlewares/login-middleware');
+const loginMiddleware = require('../middlewares/login-middleware');
 const jwtService = require('./jwt');
+// const numFn = require('../src/users/numFuntions');
+// const autoInc = numFn.autoIncrease();
+// let autoNum = autoInc();
 
 require('dotenv').config();
 
@@ -17,7 +20,7 @@ router.get('/', (req, res) => {
 });
 /*
 // 카카오 인가코드 받고 카카오에서 유저 정보 받아와서 전달
-router.get('/api/auth/kakao/callback', isLoginMiddleware, async (req, res) => {
+router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
   console.log(req.query.code);
   let kakaoToken = await axios({
     method: 'POST',
@@ -65,7 +68,7 @@ router.get('/api/auth/kakao/callback', isLoginMiddleware, async (req, res) => {
   } else {
     let nickNum, nickname, newUser;
     let allUser = await User.find();
-    
+
     if (allUser.length === 0) {
       newUser = await User.create({
         _id: 1,
@@ -76,32 +79,30 @@ router.get('/api/auth/kakao/callback', isLoginMiddleware, async (req, res) => {
           : 'default',
       });
     } else {
+      let lastNum = allUser.slice(-1)[0].nickname;
+      let n = +lastNum.slice(6) + 1;
 
+      if (n < 1000) {
+        nickNum = (0.001 * n).toFixed(3).toString().slice(2);
+        nickname = `Agent_${nickNum}`;
+      } else {
+        nickname = `Agent_${n}`;
+      }
+      newUser = await User.create({
+        _id: +nickNum + 1,
+        email: profile._json.kakao_account.email,
+        nickname,
+        profileImg: profile._json.properties.thumbnail_image
+          ? profile._json.properties.thumbnail_image
+          : 'default',
+      });
     }
 
-    let lastNum = allUser.slice(-1)[0].nickname;
-    let lastId = allUser.slice(-1)[0]['_id'];
-    let n = +lastNum.slice(6) + 1;
-
-    if (n < 1000) {
-      nickNum = (0.001 * n).toFixed(3).toString().slice(2);
-      nickname = `Agent_${nickNum}`;
-    } else {
-      nickname = `Agent_${n}`;
-    }
-
-    const newUser = await User.create({
-      _id: +lastId + 1,
-      email: user.kakao_account.email,
-      nickname,
-      profileImg: user.properties.thumbnail_image || null,
-    });
     const accessToken = jwtService.createAccessToken(newUser.email);
     res.status(201).json({ accessToken });
   }
 });
 */
-
 // 카카오 로그인(passport)
 router.get('/api/auth/kakao', passport.authenticate('kakao'));
 

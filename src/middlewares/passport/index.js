@@ -13,13 +13,11 @@ module.exports = () => {
   passport.deserializeUser(async (accessToken, done) => {
     console.log('/passport/index.js DDDDDeserializeUser');
     console.log(accessToken);
-    const { email } = jwtService
-      .validateAccessToken(accessToken)
-      .then((email) => {
-        console.log(email);
-        return email;
-      });
-    User.findOne({ email })
+    const { _id } = jwtService.validateAccessToken(accessToken).then((_id) => {
+      console.log(_id);
+      return _id;
+    });
+    User.findOne({ _id })
       .then((user) => {
         console.log('여기는 then!! user: ', user);
         done(null, user);

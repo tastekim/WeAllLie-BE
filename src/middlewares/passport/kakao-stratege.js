@@ -47,8 +47,8 @@ module.exports = () =>
             '여기는 kakaoStratege에서 가져온 profile의 정보가 DB에 있을 때!!'
           );
           console.log('exUser :::', exUser);
-
-          const accessToken = await jwtService.createAccessToken(exUser.email);
+          console.log('exUser._id :::', exUser._id);
+          const accessToken = await jwtService.createAccessToken(exUser._id);
           console.log('accessToken :::', accessToken);
 
           done(null, accessToken); // 로그인 인증 완료
@@ -69,7 +69,6 @@ module.exports = () =>
             });
           } else {
             let lastNum = allUser.slice(-1)[0].nickname;
-            let lastId = allUser.slice(-1)[0]['_id'];
             let n = +lastNum.slice(6) + 1;
 
             if (n < 1000) {
@@ -79,7 +78,7 @@ module.exports = () =>
               nickname = `Agent_${n}`;
             }
             newUser = await User.create({
-              _id: +lastId + 1,
+              _id: +nickNum,
               email: profile._json.kakao_account.email,
               nickname,
               profileImg: profile._json.properties.thumbnail_image
@@ -88,7 +87,7 @@ module.exports = () =>
             });
           }
 
-          const accessToken = await jwtService.createAccessToken(newUser.email);
+          const accessToken = await jwtService.createAccessToken(newUser._id);
           console.log('newUser accessToken :::', accessToken);
 
           console.log('newUser :::', newUser); // DB에 지금 저장한 유저 정보 (출력 O)

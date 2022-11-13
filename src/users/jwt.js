@@ -4,10 +4,10 @@ require('dotenv').config();
 class jwtService {
   jwt = require('jsonwebtoken');
   // Access Token 생성
-  createAccessToken = async (email) => {
+  createAccessToken = async (_id) => {
     return jwt.sign(
       {
-        email: email,
+        _id,
       },
       process.env.SECRET_KEY,
       {
@@ -23,8 +23,8 @@ class jwtService {
   // Access Token 검증
   validateAccessToken = async (accessToken) => {
     try {
-      const { email } = jwt.verify(accessToken, process.env.SECRET_KEY);
-      return email;
+      const { _id } = jwt.verify(accessToken, process.env.SECRET_KEY);
+      return _id;
     } catch (error) {
       return { errorMessage: 'AccessToken이 유효하지 않습니다.' };
     }
