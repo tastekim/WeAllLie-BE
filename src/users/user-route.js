@@ -8,7 +8,7 @@ const UtilFuncions = require('./util-funtion');
 
 require('dotenv').config();
 
-// 카카오 로그인 : 인가코드 받고 카카오로 유저 정보 요청하여 받아오기 => 로그인/회원가입/토큰 발급
+// 카카오 로그인 : g인가코드 받고 카카오로 유저 정보 요청하여 받아오기 => 로그인/회원가입/토큰 발급
 router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
   console.log(req.query.code);
 
