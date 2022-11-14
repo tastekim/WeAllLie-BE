@@ -71,7 +71,9 @@ class UserProvider {
         userId: exUser._id,
         nickname: exUser.nickname,
         profileImg: exUser.profileImg,
-        totayPlayCount: totalCount,
+        totayPlayCount: exUser.totalCount,
+        spyPlayCount: exUser.spyPlayCount,
+        ctzPlayCount: exUser.totalCount - exUser.spyPlayCount,
         spyWinRating,
         voteSpyRating,
       };
@@ -134,7 +136,9 @@ class UserProvider {
       userId: newUser._id,
       nickname: newUser.nickname,
       profileImg: newUser.profileImg,
-      totayPlayCount: totalCount,
+      totayPlayCount: newUser.totalCount,
+      spyPlayCount: newUser.spyPlayCount,
+      ctzPlayCount: newUser.totalCount - newUser.spyPlayCount,
       spyWinRating,
       voteSpyRating,
     };
