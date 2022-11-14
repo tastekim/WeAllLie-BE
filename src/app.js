@@ -5,7 +5,10 @@ const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
 const passportConfig = require('./middlewares/passport');
+const router = require('./users/user-route');
+const Room = require('./schemas/room')
 const cors = require('cors');
+
 
 require('dotenv').config();
 const app = express();
@@ -29,5 +32,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
+
+
 
 module.exports = http;

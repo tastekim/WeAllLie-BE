@@ -3,6 +3,10 @@ require('dotenv').config();
 require('./socket');
 require('./game/game-socket')
 const mongodb = require('./schemas/index');
+require('./rooms/room-socket')
+const Room = require('./schemas/room')
+
+Room.collection.drop()
 
 mongodb();
 
