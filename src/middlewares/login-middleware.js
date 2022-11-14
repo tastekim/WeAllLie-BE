@@ -4,15 +4,18 @@ require('dotenv').config();
 
 module.exports = async (req, res, next) => {
   try {
+    console.log('loginMiddleware 1');
     const { authorization } = req.headers;
     const [authType, authToken] = (authorization || '').split(' ');
     if (!authToken || authType !== 'Bearer') {
       // 토큰이 잘못된 방식으로 전달된 경우...이지만 어쨌든 카카오 인증 성공한 상태이므로 재발급!
       // 에러만 나지 않도록 따로 처리
-      const { email } = await jwtService.validateAccessToken(authToken);
-      const user = await User.findOne({ email });
+      const { _id } = await jwtService.validateAccessToken(authToken);
+      const user = await User.findOne({ _id });
       user.accesToken = authToken;
       res.locals.user = user;
+      console.log('loginMiddleware 2');
+      console.log(res.locals.user);
       next();
     }
 
@@ -21,8 +24,13 @@ module.exports = async (req, res, next) => {
     const user = await User.findOne({ email });
     // 유효한 토큰일 경우 미리 유저 정보에 넣어서 다음 미들웨어에서 사용할 수 있도록 함
     // 다음 로직에서 재발급하지 않도록 하기 위해 저장
-    user.accesToken = authToken;
+    user.accessToken = authToken;
+    console.log(
+      '여기는 로그인미들웨어! user.accessToken ::: ',
+      user.accessToken
+    );
     res.locals.user = user;
+    console.log();
     next();
   } catch (error) {
     // 토큰은 확인되는데 유효성 검증에 실패한 경우 (재발급)

@@ -1,6 +1,8 @@
 (카카오서버)
-https://kauth.kakao.com/oauth/authorize?client_id=d37e4af6063817a749509bac0537a1a9&redirect_uri=http://127.0.0.1:3000/api/auth/kakao/callback&response_type=code
+https://kauth.kakao.com/oauth/authorize?client_id=d37e4af6063817a749509bac0537a1a9&redirect_uri=http://127.0.0.1:3000/auth/kakao/callback&response_type=code
 
+https://kauth.kakao.com/oauth/authorize?client_id=d37e4af6063817a749509bac0537a1a9&redirect_uri=http://3.36.1.72/api/auth/kakao/callback&response_type=code
+https://kauth.kakao.com/oauth/authorize?client_id=d37e4af6063817a749509bac0537a1a9&redirect_uri=http://127.0.0.1:3000/api/auth/kakao/callback&response_type=code
 
 /api/auth/kakao/callback
 
