@@ -1,10 +1,17 @@
 const { User } = require('../schemas/user');
 const jwtService = require('./jwt');
 
+/*
+  user.properties.profile_image
+  user.properties.thumbnail_image
+  user.properties.nickname
+  user.kakao_account.email
+  */
+
 class UserProvider {
-  exUserGetToken = async (user) => {
+  exUserGetToken = async (userInfo) => {
     const exUser = await User.findOne({
-      email: user.kakao_account.email,
+      email: userInfo.kakao_account.email,
     });
 
     if (exUser) {
@@ -13,7 +20,7 @@ class UserProvider {
     } else return;
   };
 
-  createUserToken = async (user) => {
+  createUserToken = async (userInfo) => {
     // DB에 유저 정보 없음 => 회원가입 / 토큰발급 / 토큰리턴
     let nickNum, nickname, _id;
     let allUser = await User.find();
@@ -38,9 +45,9 @@ class UserProvider {
     const newUser = await User.create({
       _id,
       nickname,
-      email: user.kakao_account.email,
-      profileImg: user.properties.thumbnail_image
-        ? user.properties.thumbnail_image
+      email: userInfo.kakao_account.email,
+      profileImg: userInfo.properties.thumbnail_image
+        ? userInfo.properties.thumbnail_image
         : 'default',
     });
 

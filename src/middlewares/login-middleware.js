@@ -20,8 +20,8 @@ module.exports = async (req, res, next) => {
 
     const user = await User.findOne({ email });
     // 유효한 토큰일 경우 미리 유저 정보에 넣어서 다음 미들웨어에서 사용할 수 있도록 함
+    // 다음 로직에서 재발급하지 않도록 하기 위해 저장
     user.accesToken = authToken;
-    // DB에 저장된 user 정보 =>  res.locals.user 에 담겨 있으니 이용하시면 됩니다!
     res.locals.user = user;
     next();
   } catch (error) {

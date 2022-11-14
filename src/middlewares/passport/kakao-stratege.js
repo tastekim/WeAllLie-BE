@@ -3,7 +3,7 @@ const passport = require('passport');
 const { User } = require('../../schemas/user');
 const jwtService = require('../../users/jwt');
 require('dotenv').config();
-const numFn = require('../../users/numFuntions');
+const numFn = require('../../users/util-funtion');
 
 module.exports = () =>
   passport.use(
