@@ -15,7 +15,7 @@ module.exports = async (req, res, next) => {
     data: qs.stringify({
       grant_type: 'authorization_code',
       client_id: process.env.CLIENT_ID,
-      redirectUri: process.env.CALLBACK_URL,
+      redirectUri: process.env.CALLBACK_URL_LOCAL,
       code: req.query.code,
     }),
   });

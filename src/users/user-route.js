@@ -8,7 +8,7 @@ const UserProvider = require('./user-provider');
 
 // 카카오 로그인 : 인가코드 받고 카카오로 유저 정보 요청하여 받아오기 => 로그인/회원가입/토큰 발급
 router.get(
-  '/api/auth/kakao/callback',
+  '/api/kakao/callback',
   kakaoMiddleware,
   loginMiddleware,
   async (req, res) => {
@@ -61,14 +61,13 @@ router.get(
 
 */
 
-/*
 // PASSPORT 로그인
 // 카카오 로그인(passport)
-router.get('/api/passport/kakao', passport.authenticate('kakao'));
+router.get('/api/auth/kakao', passport.authenticate('kakao'));
 
 // 카카오 콜백(passport)
 router.get(
-  '/api/passport/kakao/callback',
+  '/api/auth/kakao/callback',
   passport.authenticate('kakao', {
     successRedirect: '/',
     failureRedirect: '/',
@@ -86,6 +85,5 @@ router.get('/', loginMiddleware, async (req, res) => {
   console.log('user:::::::::::::::', user);
   res.json({ user });
 });
-*/
 
 module.exports = router;
