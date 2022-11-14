@@ -66,6 +66,9 @@ class UserProvider {
           (exUser.totalCount - exUser.spyPlayCount)
         ).toFixed(2) * 100;
 
+      console.log('spyWinRating', spyWinRating);
+      console.log('voteSpyRating', voteSpyRating);
+
       return {
         accessToken,
         userId: exUser._id,
@@ -131,6 +134,8 @@ class UserProvider {
         (newUser.totalCount - newUser.spyPlayCount)
       ).toFixed(2) * 100;
 
+    console.log('spyWinRating', spyWinRating);
+    console.log('voteSpyRating', voteSpyRating);
     return {
       accessToken: newUserToken,
       userId: newUser._id,

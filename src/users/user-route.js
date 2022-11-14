@@ -12,8 +12,8 @@ router.get('/api/auth/kakao/callback', async (req, res) => {
   let kakaoToken = await UserProvider.getKakaoToken(req);
   let userInfo = await UserProvider.getUserInfo(kakaoToken);
 
-  console.log('user-route.js 2, kakaoToken::::::', kakaoToken);
-  console.log('user-route.js 3, userInfo::::::', userInfo);
+  // console.log('user-route.js 2, kakaoToken::::::', kakaoToken);
+  // console.log('user-route.js 3, userInfo::::::', userInfo);
 
   // loginMiddleware 를 거칠 때, 이미 유효한 토큰을 가지고 있는 유저라면(로그인한 유저)
   // 기존 토큰값이 res.locals.user.accessToken에 저장된다. 값이 존재하면 그대로 전달
@@ -22,15 +22,15 @@ router.get('/api/auth/kakao/callback', async (req, res) => {
 
   // res.locals.user.accessToken 이 존재하지 않는 경우 1,2
   // 1. 가입은 되어 있으나 토큰 만료 => 토큰 재발급하여 전달
-  const exUserGetToken = await UserProvider.exUserGetToken(userInfo);
-  if (exUserGetToken) {
-    console.log('user-route.js 4, exUserGetToken::::::', exUserGetToken);
-    return res.status(200).json(exUserGetToken);
+  const exUserInfo = await UserProvider.exUserGetToken(userInfo);
+  if (exUserInfo) {
+    console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
+    return res.status(200).json(exUserInfo);
   }
   // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 전달
-  const newUserToken = await UserProvider.createUserToken(userInfo);
-  console.log('user-route.js 5, newUserToken::::::', newUserToken);
-  return res.status(201).json(newUserToken);
+  const newUserInfo = await UserProvider.createUserToken(userInfo);
+  console.log('user-route.js 5, newUserToken::::::', newUserInfo);
+  return res.status(201).json(newUserInfo);
 });
 
 /*
@@ -56,6 +56,8 @@ router.get('/api/auth/kakao/callback', async (req, res) => {
 
 
 */
+
+/*
 // PASSPORT 로그인
 // 카카오 로그인(passport)
 router.get('/api/passport/kakao', passport.authenticate('kakao'));
@@ -80,5 +82,6 @@ router.get('/', loginMiddleware, async (req, res) => {
   console.log('user:::::::::::::::', user);
   res.json({ user });
 });
+*/
 
 module.exports = router;
