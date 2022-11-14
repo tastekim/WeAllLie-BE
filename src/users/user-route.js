@@ -4,16 +4,14 @@ const router = express.Router();
 
 const loginMiddleware = require('../middlewares/login-middleware');
 const UserProvider = require('./user-provider');
-const UtilFuncions = require('./util-funtion');
-
-require('dotenv').config();
 
 // 카카오 로그인 : g인가코드 받고 카카오로 유저 정보 요청하여 받아오기 => 로그인/회원가입/토큰 발급
 router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
   console.log(req.query.code);
 
-  let kakaoToken = await UtilFuncions.kakaoToken();
-  let userInfo = await UtilFuncions.userInfo(kakaoToken);
+  let kakaoToken = await UserProvider.getKakaoToken(req);
+  let userInfo = await UserProvider.userInfo(kakaoToken);
+
   // loginMiddleware 를 거칠 때, 이미 유효한 토큰을 가지고 있는 유저라면(로그인한 유저)
   // 기존 토큰값이 res.locals.user.accessToken에 저장된다. 값이 존재하면 그대로 전달
   const existToken = res.locals.user.accessToken;
