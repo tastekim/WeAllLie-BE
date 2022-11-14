@@ -52,7 +52,7 @@ const UserSchema = new Schema({
     default: 0,
   },
 
-  ready: {
+  isReady: {
     type: Boolean,
     required: true,
     default: false,
