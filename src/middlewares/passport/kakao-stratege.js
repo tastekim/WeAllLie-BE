@@ -1,12 +1,9 @@
 const KakaoStrategy = require('passport-kakao').Strategy;
-const { Db } = require('mongodb');
 const passport = require('passport');
 const { User } = require('../../schemas/user');
 const jwtService = require('../../users/jwt');
 require('dotenv').config();
 const numFn = require('../../users/numFuntions');
-const autoInc = numFn.autoIncrease;
-let autoNum = autoInc();
 
 module.exports = () =>
   passport.use(
@@ -49,7 +46,6 @@ module.exports = () =>
           console.log(
             '여기는 kakaoStratege에서 가져온 profile의 정보가 DB에 있을 때!!'
           );
-          console.log('exUser :::', exUser);
 
           const accessToken = await jwtService.createAccessToken(exUser._id);
           console.log('accessToken :::', accessToken);
@@ -59,20 +55,13 @@ module.exports = () =>
           // 3. DB에 존재하지 않는 유저라면 회원가입 후 로그인
           // 3-1. DB에 유저 정보 저장
           console.log('여기는 kakaoStratege 에서 유저가 없을 때! else');
-          let nickNum, nickname, newUser;
+          let nickNum, nickname, _id;
           let allUser = await User.find();
           if (allUser.length === 0) {
-            newUser = await User.create({
-              _id: 1,
-              email: profile._json.kakao_account.email,
-              nickname: 'Agent_001',
-              profileImg: profile._json.properties.thumbnail_image
-                ? profile._json.properties.thumbnail_image
-                : 'default',
-            });
+            _id = 1;
+            nickname = 'Agent_001';
           } else {
             let lastNum = allUser.slice(-1)[0].nickname;
-            let lastId = allUser.slice(-1)[0]['_id'];
             let n = +lastNum.slice(6) + 1;
 
             if (n < 1000) {
@@ -81,15 +70,16 @@ module.exports = () =>
             } else {
               nickname = `Agent_${n}`;
             }
-            newUser = await User.create({
-              _id: +lastId + 1,
-              email: profile._json.kakao_account.email,
-              nickname,
-              profileImg: profile._json.properties.thumbnail_image
-                ? profile._json.properties.thumbnail_image
-                : 'default',
-            });
+            _id: +nickNum + 1, (nickname = nickname);
           }
+          const newUser = await User.create({
+            _id,
+            nickname,
+            email: profile._json.kakao_account.email,
+            profileImg: profile._json.properties.thumbnail_image
+              ? profile._json.properties.thumbnail_image
+              : 'default',
+          });
 
           const accessToken = await jwtService.createAccessToken(newUser._id);
           const decodedId = await jwtService.validateAccessToken(accessToken);

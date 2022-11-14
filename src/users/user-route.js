@@ -1,12 +1,11 @@
-const authMiddleware = require('../middlewares/auth-middleware');
 const passport = require('passport');
 const express = require('express');
 const router = express.Router();
-const qs = require('qs');
 const axios = require('axios');
-const { User } = require('../schemas/user');
+const qs = require('qs');
+
 const loginMiddleware = require('../middlewares/login-middleware');
-const jwtService = require('./jwt');
+const UserProvider = require('./user-provider');
 
 require('dotenv').config();
 
@@ -26,9 +25,8 @@ router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
       code: req.query.code,
     }),
   });
-  let user;
-  console.log(kakaoToken);
-  user = await axios({
+
+  let user = await axios({
     method: 'get',
     url: 'https://kapi.kakao.com/v2/user/me',
     headers: {
@@ -36,59 +34,53 @@ router.get('/api/auth/kakao/callback', loginMiddleware, async (req, res) => {
     },
   });
   console.log(user);
+  /*
+  user.properties.profile_image
+  user.properties.thumbnail_image
+  user.properties.nickname
+  user.kakao_account.email
+  */
 
-  let exUser = await User.findOne({
-    email: user.kakao_account.email,
-  });
+  // loginMiddleware 를 거칠 때, 이미 유효한 토큰을 가지고 있는 유저라면(로그인한 유저)
+  // 기존 토큰값을 res.locals.user.accessToken에 저장된다.
+  // res.locals.user.accessToken 값이 존재하면 그 토큰 그대로 전달
+  const existToken = res.locals.user.accessToken;
+  if (existToken) return res.status(200).json({ accessToken: existToken });
 
-  // DB에 유저 정보 있음 => 로그인 처리
-  if (exUser) {
-    console.log('exUser :::', exUser);
-    const { user } = res.locals;
-    // res.locals.user에 토큰이 없다면 재발급
-    if (!user.accessToken) {
-      const accessToken = await jwtService.createAccessToken(exUser.email);
-      res.status(200).json({ accessToken });
-    } else if (user.accessToken) res.status(200).json({ accessToken });
-  } else {
-    // DB에 유저 정보 없음 => 회원가입 / 토큰발급 / 로그인 처리
-    let nickNum, nickname, newUser;
-    let allUser = await User.find();
+  // res.locals.user.accessToken 이 존재하지 않는 경우 1,2
+  // 1. 가입은 되어 있으나 토큰 만료 => 토큰 재발급하여 전달
+  const exUserGetToken = UserProvider.exUserGetToken(user);
+  if (exUserGetToken)
+    return res.status(200).json({ accessToken: exUserGetToken });
 
-    if (allUser.length === 0) {
-      newUser = await User.create({
-        _id: 1,
-        email: profile._json.kakao_account.email,
-        nickname: 'Agent_001',
-        profileImg: profile._json.properties.thumbnail_image
-          ? profile._json.properties.thumbnail_image
-          : 'default',
-      });
-    } else {
-      let lastNum = allUser.slice(-1)[0].nickname;
-      let n = +lastNum.slice(6) + 1;
-
-      if (n < 1000) {
-        nickNum = (0.001 * n).toFixed(3).toString().slice(2);
-        nickname = `Agent_${nickNum}`;
-      } else {
-        nickname = `Agent_${n}`;
-      }
-      newUser = await User.create({
-        _id: +nickNum + 1,
-        email: profile._json.kakao_account.email,
-        nickname,
-        profileImg: profile._json.properties.thumbnail_image
-          ? profile._json.properties.thumbnail_image
-          : 'default',
-      });
-    }
-
-    const accessToken = jwtService.createAccessToken(newUser.email);
-    res.status(201).json({ accessToken });
-  }
+  // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 전달
+  const newUserToken = UserProvider.createUserToken(user);
+  return res.status(201).json({ accessToken: newUserToken });
 });
 
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
 // PASSPORT 로그인
 // 카카오 로그인(passport)
 router.get('/api/passport/kakao', passport.authenticate('kakao'));
