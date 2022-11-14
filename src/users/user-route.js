@@ -25,15 +25,13 @@ router.get('/api/auth/kakao/callback', async (req, res) => {
   const exUserGetToken = await UserProvider.exUserGetToken(userInfo);
   if (exUserGetToken) {
     console.log('user-route.js 4, exUserGetToken::::::', exUserGetToken);
-    return res.status(200).json({ accessToken: exUserGetToken });
+    return res.status(200).json(exUserGetToken);
   }
   // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 전달
   const newUserToken = await UserProvider.createUserToken(userInfo);
   console.log('user-route.js 5, newUserToken::::::', newUserToken);
-  return res.status(201).json({ accessToken: newUserToken });
+  return res.status(201).json(newUserToken);
 });
-
-router.get('/auth/kakao/callback');
 
 /*
 

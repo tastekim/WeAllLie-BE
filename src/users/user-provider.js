@@ -48,7 +48,33 @@ class UserProvider {
     if (exUser) {
       const accessToken = await jwtService.createAccessToken(exUser._id);
       console.log('여기는 user-provider.js 2, accessToken::::::', accessToken);
-      return accessToken;
+      let spyWinRating, voteSpyRating, totalCount;
+      if (exUser.totalCount === 0) {
+        spyWinRating = 0;
+        voteSpyRating = 0;
+      } else if (exUser.spyPlayCount === 0) {
+        spyWinRating = 0;
+      } else if (exUser.totalCount - exUser.spyPlayCount === 0) {
+        voteSpyRating = 0;
+      }
+
+      spyWinRating =
+        (exUser.spyWinCount / exUser.spyPlayCount).toFixed(2) * 100;
+      voteSpyRating =
+        (
+          exUser.voteSpyCount /
+          (exUser.totalCount - exUser.spyPlayCount)
+        ).toFixed(2) * 100;
+
+      return {
+        accessToken,
+        userId: exUser._id,
+        nickname: exUser.nickname,
+        profileImg: exUser.profileImg,
+        totayPlayCount: totalCount,
+        spyWinRating,
+        voteSpyRating,
+      };
     } else return;
   };
 
@@ -83,9 +109,35 @@ class UserProvider {
         : 'default',
     });
 
-    console.log('user-provider.js 4, newUser._id::::::', newUser._id);
-    const newUserToken = await jwtService.createAccessToken(newUser.email);
-    return newUserToken;
+    console.log('user-provider.js 4, newUser._id::::::', newUser);
+    const newUserToken = await jwtService.createAccessToken(newUser._id);
+    let spyWinRating, voteSpyRating, totalCount;
+    if (newUser.totalCount === 0) {
+      spyWinRating = 0;
+      voteSpyRating = 0;
+    } else if (newUser.spyPlayCount === 0) {
+      spyWinRating = 0;
+    } else if (newUser.totalCount - newUser.spyPlayCount === 0) {
+      voteSpyRating = 0;
+    }
+
+    spyWinRating =
+      (newUser.spyWinCount / newUser.spyPlayCount).toFixed(2) * 100;
+    voteSpyRating =
+      (
+        newUser.voteSpyCount /
+        (newUser.totalCount - newUser.spyPlayCount)
+      ).toFixed(2) * 100;
+
+    return {
+      accessToken: newUserToken,
+      userId: newUser._id,
+      nickname: newUser.nickname,
+      profileImg: newUser.profileImg,
+      totayPlayCount: totalCount,
+      spyWinRating,
+      voteSpyRating,
+    };
   };
 }
 
