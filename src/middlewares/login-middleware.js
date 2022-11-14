@@ -19,9 +19,9 @@ module.exports = async (req, res, next) => {
       next();
     }
 
-    const { email } = await jwtService.validateAccessToken(authToken);
+    const { _id } = await jwtService.validateAccessToken(authToken);
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ _id });
     // 유효한 토큰일 경우 미리 유저 정보에 넣어서 다음 미들웨어에서 사용할 수 있도록 함
     // 다음 로직에서 재발급하지 않도록 하기 위해 저장
     user.accessToken = authToken;

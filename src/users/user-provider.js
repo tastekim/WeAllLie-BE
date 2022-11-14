@@ -1,45 +1,27 @@
 const { User } = require('../schemas/user');
 const UserRefo = require('./user-repo');
 const jwtService = require('./jwt');
-const axios = require('axios');
-const qs = require('qs');
 require('dotenv').config();
 
-/*
-  user.properties.profile_image
-  user.properties.thumbnail_image
-  user.properties.nickname
-  user.kakao_account.email
-  */
+/* 예시
+  user-route.js 1, res.locals에 저장한 userInfo:::::: {
+    id: 2519073484,
+    connected_at: '2022-11-10T01:02:16Z',
+    properties: { nickname: '미뇽' },
+    kakao_account: {
+      profile_nickname_needs_agreement: false,
+      profile_image_needs_agreement: true,
+      profile: { nickname: '미뇽' },
+      has_email: true,
+      email_needs_agreement: false,
+      is_email_valid: true,
+      is_email_verified: true,
+      email: 'alsuddl25@naver.com'
+    }
+  }
+*/
 
 class UserProvider {
-  getKakaoToken = async (req) => {
-    return await axios({
-      method: 'POST',
-      url: 'https://kauth.kakao.com/oauth/token',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-      data: qs.stringify({
-        grant_type: 'authorization_code',
-        client_id: process.env.CLIENT_ID,
-        redirectUri: process.env.CALLBACK_URL2,
-        code: req.query.code,
-      }),
-    });
-  };
-
-  getUserInfo = async (kakaoToken) => {
-    const result = await axios({
-      method: 'get',
-      url: 'https://kapi.kakao.com/v2/user/me',
-      headers: {
-        Authorization: `Bearer ${kakaoToken.data.access_token}`,
-      },
-    });
-    return result.data;
-  };
-
   exUserGetToken = async (userInfo) => {
     const exUser = await User.findOne({
       email: userInfo.kakao_account.email,
