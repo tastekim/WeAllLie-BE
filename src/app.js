@@ -6,10 +6,8 @@ const logger = require('morgan');
 const userRouter = require('./users/user-route');
 const passportConfig = require('./middlewares/passport');
 const cors = require('cors');
-const path = require('path');
-const { ApplicationCostProfiler } = require('aws-sdk');
 
-require('dotenv').config({ path: path.join(__dirname, '/.env') });
+require('dotenv').config();
 const app = express();
 const http = Server(app);
 

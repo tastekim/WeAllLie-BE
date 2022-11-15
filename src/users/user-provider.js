@@ -201,9 +201,9 @@ class UserProvider {
     res.status(200).redirect('/user/kakao');
   };
 
-  getKaKaoToken = async (req, res, next) => {
+  getKakaoToken = async (req, res, next) => {
     console.log('-------------------------------------------');
-    console.log('여기는 user-provider.js 의 getKaKaoToken!!!!!');
+    console.log('여기는 user-provider.js 의 getKakaoToken!!!!!');
     let code = req.query.code;
     console.log('전달받은 인가 코드 :::::::::::: ', code);
 
@@ -230,7 +230,7 @@ class UserProvider {
     return res.send({ accessToken: kakaoToken.data.access_token });
   };
 
-  getKaKaoUserInfo = async (req, res, next) => {
+  getKakaoUserInfo = async (req, res, next) => {
     /*
     1. 클라이언트에서 토큰 전달 받음
     2. 토큰으로 카카오에 유저정보 요청
@@ -249,9 +249,11 @@ class UserProvider {
     });
 
     const kakaoUserData = kakaoResult.data;
-
-    console.log('kakao-middleware.js 2, kakaoToken::::::', kakaoToken.data);
-    console.log('kakao-middleware.js 3, kakaoUserData::::::', kakaoUserData);
+    console.log(
+      '------------여기는 user-provider.js의 getKakaoUserInfo---------------'
+    );
+    console.log('kakaoToken:::', kakaoToken.data);
+    console.log('kakaoUserData:::', kakaoUserData);
 
     const exUserInfo = await this.exUserGetToken(kakaoUserData);
 
