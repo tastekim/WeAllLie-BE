@@ -24,6 +24,7 @@
     "passport": "^0.6.0",
     "passport-kakao": "^1.0.1",
     "passport-oauth2": "^1.6.1",
+    "redis": "^4.5.0",
     "socket.io": "^4.5.3",
     "upgrade": "^1.1.0"
   },
