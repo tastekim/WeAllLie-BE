@@ -4,15 +4,16 @@ const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
-// const passportConfig = require('./middlewares/passport');
+const passportConfig = require('./middlewares/passport');
 const cors = require('cors');
+const path = require('path');
 
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '/.env') });
 const app = express();
 const http = Server(app);
 
 // middlewares
-// passportConfig();
+passportConfig();
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());

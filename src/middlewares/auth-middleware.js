@@ -13,8 +13,8 @@ module.exports = (req, res, next) => {
   }
 
   try {
-    const { nickname } = jwt.verify(authToken, process.env.SECRET_KEY);
-    User.findOne({ nickname }).then((user) => {
+    const { _id } = jwt.verify(authToken, process.env.SECRET_KEY);
+    User.findOne({ _id }).then((user) => {
       // DB에 저장된 user 정보 =>  res.locals.user 에 담겨 있으니 이용하시면 됩니다!
       res.locals.user = user;
       next();

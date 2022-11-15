@@ -9,7 +9,7 @@ module.exports = () =>
     'kakao',
     new KakaoStrategy(
       {
-        clientID: process.env.CLIENT_ID2,
+        clientID: process.env.CLIENT_ID_BACK,
         callbackURL: process.env.CALLBACK_URL_LOCAL, // 위에서 설정한 Redirect URI
       },
       async (accessToken, refreshToken, profile, done) => {
@@ -29,10 +29,10 @@ module.exports = () =>
         console.log('----------------------------');
 
         /* 출력결과
-        profile.id ::: 2519073484
-        profile.username ::: 미뇽
+        profile.id ::: 248339847
+        profile.username ::: 닉네임
         profile._json.connected_at ::: 2022-11-10T01:02:16Z
-        profile._json.kakao_account.email ::: alsuddl25@naver.com
+        profile._json.kakao_account.email ::: asdfasdf11@kakao.com
         */
 
         // 1. DB에 존재하는 유저인지 확인하기 (일단 가져오는 profile 정보 )
@@ -87,7 +87,7 @@ module.exports = () =>
           console.log('newUser accessToken :::', accessToken);
           console.log('decodeId :::', decodedId);
 
-          done(null, accessToken); // 회원가입하고 로그인 인증 완료
+          done(null, accessToken);
         }
       }
     )

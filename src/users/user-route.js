@@ -6,6 +6,7 @@ const loginMiddleware = require('../middlewares/login-middleware');
 const kakaoMiddleware = require('../middlewares/kakao-middleware');
 const UserProvider = require('./user-provider');
 
+/*
 // 카카오 로그인 : 인가코드 받고 카카오로 유저 정보 요청하여 받아오기 => 로그인/회원가입/토큰 발급
 router.get(
   '/api/auth/kakao/callback',
@@ -37,6 +38,8 @@ router.get(
   }
 );
 
+*/
+
 /*
 
 
@@ -61,7 +64,6 @@ router.get(
 
 */
 
-/*
 // PASSPORT 로그인
 // 카카오 로그인(passport)
 router.get('/api/auth/kakao', passport.authenticate('kakao'));
@@ -70,7 +72,6 @@ router.get('/api/auth/kakao', passport.authenticate('kakao'));
 router.get(
   '/api/auth/kakao/callback',
   passport.authenticate('kakao', {
-    successRedirect: '/',
     failureRedirect: '/',
   }),
   (req, res) => {
@@ -80,12 +81,13 @@ router.get(
 );
 
 // 카카오 로그인 후 성공 시 redirect 되는 URL
-router.get('/', loginMiddleware, async (req, res) => {
-  const { user } = res.locals;
-  console.log('여기가 패스포트 마지막 단계(req.user.accessToken)');
-  console.log('user:::::::::::::::', user);
-  res.json({ user });
+router.get('/', async (req, res) => {
+  const userSessionId = req.session;
+
+  console.log('여기가 패스포트 마지막 단계');
+  console.log(req.user);
+  console.log('userSessionId:::::::::::::::', userSessionId);
+  res.json({ user: req.user });
 });
-*/
 
 module.exports = router;
