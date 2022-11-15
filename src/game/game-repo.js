@@ -25,14 +25,14 @@ class GameRepo {
 
     };
 
-    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (word) => {
-        return await Game.find(word);
+    //카테고리 & 정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
+    giveWord = async (category, word) => {
+        return await Game.find(category, word);
     };
 
-    //카테고리 & 단어 막무가내로 보여주기
-    giveExample = async (category, word) => {
-        return await Game.find(category, word);
+    //단어 랜덤으로 보여주기
+    giveExample = async (word) => {
+        return await Game.find(word);
     };
 
     //발언권 지목

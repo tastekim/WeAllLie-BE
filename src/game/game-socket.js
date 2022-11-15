@@ -54,14 +54,14 @@ game.on('connection', (socket) => {
         socket.emit('selectSpy', await GameProvider.selectSpy(nickname))
     })
 
-    //정답 단어 보여주기
-    socket.on('giveWord', async (word) => {
+    //카테고리 & 정답 단어 보여주기
+    socket.on('giveWord', async (category, word) => {
         socket.emit('giveWord', await GameProvider.giveWord(word))
     })
 
-    //카테고리 & 단어 막무가내로 보여주기
-    socket.on('giveExample', async (category, word) => {
-        socket.emit('giveExample', await GameProvider.giveExample(category, word))
+    //단어 랜덤으로 보여주기
+    socket.on('giveExample', async (word) => {
+        socket.emit('giveExample', await GameProvider.giveExample(word))
     })
 
     //발언권 지목

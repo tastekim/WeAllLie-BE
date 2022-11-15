@@ -40,8 +40,8 @@ class GameProvider {
         return spy;
     };
 
-    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (word) => {
+    //카테고리 & 정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
+    giveWord = async (category, word) => {
         const giveWord = await GameRepo.giveWord(word);
         if (isSpy) {
             return {'message': '시민들이 정답 단어 확인 중 입니다.'};
@@ -57,7 +57,7 @@ class GameProvider {
         return answerWord;
     };
 
-    //카테고리 & 단어 막무가내로 보여주기
+    //단어 랜덤으로 보여주기
     giveExample = async (category, word) => {
         const gameCategory = await GameRepo.giveExample(category);
         let result = [];
