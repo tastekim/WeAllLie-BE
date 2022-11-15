@@ -109,9 +109,10 @@ class UserProvider {
 
     const bodyToken = req.body;
     const kakaoResult = await axios({
-      method: 'get',
+      method: 'post',
       url: 'https://kapi.kakao.com/v2/user/me',
       headers: {
+        'content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Bearer ${kakaoToken}`,
       },
     });
