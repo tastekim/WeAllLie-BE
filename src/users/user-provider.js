@@ -5,7 +5,7 @@ require('dotenv').config();
 
 class UserProvider {
   kakaoCallback = async (req, res, next) => {
-    //카카오 Strategy에서 성공한다면 콜백 실행
+    // 카카오 Strategy에서 성공한다면 콜백 실행 (패스포트 사용시)
     // 토큰 생성 및 유저 정보 가공해서 전달하기
     console.log('-------------------------------------------');
     console.log('여기는 user-provider.js 의 kakaoCallbace!!!!!');
@@ -19,7 +19,7 @@ class UserProvider {
     console.log('decodeId ::::::::::::', decodedId);
 
     console.log(
-      '--------------DB에서 유저 정보 가져와서 보낼 정보 가공 >> 로직 파일 분리 예정--------------'
+      '--------------DB에서 유저 정보 가져와서 보낼 정보 가공 --------------'
     );
     const userInfo = await this.getUserInfo(decodedId, accessToken);
     res.header('Access-Control-Allow-Origin', '*');
@@ -36,19 +36,17 @@ class UserProvider {
 
     console.log('kakao에서 받아온 accessToken :::::::::::: ', kakaoToken);
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Authorization', kakaoToken);
     res.header('Content-Type', 'text/html; charset=utf-8');
 
     return res.send({ accessToken: kakaoToken });
   };
 
+  /*
+  1. 클라이언트에서 토큰 전달 받아서 카카오에 유저정보 요청
+  2. DB의 유저정보와 비교하여 필요시 회원가입
+  3. 유저정보 가공하여 클라이언트로 전달
+    */
   getKakaoUserInfo = async (req, res, next) => {
-    /*
-    1. 클라이언트에서 토큰 전달 받음
-    2. 토큰으로 카카오에 유저정보 요청
-    3. DB의 유저정보와 비교하여 필요시 회원가입
-    4. 유저정보 가공하여 클라이언트로 전달
-     */
     console.log('-------------------------------------------');
     console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
 
@@ -78,9 +76,9 @@ class UserProvider {
   };
 
   /*
-
+  미들웨어
   ===========================================================================
-
+  메소드
   */
   // DB에 유저 정보 없음 => DB 저장 / 토큰발급 / 토큰 + 유저 게임정보 리턴
   createUserToken = async (kakaoUserInfo) => {
