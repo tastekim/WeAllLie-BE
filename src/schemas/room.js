@@ -12,7 +12,7 @@ const RoomSchema = new Schema({
 
   currentCount: {
     type: Number,
-    default: 1,
+    default : 0
   },
 
   gameMode: {
@@ -37,6 +37,18 @@ const RoomSchema = new Schema({
     required: false,
     default: null,    
   },
+
+  roomMaker: {
+    type : String,
+    required: false,
+    default : null,
+  },
+
+  spyUser: {
+    type : String,
+    required: false,
+    default : null
+  }
 
 });
 
