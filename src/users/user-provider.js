@@ -22,9 +22,10 @@ require('dotenv').config();
 */
 
 class UserProvider {
-  exUserGetToken = async (userInfo) => {
+  exUserGetToken = async (email) => {
+    // 존재하는 유저일 경우 토큰 발급하여 가져오기
     const exUser = await User.findOne({
-      email: userInfo.kakao_account.email,
+      email: kakaoUserData.kakao_account.email,
     });
     console.log('여기는 user-provider.js 1, exUserGetToken, exUser:::', exUser);
     if (exUser) {
@@ -65,19 +66,22 @@ class UserProvider {
     } else return;
   };
 
-  createUserToken = async (userInfo) => {
+  createUserToken = async (kakaoUserInfo) => {
     // DB에 유저 정보 없음 => 회원가입 / 토큰발급 / 토큰리턴
-    console.log('user-provider.js 3');
+    console.log('여기는 user-provider.js 2, createUserToken');
+
     let nickNum, nickname, _id;
     let allUser = await User.find();
 
+    // DB에 유저가 하나도 없다면 초기값 세팅
     if (allUser.length === 0) {
       _id = 1;
       nickname = 'Agent_001';
     } else {
-      let lastNum = allUser.slice(-1)[0].nickname;
-      let n = +lastNum.slice(6) + 1;
-
+      // DB에 유저가 있을 경우
+      const lastNum = allUser.slice(-1)[0].nickname; // 마지막 document 의 nickname
+      let n = +lastNum.slice(6) + 1; // nickname 에서 Agent_ 뒷부분만 가져온 후 Number 변환
+      // n이 1000이상이면 Agent_ 뒤에 그대로 붙이고, 1000보다 작으면 001 의 형태로 붙이기
       if (n < 1000) {
         nickNum = (0.001 * n).toFixed(3).toString().slice(2);
         nickname = `Agent_${nickNum}`;
@@ -86,18 +90,22 @@ class UserProvider {
       }
       nickname = nickname;
     }
-
+    // 위에서 만든 값으로 newUser DB 에 저장하기
     const newUser = await User.create({
       _id: +nickNum,
       nickname,
-      email: userInfo.kakao_account.email,
-      profileImg: userInfo.properties.thumbnail_image
-        ? userInfo.properties.thumbnail_image
+      email: kakaoUserInfo.kakao_account.email,
+      profileImg: kakaoUserInfo.properties.thumbnail_image
+        ? kakaoUserInfo.properties.thumbnail_image
         : 'default',
     });
 
-    console.log('user-provider.js 4, newUser._id::::::', newUser);
+    console.log('여기는 user-provider.js 3, newUser::::::', newUser);
+
+    // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
     const newUserToken = await jwtService.createAccessToken(newUser._id);
+
+    // 클라이언트에 전달하기 위해 유저 정보 가공
     let spyWinRating, voteSpyRating, totalCount;
     if (newUser.totalCount === 0) {
       spyWinRating = 0;
@@ -116,8 +124,11 @@ class UserProvider {
         (newUser.totalCount - newUser.spyPlayCount)
       ).toFixed(2) * 100;
 
+    // 전부 0일 때 자꾸 NaN 으로 나온다.
     console.log('spyWinRating', spyWinRating);
     console.log('voteSpyRating', voteSpyRating);
+
+    // 최종적으로 클라이언트에 넘겨주는 정보
     return {
       accessToken: newUserToken,
       userId: newUser._id,
@@ -173,6 +184,7 @@ class UserProvider {
     console.log('-------------------------------------------');
     console.log('여기는 user-provider.js 의 kakaoCallbace!!!!!');
     console.log('전달받은 req.user::::::', req.user);
+    console.log('세션 req.session::::::', req.session);
     const accessToken = await req.user;
     const decodedId = await jwtService.validateAccessToken(accessToken);
 
@@ -185,7 +197,73 @@ class UserProvider {
     );
     const userInfo = await this.getUserInfo(decodedId, accessToken);
     res.header('Access-Control-Allow-Origin', '*');
-    res.send(userInfo);
+    res.header('Authorization', accessToken);
+    res.status(200).redirect('/user/kakao');
+  };
+
+  getKaKaoToken = async (req, res, next) => {
+    console.log('-------------------------------------------');
+    console.log('여기는 user-provider.js 의 getKaKaoToken!!!!!');
+    let code = req.query.code;
+    console.log('전달받은 인가 코드 :::::::::::: ', code);
+
+    const kakaoToken = await axios({
+      method: 'POST',
+      url: 'https://kauth.kakao.com/oauth/token',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      data: qs.stringify({
+        grant_type: 'authorization_code',
+        client_id: process.env.CLIENT_ID,
+        redirectUri: process.env.CALLBACK_URL_LOCAL,
+        code: req.query.code,
+      }),
+    });
+
+    console.log(
+      'kakao에서 받아온 accessToken :::::::::::: ',
+      kakaoToken.data.access_token
+    );
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Authorization', kakaoToken.data.access_token);
+    return res.send({ accessToken: kakaoToken.data.access_token });
+  };
+
+  getKaKaoUserInfo = async (req, res, next) => {
+    /*
+    1. 클라이언트에서 토큰 전달 받음
+    2. 토큰으로 카카오에 유저정보 요청
+    3. DB의 유저정보와 비교하여 필요시 회원가입
+    4. 유저정보 가공하여 클라이언트로 전달
+     */
+    const { authorization } = req.headers;
+    const [authType, kakaoToken] = (authorization || '').split(' ');
+
+    const kakaoResult = await axios({
+      method: 'get',
+      url: 'https://kapi.kakao.com/v2/user/me',
+      headers: {
+        Authorization: `Bearer ${kakaoToken}`,
+      },
+    });
+
+    const kakaoUserData = kakaoResult.data;
+
+    console.log('kakao-middleware.js 2, kakaoToken::::::', kakaoToken.data);
+    console.log('kakao-middleware.js 3, kakaoUserData::::::', kakaoUserData);
+
+    const exUserInfo = await this.exUserGetToken(kakaoUserData);
+
+    // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
+    if (exUserInfo) {
+      console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
+      return res.status(200).json(exUserInfo);
+    }
+    // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
+    const newUserInfo = await this.createUserToken(kakaoUserData);
+    console.log('user-route.js 5, newUserToken::::::', newUserInfo);
+    return res.status(201).json(newUserInfo);
   };
 }
 
