@@ -134,6 +134,7 @@ class UserProvider {
     // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
     const newUserInfo = await UserRefo.createUserToken(kakaoUserData);
     console.log('user-route.js 5, newUserToken::::::', newUserInfo);
+    res.header('Autorization', `Bearer ${newUserInfo.accessToken}`);
     return res.status(201).json(newUserInfo);
   };
 }
