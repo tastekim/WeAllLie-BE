@@ -8,6 +8,8 @@ https://ed6a-121-152-253-169.jp.ngrok.io/api/auth/kakao/callback
 
 << 패스포트 로그인 >>
 http://127.0.0.1:3000/api/auth/kakao
-http://localhost:3000/api/passport/kakao
+http://3.36.1.72/api/auth/kakao
+
+https://cc89-121-152-253-169.jp.ngrok.io/api/auth/kakao
 
 
