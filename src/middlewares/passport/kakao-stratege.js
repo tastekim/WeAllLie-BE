@@ -3,15 +3,14 @@ const passport = require('passport');
 const { User } = require('../../schemas/user');
 const jwtService = require('../../users/jwt');
 require('dotenv').config();
-const numFn = require('../../users/util-funtion');
 
 module.exports = () =>
   passport.use(
     'kakao',
     new KakaoStrategy(
       {
-        clientID: process.env.CLIENT_ID,
-        callbackURL: process.env.CALLBACK_URL_PASSPORT, // 위에서 설정한 Redirect URI
+        clientID: process.env.CLIENT_ID2,
+        callbackURL: process.env.CALLBACK_URL_LOCAL, // 위에서 설정한 Redirect URI
       },
       async (accessToken, refreshToken, profile, done) => {
         console.log('여기는 kakaoStratege.js');

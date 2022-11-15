@@ -1,8 +1,7 @@
-let jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 class jwtService {
-  jwt = require('jsonwebtoken');
   // Access Token 생성
   createAccessToken = async (_id) => {
     return jwt.sign(
