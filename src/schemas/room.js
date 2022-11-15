@@ -38,6 +38,12 @@ const RoomSchema = new Schema({
     default: null,    
   },
 
+  spyUser:  {
+    type: String,
+    required: false,
+    default: null,    
+  }
+
 });
 
 const Room = model('room', RoomSchema);
