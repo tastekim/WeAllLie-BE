@@ -4,13 +4,15 @@ const GameProvider = require('./game-provider');
 game.on('connection', (socket) => {
     // 게임 결과를 해당 방에 있는 socket들에게 emit
     game.on('gameResult', async (roomNum) => {
-        await GameProvider.getResult(roomNum);
+        const gameResult = await GameProvider.getResult(roomNum);
+        game.to(`/gameRoom${roomNum}`).emit('gameResult', gameResult);
     });
+
     // 스파이 투표 중 스파이 유저 선택.
-    socket.on('voteSpy', (nickname, fn) => {
+    socket.on('voteSpy', (nickname) => {
         // fn -> [FE]지목당한 nickname의 숫자를 1 증감 시켜주는 액션.
         // 유저 별로 실시간 자기가 지목당한 카운트를 표시한다.
-        fn(nickname);
+        // fn(nickname);
 
         // 지목한 사람(socket)한테 지목당한 사람(nickname)의 정보를 담는다.
         // 투표가 끝나고 나서 socket.voteSpy안에 스파이의 nickname을 갖고있는 사람은 스파이를 찾는데 성공.

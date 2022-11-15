@@ -1,5 +1,5 @@
 const GameRepo = require('./game-repo');
-const redisCli = require('../redis');
+const redis = require('../redis');
 const shuffle = require('shuffle-array');
 
 class GameProvider {
@@ -17,21 +17,23 @@ class GameProvider {
 
     setVoteResult = async (roomNum, nickname) => {
         // roomResult 가 존재하는 지 확인.
-        const roomExist = await redisCli.exists(`gameRoom${roomNum}Result`);
+        const roomExist = await redis.exists(`gameRoom${roomNum}Result`);
         if (roomExist === 0) {
             // 없으면 생성 후 유저 닉네임 넣기.
-            await redisCli.set(`gameRoom${roomNum}Result`, [nickname]);
+            // await redisCli.set(`gameRoom${roomNum}Result`, nickname);
+            await redis.rpush(`gameRoom${roomNum}Result`, nickname);
         } else {
             // 있으면 그 key 에 닉네임 push.
-            await redisCli.rpush(`gameRoom${roomNum}Result`, nickname);
+            await redis.rpush(`gameRoom${roomNum}Result`, nickname);
+            console.log('voteResult : ', await redis.get(`gameRoom${roomNum}Result`));
         }
     };
 
     getResult = async (roomNum) => {
         // 투표 집계한 배열.
-        const resultList = await redisCli.get(`gameRoom${roomNum}Result`);
+        const resultList = await redis.get(`gameRoom${roomNum}Result`);
         // 방에 참여 중인 유저 닉네임.
-        const roomUsers = await redisCli.get(`gameRoom${roomNum}Users`);
+        const roomUsers = await redis.get(`gameRoom${roomNum}Users`);
         // spy 유저인 닉네임.
         const spyUser = await GameRepo.getSpy(roomNum);
 
@@ -49,24 +51,30 @@ class GameProvider {
             }
         }
         // 게임이 끝난 후 redis 메모리 확보.
-        await redisCli.del(`gameRoom${roomNum}Result`);
-        await redisCli.del(`gameRoom${roomNum}Users`);
+        await redis.del(`gameRoom${roomNum}Result`);
+        await redis.del(`gameRoom${roomNum}Users`);
 
         // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
-        return maxVoteUser[0] === spyUser;
+        return {
+            spyWin: maxVoteUser[0] === spyUser,
+            maxVoteUser: maxVoteUser[0],
+            maxVoteResult: maxVoteUser[1],
+        };
     };
 
     // 각 방에 참여한 유저들의 닉네임 저장.
     setRoomUsers = async (roomNum, nickname) => {
         // roomUsers 가 존재하는 지 확인.
-        const roomExist = await redisCli.exists(`gameRoom${roomNum}Users`);
+        const roomExist = await redis.exists(`gameRoom${roomNum}Users`);
         if (roomExist === 0) {
             // 없으면 생성 후 유저 닉네임 넣기.
-            await redisCli.set(`gameRoom${roomNum}Users`, [nickname]);
+            await redis.set(`gameRoom${roomNum}Users`, [nickname]);
+            await redis.rpush(`gameRoom${roomNum}Users`, nickname);
         } else {
             // 있으면 그 key 에 닉네임 push.
-            await redisCli.rpush(`gameRoom${roomNum}Users`, nickname);
+            await redis.rpush(`gameRoom${roomNum}Users`, nickname);
         }
+        console.log('roomUsers : ', await redis.get(`gameRoom${roomNum}Users`));
     };
 
     selectSpy = async (nickname) => {
