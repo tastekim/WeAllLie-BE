@@ -49,5 +49,25 @@ game.on('connection', (socket) => {
 
     });
 
+    //스파이 선택
+    socket.on('selectSpy', async (nickname) => {
+        socket.emit('selectSpy', await GameProvider.selectSpy(nickname))
+    })
+
+    //정답 단어 보여주기
+    socket.on('giveWord', async (word) => {
+        socket.emit('giveWord', await GameProvider.giveWord(word))
+    })
+
+    //카테고리 & 단어 막무가내로 보여주기
+    socket.on('giveExample', async (category, word) => {
+        socket.emit('giveExample', await GameProvider.giveExample(category, word))
+    })
+
+    //발언권 지목
+    socket.on('micToss', async (nickname) => {
+        socket.emit('micToss', await GameProvider.micToss(nickname))
+    })
+
 
 });

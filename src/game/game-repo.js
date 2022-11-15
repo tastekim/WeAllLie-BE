@@ -14,6 +14,31 @@ class GameRepo {
     setPlayCount = async (nickname) => {
         await User.findOneAndUpdate({nickname}, {$inc: {totalPlayCount: 1}});
     };
+
+    //스파이 선택
+    selectSpy = async (nickname) => {
+        return await User.find(nickname);
+    };
+
+    //스파이 저장 -> db room에 저장
+    isSpy = (spyUser) => {
+
+    };
+
+    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
+    giveWord = async (word) => {
+        return await Game.find(word);
+    };
+
+    //카테고리 & 단어 막무가내로 보여주기
+    giveExample = async (category, word) => {
+        return await Game.find(category, word);
+    };
+
+    //발언권 지목
+    micToss = async (nickname) => {
+        return await User.find(nickname);
+    };
 }
 
 module.exports = new GameRepo();
