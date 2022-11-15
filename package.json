@@ -27,6 +27,7 @@
     "shuffle-array": "^1.0.1",
     "redis": "^4.5.0",
     "socket.io": "^4.5.3",
+    "socketio-jwt": "^4.6.2",
     "upgrade": "^1.1.0"
   },
   "devDependencies": {
