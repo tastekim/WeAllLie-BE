@@ -1,5 +1,6 @@
 const { Game } = require('../schemas/game')
 const { Room } = require('../schemas/room')
+const { User } = require('../schemas/room')
  
 class GameRepo{
 
@@ -7,7 +8,7 @@ class GameRepo{
 //스파이 선택
     selectSpy = async (nickname) => {
 
-       const nickname = await Room.findAll(_id)
+       const nickname = await User.findAll(nickname)
        return nickname
     
     }
@@ -32,7 +33,7 @@ class GameRepo{
           
 //발언권 지목 
     micToss = async (nickname) => {
-        const  micToss = await Game.findAll(nickname)
+        const  micToss = await User.findAll(nickname)
         return  micToss
     }
 

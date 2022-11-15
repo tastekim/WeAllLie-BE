@@ -1,17 +1,17 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model, Types } = require('mongoose');
 
 const GameSchema = new Schema({
-  
-  category: {
-    type: String,
-    required: true,
-  },
+    category: {
+        type: String,
+        required: true,
+    },
 
-  word: {
-    type: String,
-    required: true,
-  }
+    word: {
+        type: String,
+        required: true,
+    }
 });
 
-const Game = model('game', GameSchema);
-module.exports = { Game };
+const User = model('game', UserSchema);
+
+module.exports = User;
