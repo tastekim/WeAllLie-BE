@@ -130,6 +130,63 @@ class UserProvider {
       voteSpyRating,
     };
   };
+
+  getUserInfo = async (decodedId, accessToken) => {
+    const exUser = await User.findOne({
+      _id: decodedId,
+    });
+    console.log('여기는 user-provider.js, getUserInfo, exUser:::', exUser);
+    let spyWinRating, voteSpyRating, totalCount;
+    if (exUser.totalCount === 0) {
+      spyWinRating = 0;
+      voteSpyRating = 0;
+    } else if (exUser.spyPlayCount === 0) {
+      spyWinRating = 0;
+    } else if (exUser.totalCount - exUser.spyPlayCount === 0) {
+      voteSpyRating = 0;
+    }
+
+    spyWinRating = (exUser.spyWinCount / exUser.spyPlayCount).toFixed(2) * 100;
+    voteSpyRating =
+      (exUser.voteSpyCount / (exUser.totalCount - exUser.spyPlayCount)).toFixed(
+        2
+      ) * 100;
+
+    console.log('spyWinRating', spyWinRating);
+    console.log('voteSpyRating', voteSpyRating);
+
+    return {
+      accessToken,
+      userId: exUser._id,
+      nickname: exUser.nickname,
+      profileImg: exUser.profileImg,
+      totayPlayCount: exUser.totalCount,
+      spyPlayCount: exUser.spyPlayCount,
+      ctzPlayCount: exUser.totalCount - exUser.spyPlayCount,
+      spyWinRating,
+      voteSpyRating,
+    };
+  };
+  kakaoCallback = async (req, res, next) => {
+    //카카오 Strategy에서 성공한다면 콜백 실행
+    // 토큰 생성 및 유저 정보 가공해서 전달하기
+    console.log('-------------------------------------------');
+    console.log('여기는 user-provider.js 의 kakaoCallbace!!!!!');
+    console.log('전달받은 req.user::::::', req.user);
+    const accessToken = await req.user;
+    const decodedId = await jwtService.validateAccessToken(accessToken);
+
+    console.log('------------토큰 값 및 디코딩 결과--------------');
+    console.log('accessToken ::::::::::::', accessToken);
+    console.log('decodeId ::::::::::::', decodedId);
+
+    console.log(
+      '--------------DB에서 유저 정보 가져와서 보낼 정보 가공 >> 로직 파일 분리 예정--------------'
+    );
+    const userInfo = await this.getUserInfo(decodedId, accessToken);
+    res.header('Access-Control-Allow-Origin', '*');
+    res.send(userInfo);
+  };
 }
 
 module.exports = new UserProvider();

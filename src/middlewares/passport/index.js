@@ -9,19 +9,32 @@ module.exports = () => {
     console.log('###### 여기는 /passport/index.js serializeUser');
     console.log('accessToken :::', accessToken);
     done(null, accessToken);
+  });
+
+  passport.deserializeUser(async (accessToken, done) => {
+    console.log('###### 여기는 /passport/index.js DDDDDeserializeUser');
+    console.log('accessToken :::', accessToken);
+    done(null, accessToken);
+  });
+
+  /*
+  passport.serializeUser((accessToken, done) => {
+    console.log('###### 여기는 /passport/index.js serializeUser');
+    console.log('accessToken :::', accessToken);
+    done(null, accessToken);
     // jwtService.validateAccessToken(accessToken).then((_id) => {
     //   console.log('여기는 serializeUser / then!! _id: ', _id);
     //   done(null, _id);
     // });
   });
-
+*/
+  /*
   passport.deserializeUser(async (accessToken, done) => {
     console.log('###### 여기는 /passport/index.js DDDDDeserializeUser');
     console.log(accessToken);
     const _id = await jwtService.validateAccessToken(accessToken);
     const exUser = await User.findOne({ _id });
     let userInfo;
-    console.log(userInfo);
 
     let spyWinRating, voteSpyRating, totalCount;
     if (exUser.totalCount === 0) {
@@ -67,6 +80,6 @@ module.exports = () => {
     //   })
     // .catch((err) => done(err));
   });
-
+*/
   kakao();
 };
