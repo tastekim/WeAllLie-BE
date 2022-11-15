@@ -119,7 +119,7 @@ class UserProvider {
 
     const kakaoUserData = kakaoResult.data;
     console.log(
-      '------------여기는 user-provider.js의 getKakaoUserInfo---------------'
+      '------------여기는 user-provider.js의 getKakaoUserInfo Method---------------'
     );
     console.log('kakaoToken:::', kakaoToken);
     console.log('kakaoUserData:::', kakaoUserData);
