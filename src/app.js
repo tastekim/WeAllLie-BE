@@ -13,7 +13,12 @@ const http = Server(app);
 
 // middlewares
 passportConfig();
-app.use(cors({ origin: true }));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   next();

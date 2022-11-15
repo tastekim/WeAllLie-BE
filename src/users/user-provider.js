@@ -80,6 +80,7 @@ class UserProvider {
       data: qs.stringify({
         grant_type: 'authorization_code',
         client_id: process.env.CLIENT_ID_FRONT,
+        client_secret: process.env.CLIENT_SECRET,
         redirectUri: process.env.CALLBACK_URL_LOCAL,
         code: req.query.code,
       }),
