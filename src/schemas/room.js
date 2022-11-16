@@ -4,6 +4,7 @@ const {Schema, model, Types} = require('mongoose');
 const RoomSchema = new Schema({
     _id: Number,
 
+
     roomTitle: {
         type    : String,
         required: true,
@@ -37,10 +38,16 @@ const RoomSchema = new Schema({
         default : null,
     },
 
-  spyUser:  {
-    type: String,
+  roomMaker: {
+    type : String,
     required: false,
-    default: null,    
+    default : null,
+  },
+
+  spyUser: {
+    type : String,
+    required: false,
+    default : null
   }
 
 });
