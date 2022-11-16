@@ -1,6 +1,6 @@
 const lobby = require('../socket');
 const Room = require('../schemas/room');
-const redisCli = require('../redis');
+const redis = require('../redis');
 
 const autoIncrease = function () {
     let a = 1;
@@ -51,7 +51,7 @@ lobby.on('connection', async (socket) => {
         });
 
         const makedRoom = await Room.findOne({ _id: autoNum });
-        redisCli.set('ready', 1);
+        redis.set('ready', 1);
 
         socket.join(`/gameRoom${autoNum}`);
         console.log(makedRoom);
@@ -78,9 +78,9 @@ lobby.on('connection', async (socket) => {
 
     // 게임 준비
     socket.on('ready', async (roomNum) => {
-        let readyCount = await redisCli.get('ready');
+        let readyCount = await redis.get('ready');
         const findRoom = await Room.findOne({ _id: roomNum });
-        await redisCli.incr('ready');
+        await redis.incr('ready');
         console.log('준비 완료 !');
         console.log(readyCount, findRoom.currentCount);
         console.log('게임시작 5초전!');
@@ -88,14 +88,14 @@ lobby.on('connection', async (socket) => {
             if (findRoom.currentCount == readyCount) {
                 console.log('게임 시작 ! ');
                 lobby.to(`/gameRoom${roomNum}`).emit('gameStart');
-                await redisCli.del('ready');
+                await redis.del('ready');
             }
         }, 5000);
     });
 
     // 준비 취소
     socket.on('unReady', async () => {
-        await redisCli.decr('ready');
+        await redis.decr('ready');
         console.log('준비 취소 !');
     });
 });

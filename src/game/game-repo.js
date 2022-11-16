@@ -1,8 +1,10 @@
-const { User, Game, Room } = require('../schemas');
+const User = require('../schemas/user');
+const Room = require('../schemas/room');
+const Game = require('../schemas/game');
 
 class GameRepo {
     getSpy = async (roomNum) => {
-        const roomData = await Room.findOne({ _id: roomNum });
+        const roomData = await Room.findById({ _id: roomNum });
         return roomData.spyUser;
     };
 
@@ -21,7 +23,7 @@ class GameRepo {
     };
 
     //스파이 저장 -> db room에 저장
-    isSpy = (spyUser) => {};
+    // isSpy = (spyUser) => {};
 
     //카테고리 & 정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
     giveWord = async (category, word) => {
