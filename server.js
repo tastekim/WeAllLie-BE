@@ -6,7 +6,9 @@ require('./src/rooms/room-socket');
 const mongodb = require('./src/schemas');
 const Room = require('./src/schemas/room');
 
+if(!Room){
 Room.collection.drop();
+}
 
 mongodb();
 
