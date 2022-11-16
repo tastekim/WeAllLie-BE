@@ -1,18 +1,18 @@
-const {User, Game, Room} = require('../schemas');
+const { User, Game, Room } = require('../schemas');
 
 class GameRepo {
     getSpy = async (roomNum) => {
-        const roomData = await Room.findOne({_id: roomNum});
+        const roomData = await Room.findOne({ _id: roomNum });
         return roomData.spyUser;
     };
 
     catchSpy = async (nickname) => {
-        await Room.findOneAndUpdate({nickname}, {$inc: {voteCount: 1}});
+        await Room.findOneAndUpdate({ nickname }, { $inc: { voteCount: 1 } });
         return 'Catch Spy!';
     };
 
     setPlayCount = async (nickname) => {
-        await User.findOneAndUpdate({nickname}, {$inc: {totalPlayCount: 1}});
+        await User.findOneAndUpdate({ nickname }, { $inc: { totalPlayCount: 1 } });
     };
 
     //스파이 선택
@@ -21,9 +21,7 @@ class GameRepo {
     };
 
     //스파이 저장 -> db room에 저장
-    isSpy = (spyUser) => {
-
-    };
+    isSpy = (spyUser) => {};
 
     //카테고리 & 정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
     giveWord = async (category, word) => {

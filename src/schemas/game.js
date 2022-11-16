@@ -1,4 +1,4 @@
-const { Schema, model, Types } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const GameSchema = new Schema({
     category: {
@@ -9,7 +9,7 @@ const GameSchema = new Schema({
     word: {
         type: String,
         required: true,
-    }
+    },
 });
 
 const Game = model('game', GameSchema);

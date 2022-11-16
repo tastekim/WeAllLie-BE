@@ -1,41 +1,39 @@
-const {Schema, model, Types} = require('mongoose');
-
+const { Schema, model } = require('mongoose');
 
 const RoomSchema = new Schema({
     _id: Number,
 
-
     roomTitle: {
-        type    : String,
+        type: String,
         required: true,
     },
 
     currentCount: {
-        type   : Number,
+        type: Number,
         default: 1,
     },
 
     gameMode: {
-        type    : Boolean,
+        type: Boolean,
         required: true,
-        default : false,
+        default: false,
     },
 
     roomStatus: {
-        type   : Boolean,
+        type: Boolean,
         default: false,
     },
 
     private: {
-        type    : Boolean,
+        type: Boolean,
         required: false,
-        default : null,
+        default: null,
     },
 
     roomPassword: {
-        type    : Number,
+        type: Number,
         required: false,
-        default : null,
+        default: null,
     },
 
   roomMaker: {

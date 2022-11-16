@@ -16,14 +16,56 @@ class GameProvider {
     };
 
     setVoteResult = async (roomNum, nickname) => {
-        await redisCli.set(`gameRoom${roomNum}Result`, []);
-        await redisCli.rpush(`gameRoom${roomNum}Result`, nickname);
+        // roomResult 가 존재하는 지 확인.
+        const roomExist = await redisCli.exists(`gameRoom${roomNum}Result`);
+        if (roomExist === 0) {
+            // 없으면 생성 후 유저 닉네임 넣기.
+            await redisCli.set(`gameRoom${roomNum}Result`, [nickname]);
+        } else {
+            // 있으면 그 key 에 닉네임 push.
+            await redisCli.rpush(`gameRoom${roomNum}Result`, nickname);
+        }
     };
 
     getResult = async (roomNum) => {
+        // 투표 집계한 배열.
         const resultList = await redisCli.get(`gameRoom${roomNum}Result`);
-        for (let item of resultList) {
+        // 방에 참여 중인 유저 닉네임.
+        const roomUsers = await redisCli.get(`gameRoom${roomNum}Users`);
+        // spy 유저인 닉네임.
+        const spyUser = await GameRepo.getSpy(roomNum);
 
+        // 가장 표를 많이 받은 사람의 ['nickname', 투표받은 수]
+        let maxVoteUser = ['', 0];
+
+        for (let user of roomUsers) {
+            let count = 0;
+            resultList.forEach((vote) => {
+                if (vote === user) count++;
+            });
+            if (count > maxVoteUser[1]) {
+                maxVoteUser[0] = user;
+                maxVoteUser[1] = count;
+            }
+        }
+        // 게임이 끝난 후 redis 메모리 확보.
+        await redisCli.del(`gameRoom${roomNum}Result`);
+        await redisCli.del(`gameRoom${roomNum}Users`);
+
+        // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
+        return maxVoteUser[0] === spyUser;
+    };
+
+    // 각 방에 참여한 유저들의 닉네임 저장.
+    setRoomUsers = async (roomNum, nickname) => {
+        // roomUsers 가 존재하는 지 확인.
+        const roomExist = await redisCli.exists(`gameRoom${roomNum}Users`);
+        if (roomExist === 0) {
+            // 없으면 생성 후 유저 닉네임 넣기.
+            await redisCli.set(`gameRoom${roomNum}Users`, [nickname]);
+        } else {
+            // 있으면 그 key 에 닉네임 push.
+            await redisCli.rpush(`gameRoom${roomNum}Users`, nickname);
         }
     };
 
@@ -40,26 +82,12 @@ class GameProvider {
         return spy;
     };
 
-    //카테고리 & 정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (category, word) => {
-        // if (isSpy) {
-        //     return {'message': '시민들이 정답 단어 확인 중 입니다.'};
-        // }
-       
-        const gameCategory = await GameRepo.giveExample(category);
-
-        let result = [];
-
-        for (let i = 0; i < gameCategory.length; i++) {
-            result.push(gameCategory[i]);
-        }
-
-        shuffle(result);
-        let categoryFix = result.slice(0, 20);
-
-        return categoryFix;
-
+    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
+    giveWord = async (word) => {
         const giveWord = await GameRepo.giveWord(word);
+        if (isSpy) {
+            return {'message': '시민들이 정답 단어 확인 중 입니다.'};
+        }
 
         let result = []
         for (let i = 0; i < giveWord.length; i++) {
@@ -73,8 +101,16 @@ class GameProvider {
 
     //단어 랜덤으로 보여주기
     giveExample = async (category, word) => {
-  
-        const gameWord = shuffle(categoryFix);
+        const gameCategory = await GameRepo.giveExample(category);
+        let result = [];
+
+        for (let i = 0; i < gameCategory.length; i++) {
+            result.push(gameCategory[i]);
+        }
+
+        shuffle(result);
+        let categoryFix = result.slice(0, 20);
+        return shuffle(categoryFix);
     };
 
     //발언권 랜덤 설정
