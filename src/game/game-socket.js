@@ -2,15 +2,11 @@ const game = require('../socket');
 const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
-    // 게임 결과를 해당 방에 있는 socket들에게 emit
-    game.on('gameResult', async (roomNum) => {
-        await GameProvider.getResult(roomNum);
-    });
     // 스파이 투표 중 스파이 유저 선택.
-    socket.on('voteSpy', (nickname, fn) => {
+    socket.on('voteSpy', (nickname) => {
         // fn -> [FE]지목당한 nickname의 숫자를 1 증감 시켜주는 액션.
         // 유저 별로 실시간 자기가 지목당한 카운트를 표시한다.
-        fn(nickname);
+        // fn(nickname);
 
         // 지목한 사람(socket)한테 지목당한 사람(nickname)의 정보를 담는다.
         // 투표가 끝나고 나서 socket.voteSpy안에 스파이의 nickname을 갖고있는 사람은 스파이를 찾는데 성공.
@@ -31,23 +27,43 @@ game.on('connection', (socket) => {
         await GameProvider.setPlayCount(socket.nickname);
 
         // redis에 각 방의 투표 내용 socket별로 저장.
-        await GameProvider.setVoteResult(roomNum, socket.nickname);
+        await GameProvider.setVoteResult(roomNum, socket.voteSpy);
 
         // redis 에 각 유저의 닉네임 저장
         await GameProvider.setRoomUsers(roomNum, socket.nickname);
     });
 
     // 게임 결과 집계.
-    game.on('endGame', async (roomNum) => {
+    socket.on('endGame', async (roomNum) => {
         const gameResult = await GameProvider.getResult(roomNum);
-        game.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
+        console.log(gameResult);
+        socket.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
+    });
+
+    // 3분 후, nowVote 활성화.
+    socket.on('setNowVote', async (roomNum) => {
+        await GameProvider.setNowVote(roomNum);
     });
 
     // 게임 진행 중 스파이 투표 찬반 투표 실행.
-    socket.on('nowVote', async () => {});
+    socket.on('nowVote', async (roomNum) => {
+        if (socket.nowVote === undefined) {
+            socket.nowVote = true;
+        }
+        socket.nowVote ? (socket.nowVote = false) : (socket.nowVote = true);
 
-    // 스파이 투표 찬반 집계.
-    socket.on('', async () => {});
+        // max -> 스파이를 제외한 정원 수, curr -> 현재 nowVote 를 누른 수.
+        const [max, curr] = await GameProvider.nowVote(roomNum, socket.nowVote);
+        if (max - 1 === curr) {
+            // 바로 최종 스파이 투표로 진행.
+            game.to(`/gameRoom${roomNum}`).emit('voteStart', curr);
+        }
+        // 본인의 nickname, 현재 nowVote 를 누른 인원 수
+        socket.to(`/gameRoom${roomNum}`).emit('nowVote', {
+            nickname: socket.nickname,
+            currNowVoteCount: curr,
+        });
+    });
 
     //스파이 선택
     socket.on('selectSpy', async (nickname) => {
