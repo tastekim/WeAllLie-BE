@@ -11,6 +11,16 @@ const app = express();
 const http = Server(app);
 
 // middlewares
+app.use(function (req, res, next) {
+    res.set({
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Origin': req.headers.origin,
+        'Access-Control-Allow-Methods': '*',
+        'Access-Control-Allow-Headers':
+            'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, authorization, refreshToken, cache-control',
+    });
+    next();
+});
 app.use(
     cors({
         origin: 'http://localhost:3000',
@@ -27,10 +37,7 @@ app.use(
         cookie: { secure: false },
     })
 );
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-    next();
-});
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
