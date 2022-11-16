@@ -13,7 +13,7 @@ const http = Server(app);
 // middlewares
 app.use(
     cors({
-        origin: '*',
+        origin: 'http://localhost:3000',
     })
 );
 app.use(logger('dev'));
@@ -28,7 +28,7 @@ app.use(
     })
 );
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
     next();
 });
 app.use(passport.initialize());
