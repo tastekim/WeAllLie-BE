@@ -1,5 +1,4 @@
 const KakaoStrategy = require('passport-kakao').Strategy;
-const { Db } = require('mongodb');
 const passport = require('passport');
 const { User } = require('../../schemas/user');
 // const jwt = require('jsonwebtoken');

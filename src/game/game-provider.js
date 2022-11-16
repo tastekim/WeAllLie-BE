@@ -67,6 +67,24 @@ class GameProvider {
         console.log('roomUsers : ', await redis.lrange(`gameRoom${roomNum}Users`, 0, -1));
     };
 
+    // nowVote 배열 생성.
+    setNowVote = async (roomNum) => {
+        await redis.set(`nowVote${roomNum}`, '0');
+    };
+
+    // nowVote 에 1++ / 1--
+    nowVote = async (roomNum, voteStatus) => {
+        if (voteStatus === true) {
+            await redis.incr(`nowVote${roomNum}`);
+        } else {
+            await redis.decr(`nowVote${roomNum}`);
+        }
+        const currNowVote = await redis.get(`nowVote${roomNum}`);
+        const roomCurrentCount = await GameRepo.getRoomCurrentCount(roomNum);
+        return [roomCurrentCount, currNowVote];
+    };
+
+    // 스파이 랜덤 설정
     selectSpy = async (nickname) => {
         const spyUser = await GameRepo.selectSpy(nickname);
 
