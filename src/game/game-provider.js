@@ -141,7 +141,6 @@ class GameProvider {
         let randomStart = result.slice(-1);
         return randomStart;
 
-        let;
     };
 }
 
