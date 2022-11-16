@@ -14,25 +14,25 @@ const http = Server(app);
 // middlewares
 // passportConfig();
 app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
+    cors({
+        origin: true,
+        credentials: true,
+    })
 );
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
 });
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
-  })
+    session({
+        secret: process.env.SESSION_KEY,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false },
+    })
 );
 
 app.use(passport.initialize());
