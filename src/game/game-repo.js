@@ -17,6 +17,11 @@ class GameRepo {
         await User.findOneAndUpdate({ nickname }, { $inc: { totalPlayCount: 1 } });
     };
 
+    getRoomCurrentCount = async (roomNum) => {
+        const roomData = await Room.findById({ _id: roomNum });
+        return roomData.currentCount;
+    };
+
     //스파이 선택
     selectSpy = async (nickname) => {
         return await User.find(nickname);
