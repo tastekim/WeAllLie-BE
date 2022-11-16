@@ -7,14 +7,16 @@ const userRouter = require('./users/user-route');
 const cors = require('cors');
 
 require('dotenv').config();
-const app = express({
-    origin: true,
-    credentials: true,
-});
+const app = express();
 const http = Server(app);
 
 // middlewares
-app.use(cors());
+app.use(
+    cors({
+        origin: true,
+        credentials: true,
+    })
+);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
