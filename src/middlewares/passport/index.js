@@ -1,6 +1,8 @@
 const passport = require('passport');
 const kakao = require('./kakao-stratege');
 const { User } = require('../../schemas/user');
+const jwtService = require('../../users/jwt');
+require('dotenv').config();
 
 module.exports = () => {
     passport.serializeUser((user, done) => {
