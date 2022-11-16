@@ -63,11 +63,13 @@ class UserProvider {
         // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
         if (exUserInfo) {
             console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
+            console.log('--------------------------------------------');
             return res.status(200).json(exUserInfo);
         }
         // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
         const newUserInfo = await this.createUserToken(kakaoUserInfo);
         console.log('user-provider.js, newUserInfo::::::', newUserInfo);
+        console.log('--------------------------------------------');
         res.header('Autorization', `Bearer ${newUserInfo.accessToken}`);
         return res.status(201).json(newUserInfo);
     };

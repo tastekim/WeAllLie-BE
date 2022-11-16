@@ -6,7 +6,7 @@ require('dotenv').config();
 class UserRefo {
     //
     findAllUser = async () => {
-        const allUser = await User.find();
+        const allUser = await User.find({});
         return allUser;
     };
 
@@ -28,6 +28,7 @@ class UserRefo {
                 'content-type': 'application/x-www-form-urlencoded',
             },
 
+            /*
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -36,8 +37,8 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
 
-            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -45,7 +46,6 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
         });
         return kakaoToken.data.access_token;
     };
