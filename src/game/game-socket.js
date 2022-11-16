@@ -2,12 +2,6 @@ const game = require('../socket');
 const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
-    // 게임 결과를 해당 방에 있는 socket들에게 emit
-    game.on('gameResult', async (roomNum) => {
-        const gameResult = await GameProvider.getResult(roomNum);
-        game.to(`/gameRoom${roomNum}`).emit('gameResult', gameResult);
-    });
-
     // 스파이 투표 중 스파이 유저 선택.
     socket.on('voteSpy', (nickname) => {
         // fn -> [FE]지목당한 nickname의 숫자를 1 증감 시켜주는 액션.
@@ -43,7 +37,7 @@ game.on('connection', (socket) => {
     socket.on('endGame', async (roomNum) => {
         const gameResult = await GameProvider.getResult(roomNum);
         console.log(gameResult);
-        game.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
+        socket.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
     });
 
     // 게임 진행 중 스파이 투표 찬반 투표 실행.
