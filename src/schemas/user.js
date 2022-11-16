@@ -51,7 +51,13 @@ const UserSchema = new Schema({
         required: true,
         default: 0,
     },
+
+    isReady: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 });
 
 const User = model('user', UserSchema);
-module.exports = User;
+module.exports = { User };
