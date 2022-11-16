@@ -16,24 +16,15 @@ class GameProvider {
     };
 
     setVoteResult = async (roomNum, nickname) => {
-        // roomResult 가 존재하는 지 확인.
-        const roomExist = await redis.exists(`gameRoom${roomNum}Result`);
-        if (roomExist === 0) {
-            // 없으면 생성 후 유저 닉네임 넣기.
-            // await redisCli.set(`gameRoom${roomNum}Result`, nickname);
-            await redis.rpush(`gameRoom${roomNum}Result`, nickname);
-        } else {
-            // 있으면 그 key 에 닉네임 push.
-            await redis.rpush(`gameRoom${roomNum}Result`, nickname);
-            console.log('voteResult : ', await redis.get(`gameRoom${roomNum}Result`));
-        }
+        await redis.lpush(`gameRoom${roomNum}Result`, [nickname]);
+        console.log('voteResult : ', await redis.lrange(`gameRoom${roomNum}Result`, 0, -1));
     };
 
     getResult = async (roomNum) => {
         // 투표 집계한 배열.
-        const resultList = await redis.get(`gameRoom${roomNum}Result`);
+        const resultList = await redis.lrange(`gameRoom${roomNum}Result`, 0, -1);
         // 방에 참여 중인 유저 닉네임.
-        const roomUsers = await redis.get(`gameRoom${roomNum}Users`);
+        const roomUsers = await redis.lrange(`gameRoom${roomNum}Users`, 0, -1);
         // spy 유저인 닉네임.
         const spyUser = await GameRepo.getSpy(roomNum);
 
@@ -68,13 +59,12 @@ class GameProvider {
         const roomExist = await redis.exists(`gameRoom${roomNum}Users`);
         if (roomExist === 0) {
             // 없으면 생성 후 유저 닉네임 넣기.
-            await redis.set(`gameRoom${roomNum}Users`, [nickname]);
-            await redis.rpush(`gameRoom${roomNum}Users`, nickname);
+            await redis.rpush(`gameRoom${roomNum}Users`, [nickname]);
         } else {
             // 있으면 그 key 에 닉네임 push.
-            await redis.rpush(`gameRoom${roomNum}Users`, nickname);
+            await redis.rpush(`gameRoom${roomNum}Users`, [nickname]);
         }
-        console.log('roomUsers : ', await redis.get(`gameRoom${roomNum}Users`));
+        console.log('roomUsers : ', await redis.lrange(`gameRoom${roomNum}Users`, 0, -1));
     };
 
     selectSpy = async (nickname) => {

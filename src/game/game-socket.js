@@ -33,15 +33,16 @@ game.on('connection', (socket) => {
         await GameProvider.setPlayCount(socket.nickname);
 
         // redis에 각 방의 투표 내용 socket별로 저장.
-        await GameProvider.setVoteResult(roomNum, socket.nickname);
+        await GameProvider.setVoteResult(roomNum, socket.voteSpy);
 
         // redis 에 각 유저의 닉네임 저장
         await GameProvider.setRoomUsers(roomNum, socket.nickname);
     });
 
     // 게임 결과 집계.
-    game.on('endGame', async (roomNum) => {
+    socket.on('endGame', async (roomNum) => {
         const gameResult = await GameProvider.getResult(roomNum);
+        console.log(gameResult);
         game.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
     });
 
