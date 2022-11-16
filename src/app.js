@@ -13,8 +13,7 @@ const http = Server(app);
 // middlewares
 app.use(
     cors({
-        origin: true,
-        credentials: true,
+        origin: '*',
     })
 );
 app.use(logger('dev'));
@@ -28,7 +27,10 @@ app.use(
         cookie: { secure: false },
     })
 );
-
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
