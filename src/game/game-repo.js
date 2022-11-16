@@ -22,7 +22,7 @@ class GameRepo {
         return await User.find(nickname);
     };
 
-    //스파이 저장 -> db room에 저장
+    //스파이 저장 -> db room에 저장 room에서 불러오기
     // isSpy = (spyUser) => {};
 
     //카테고리 & 정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기

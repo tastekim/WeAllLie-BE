@@ -140,7 +140,6 @@ class GameProvider {
         shuffle(result);
         let randomStart = result.slice(-1);
         return randomStart;
-
     };
 }
 
