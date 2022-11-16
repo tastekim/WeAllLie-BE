@@ -13,22 +13,32 @@ class jwtService {
         return jwt.sign({}, process.env.SECRET_KEY, { expiresIn: '7d' });
     };
 
+    getAccessTokenPayload = async (accessToken) => {
+        try {
+            const payload = jwt.verify(accessToken, process.env.SECRET_KEY);
+            return payload;
+        } catch (error) {
+            return null;
+        }
+    };
+
     // Access Token 검증
     validateAccessToken = async (accessToken) => {
         try {
             const { _id } = jwt.verify(accessToken, process.env.SECRET_KEY);
             return _id;
         } catch (error) {
-            return { errorMessage: 'AccessToken이 유효하지 않습니다.' };
+            return null;
         }
     };
 
     // Refresh Token 검증
     validateRefreshToken = async (refreshToken) => {
         try {
-            return jwt.verify(refreshToken, process.env.SECRET_KEY);
+            jwt.verify(refreshToken, process.env.SECRET_KEY);
+            return true;
         } catch (error) {
-            return { errorMessage: 'RefreshToken 유효하지 않습니다.' };
+            return false;
         }
     };
 }

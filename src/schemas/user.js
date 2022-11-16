@@ -22,19 +22,11 @@ const UserSchema = new Schema({
         unique: true,
     },
 
-<<<<<<< HEAD
-  profileImg: {
-    type: String,
-    required: true,
-    default: 'default',
-  },
-=======
     profileImg: {
         type: String,
         required: true,
         default: 'default img',
     },
->>>>>>> master
 
     spyPlayCount: {
         type: Number,
@@ -54,17 +46,17 @@ const UserSchema = new Schema({
         default: 0,
     },
 
-  totalCount: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
+    totalCount: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
 
-  isReady: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
+    isReady: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 });
 
 const User = model('user', UserSchema);

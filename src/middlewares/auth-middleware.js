@@ -12,23 +12,10 @@ module.exports = (req, res, next) => {
         });
     }
 
-<<<<<<< HEAD
-  try {
-    const { _id } = jwt.verify(authToken, process.env.SECRET_KEY);
-    User.findOne({ _id }).then((user) => {
-      // DB에 저장된 user 정보 =>  res.locals.user 에 담겨 있으니 이용하시면 됩니다!
-      res.locals.user = user;
-      next();
-    });
-  } catch (err) {
-    res.status(401).send({
-      errorMessage: '로그인 후 이용 가능한 기능입니다.',
-    });
-  }
-=======
     try {
-        const { nickname } = jwt.verify(authToken, process.env.SECRET_KEY);
-        User.findOne({ nickname }).then((user) => {
+        const { _id } = jwt.verify(authToken, process.env.SECRET_KEY);
+        User.findOne({ _id }).then((user) => {
+            // DB에 저장된 user 정보 =>  res.locals.user 에 담겨 있으니 이용하시면 됩니다!
             res.locals.user = user;
             next();
         });
@@ -37,5 +24,4 @@ module.exports = (req, res, next) => {
             errorMessage: '로그인 후 이용 가능한 기능입니다.',
         });
     }
->>>>>>> master
 };
