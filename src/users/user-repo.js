@@ -28,7 +28,6 @@ class UserRefo {
                 'content-type': 'application/x-www-form-urlencoded',
             },
 
-            /*
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -37,8 +36,8 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
 
+            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -46,6 +45,7 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
         return kakaoToken.data.access_token;
     };
@@ -126,3 +126,18 @@ class UserRefo {
 }
 
 module.exports = new UserRefo();
+
+/*
+0|server  | kakaoUserInfo:::::: {
+0|server  |   id: 2537488884,
+0|server  |   connected_at: '2022-11-16T15:39:39Z',
+0|server  |   properties: { nickname: '닉네임' },
+0|server  |   kakao_account: {
+0|server  |     profile_nickname_needs_agreement: false,
+0|server  |     profile_image_needs_agreement: true,
+0|server  |     profile: { nickname: '진영(Evelyn)' },
+0|server  |     has_email: true,
+0|server  |     email_needs_agreement: true
+0|server  |   }
+0|server  | }
+*/
