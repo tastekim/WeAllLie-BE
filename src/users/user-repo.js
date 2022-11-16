@@ -27,7 +27,7 @@ class UserRefo {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded',
             },
-                
+
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -36,7 +36,7 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            
+
             /*
             // BE test
             data: qs.stringify({
@@ -63,7 +63,7 @@ class UserRefo {
     };
 
     getPlayRecord = async (user, accessToken) => {
-        let spyWinRating, voteSpyRating, totalCount;
+        let spyWinRating, voteSpyRating;
         if (user.totalCount === 0) {
             spyWinRating = 0;
             voteSpyRating = 0;
@@ -110,11 +110,11 @@ class UserRefo {
             } else {
                 nickname = `Agent_${n}`;
             }
-            nickname = nickname;
+            _id = +nickNum;
         }
         // 위에서 만든 값으로 newUser DB 에 저장하기
         const newUser = await User.create({
-            _id: +nickNum,
+            _id,
             nickname,
             email: kakaoUserInfo.kakao_account.email,
             profileImg: kakaoUserInfo.properties.thumbnail_image

@@ -1,9 +1,9 @@
-const UserRefo = require('./user-repo');
+const UserRepo = require('./user-repo');
 const jwtService = require('./jwt');
 require('dotenv').config();
 
 class UserProvider {
-    kakaoCallback = async (req, res, next) => {
+    kakaoCallback = async (req, res) => {
         // 카카오 Strategy에서 성공한다면 콜백 실행 (패스포트 사용시)
         // 토큰 생성 및 유저 정보 가공해서 전달하기
         console.log('-------------------------------------------');
@@ -19,17 +19,17 @@ class UserProvider {
 
         console.log('--------------DB에서 유저 정보 가져와서 보낼 정보 가공 --------------');
         const userInfo = await this.getUserInfo(decodedId, accessToken);
+        console.log('userInfo:::>', userInfo);
         res.header('Access-Control-Allow-Origin', '*');
-        res.header('Authorization', accessToken);
         res.status(200).redirect('/user/kakao');
     };
 
-    getKakaoToken = async (req, res, next) => {
+    getKakaoToken = async (req, res) => {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getKakaoToken!!!!!');
         console.log('전달받은 인가 코드 :::::::::::: ', req.query.code);
 
-        const kakaoToken = await UserRefo.getKakaoToken(req.query.code);
+        const kakaoToken = await UserRepo.getKakaoToken(req.query.code);
 
         console.log('kakao에서 받아온 accessToken :::::::::::: ', kakaoToken);
         res.header('Access-Control-Allow-Origin', '*');
@@ -43,15 +43,15 @@ class UserProvider {
   2. DB의 유저정보와 비교하여 필요시 회원가입
   3. 유저정보 가공하여 클라이언트로 전달
     */
-    getKakaoUserInfo = async (req, res, next) => {
+    getKakaoUserInfo = async (req, res) => {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
 
         const { authorization } = req.headers;
-        const [authType, kakaoToken] = (authorization || '').split(' ');
+        const kakaoToken = (authorization || '').split(' ')[1];
 
         // 토큰 카카오에 보내고 유저정보 받아오기
-        const kakaoUserInfo = await UserRefo.getKakaoUserInfo(kakaoToken);
+        const kakaoUserInfo = await UserRepo.getKakaoUserInfo(kakaoToken);
 
         console.log('kakaoToken:::::: ', kakaoToken);
         console.log('kakaoUserInfo::::::', kakaoUserInfo);
@@ -82,8 +82,8 @@ class UserProvider {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 createUserToken!!!!!');
 
-        const allUser = await UserRefo.findAllUser();
-        const newUser = await UserRefo.createNewUser(kakaoUserInfo, allUser);
+        const allUser = await UserRepo.findAllUser();
+        const newUser = await UserRepo.createNewUser(kakaoUserInfo, allUser);
 
         console.log('여기는 user-provider.js 3, newUser::::::', newUser);
 
@@ -91,18 +91,18 @@ class UserProvider {
         const newUserToken = await jwtService.createAccessToken(newUser._id);
 
         // 클라이언트에 전달하기 위해 유저 정보 가공
-        const playRecord = await UserRefo.getPlayRecord(newUser, newUserToken);
+        const playRecord = await UserRepo.getPlayRecord(newUser, newUserToken);
 
         return playRecord;
     };
 
     getUserInfo = async (decodedId, accessToken) => {
-        const exUser = await findOneById(decodedId);
+        const exUser = await UserRepo.findOneById(decodedId);
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getUserInfo!!!!!');
         console.log('exUser::::::', exUser);
 
-        const playRecord = await UserRefo.getPlayRecord(exUser, accessToken);
+        const playRecord = await UserRepo.getPlayRecord(exUser, accessToken);
         return playRecord;
     };
 
@@ -111,14 +111,14 @@ class UserProvider {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 exUserGetToken!!!!!');
 
-        const exUser = await UserRefo.findOneByEmail(kakaoUserInfo.kakao_account.email);
+        const exUser = await UserRepo.findOneByEmail(kakaoUserInfo.kakao_account.email);
         console.log('exUserGetToken 1, exUser:::::: ', exUser);
 
         if (exUser) {
             const accessToken = await jwtService.createAccessToken(exUser._id);
             console.log('exUserGetToken 2, accessToken::::::', accessToken);
 
-            const playRecord = await UserRefo.getPlayRecord(exUser, accessToken);
+            const playRecord = await UserRepo.getPlayRecord(exUser, accessToken);
             return playRecord;
         } else return;
     };
