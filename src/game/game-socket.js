@@ -49,11 +49,9 @@ game.on('connection', (socket) => {
     socket.on('nowVote', async (roomNum) => {
         if (socket.nowVote === undefined) {
             socket.nowVote = true;
-        } else if (socket.nowVote === true) {
-            socket.nowVote = false;
-        } else {
-            socket.nowVote = true;
         }
+        socket.nowVote ? (socket.nowVote = false) : (socket.nowVote = true);
+
         // max -> 스파이를 제외한 정원 수, curr -> 현재 nowVote 를 누른 수.
         const [max, curr] = await GameProvider.nowVote(roomNum, socket.nowVote);
         if (max - 1 === curr) {
@@ -61,10 +59,10 @@ game.on('connection', (socket) => {
             game.to(`/gameRoom${roomNum}`).emit('voteStart', curr);
         }
         // 본인의 nickname, 현재 nowVote 를 누른 인원 수
-        return {
+        socket.to(`/gameRoom${roomNum}`).emit('nowVote', {
             nickname: socket.nickname,
             currNowVoteCount: curr,
-        };
+        });
     });
 
     //스파이 선택
