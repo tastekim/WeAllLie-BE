@@ -1,4 +1,3 @@
-const { User } = require('../schemas/user');
 const UserRefo = require('./user-repo');
 const jwtService = require('./jwt');
 require('dotenv').config();

@@ -1,8 +1,6 @@
-const passport = require('passport');
 const express = require('express');
 const router = express.Router();
 
-const loginMiddleware = require('../middlewares/login-middleware');
 const UserProvider = require('./user-provider');
 
 // 카카오 로그인 1 : 클라이언트에서 인가코드 전달 받음 =>  카카오로 토큰 요청 =>  클라이언트에 카카오 토큰 전달
