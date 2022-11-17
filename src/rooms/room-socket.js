@@ -15,6 +15,12 @@ let userCnt = 0;
 
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
+    // 닉네임 가져오기
+    socket.on('getNickname', (nickname) => {
+        socket.nickname = nickname;
+        socket.emit('getNickname', socket.nickname);
+        console.log(socket.nickname);
+    });
     userCnt++;
     console.log(socket.id + ' join lobby !');
     console.log(userCnt);
@@ -32,12 +38,6 @@ lobby.on('connection', async (socket) => {
         const shwRoom = await Room.find({});
 
         socket.emit('showRoom', shwRoom);
-    });
-    // 닉네임 가져오기
-    socket.on('getNickname', (nickname) => {
-        socket.nickname = nickname;
-        socket.emit('getNickname', socket.nickname);
-        console.log(socket.nickname);
     });
 
     // 방 퇴장
