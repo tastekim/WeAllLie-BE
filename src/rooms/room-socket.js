@@ -11,11 +11,21 @@ const autoIncrease = function () {
 };
 const autoInc = autoIncrease();
 
+let userCnt = 0;
+
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
+    userCnt++;
     console.log(socket.id + ' join lobby !');
+    console.log(userCnt);
     const shwRoom = await Room.find({});
-    socket.emit('showRoom', shwRoom);
+    socket.emit('showRoom', shwRoom, userCnt);
+
+    socket.on('disconnect', () => {
+        userCnt--;
+        console.log(userCnt);
+        socket.emit(userCnt);
+    });
 
     // 방 조회
     socket.on('showRoom', async () => {

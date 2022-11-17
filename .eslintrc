@@ -40,11 +40,7 @@
     // prettier에 맞게 룰을 설정
     "prettier/prettier": ["error", {
       "printWidth": 100,
-<<<<<<< HEAD
-      "endOfLine":"auto"
-=======
       "endOfLine": "auto"
->>>>>>> b9109f241b316a188ea2f7b6e6980963d25bea8c
     }]
   }
 }
