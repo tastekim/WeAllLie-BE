@@ -4,19 +4,13 @@ const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
-<<<<<<< HEAD
-//const cors = require('cors');
-=======
 const cors = require('cors');
->>>>>>> 551325afeff4bb532dad39cfe5932935e4cbe31c
 
 require('dotenv').config();
 const app = express();
 const http = Server(app);
 
 // middlewares
-<<<<<<< HEAD
-=======
 app.use(function (req, res, next) {
     res.set({
         'Access-Control-Allow-Credentials': true,
@@ -32,7 +26,6 @@ app.use(
         origin: '*',
     })
 );
->>>>>>> 551325afeff4bb532dad39cfe5932935e4cbe31c
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
