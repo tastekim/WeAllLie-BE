@@ -9,7 +9,11 @@ chat.on('connection', async (socket) => {
     socket.on('enterLobby', (nickname, callback) => {
         console.log(`${nickname} 로비 입장`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
-        chat.sockets.emit('receiveLobbyMsg', msg);
+        const payload = {
+            name: nickname,
+            msg,
+        };
+        chat.sockets.emit('receiveLobbyMsg', payload);
         callback();
     });
 
