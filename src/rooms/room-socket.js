@@ -25,12 +25,13 @@ lobby.on('connection', async (socket) => {
     console.log(socket.id + ' join lobby !');
     console.log(userCnt);
     const shwRoom = await Room.find({});
-    socket.emit('showRoom', shwRoom, userCnt);
+    socket.emit('showRoom', shwRoom);
+    lobby.emit('userCount', userCnt);
 
     socket.on('disconnect', () => {
         userCnt--;
         console.log(userCnt);
-        socket.emit(userCnt);
+        lobby.emit('userCount', userCnt);
     });
 
     // 방 조회
