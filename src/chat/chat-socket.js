@@ -8,7 +8,7 @@ chat.on('connection', async (socket) => {
     // 로비 채팅
     socket.on('sendLobbyMsg', (payload, callback) => {
         console.log('로비채팅');
-        console.log(payload);
+        console.log('payload:::', payload);
         // socket.broadcast.emit('receiveLobbyMsg', payload);
         chat.sockets.emit('receiveLobbyMsg', payload);
         callback();
@@ -16,8 +16,9 @@ chat.on('connection', async (socket) => {
     // 룸 채팅
     socket.on('sendRoomMsg', (payload, roomNum, callback) => {
         console.log('룸채팅');
+        console.log('payload:::', payload);
+        console.log(`roomNum::: ${roomNum}`);
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
-        // socket.to(roomNum).emit('receiveRoomMsg', payload);
 
         callback();
     });

@@ -1,7 +1,6 @@
 const lobby = require('../socket');
 const Room = require('../schemas/room');
 const redis = require('../redis');
-const io = require('../socket');
 
 const autoIncrease = function () {
     let a = 1;
@@ -122,10 +121,5 @@ lobby.on('connection', async (socket) => {
                 await redis.del(`ready${roomNum}`);
             }, 5000);
         }
-    });
-
-    socket.on('test', async () => {
-        const allSocket = await io.sockets.client();
-        console.log(allSocket);
     });
 });
