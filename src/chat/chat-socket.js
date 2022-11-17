@@ -9,11 +9,13 @@ chat.on('connection', async (socket) => {
     socket.on('sendLobbyMsg', (payload, callback) => {
         console.log('로비채팅');
         console.log(payload);
-        socket.broadcast.emit('receiveLobbyMsg', payload);
+        // socket.broadcast.emit('receiveLobbyMsg', payload);
+        chat.emit('receiveLobbyMsg', payload);
         callback();
     });
     // 룸 채팅
     socket.on('sendRoomMsg', (payload, roomNum, callback) => {
+        console.log('룸채팅');
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
         // socket.to(roomNum).emit('receiveRoomMsg', payload);
 
