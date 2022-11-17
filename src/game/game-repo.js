@@ -22,25 +22,22 @@ class GameRepo {
         return roomData.currentCount;
     };
 
-    //스파이 선택
+    //스파이 선택하기
     selectSpy = async (nickname) => {
         return await User.find(nickname);
     };
 
-    //스파이 저장 -> db room에 저장
-    // isSpy = (spyUser) => {};
-
-    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (word) => {
-        return await Game.find(word);
-    };
-
-    //카테고리 & 단어 막무가내로 보여주기
-    giveExample = async (category, word) => {
+    //카테고리 & 정답 단어 보여주기
+    giveWord = async (category, word) => {
         return await Game.find(category, word);
     };
 
-    //발언권 지목
+    giveExample = async (category) => {
+        const giveExample = await Game.find(category);
+        return giveExample;
+    };
+
+    //발언권 지목하기
     micToss = async (nickname) => {
         return await User.find(nickname);
     };
