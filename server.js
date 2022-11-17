@@ -3,6 +3,7 @@ require('dotenv').config();
 require('./src/socket');
 require('./src/game/game-socket');
 require('./src/rooms/room-socket');
+require('./src/chat/chat-socket');
 const mongodb = require('./src/schemas');
 const Room = require('./src/schemas/room');
 
