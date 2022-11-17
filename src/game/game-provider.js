@@ -44,6 +44,7 @@ class GameProvider {
         // 게임이 끝난 후 redis 메모리 확보.
         await redis.del(`gameRoom${roomNum}Result`);
         await redis.del(`gameRoom${roomNum}Users`);
+        await redis.del(`nowVote${roomNum}`);
 
         // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
         return {
