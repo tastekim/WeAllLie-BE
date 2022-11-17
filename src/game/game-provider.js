@@ -86,22 +86,32 @@ class GameProvider {
 
     // 스파이 랜덤 설정
     selectSpy = async (nickname) => {
-        // const spyUser = await GameRepo.selectSpy(nickname);
-        // let result = [];
-        // for (let i = 0; i < spyUser.length; i++) {
-        //     result.push(spyUser[i]);
-        // }
-        // shuffle(result);
-        // let spy = result.slice(-1);
-        // return spy;
+        const spyUser = await GameRepo.selectSpy(nickname);
+        let result = [];
+        for (let i = 0; i < spyUser.length; i++) {
+            result.push(spyUser[i]);
+        }
+        shuffle(result);
+        let spy = result.slice(-1);
+        return spy;
     };
 
-    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (category, word) => {
-        // if (isSpy) {
-        //     return {'message': '시민들이 정답 단어 확인 중 입니다.'};
-        // }
+    isSpy = async (spyUser) => {
+        //스파이 저장
+        const isSpy = await redis.set(`room${spyUser}`);
+        return isSpy;
+    };
+
+    giveWord = async (spyUser, category, word) => {
+        //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
+        const isSpy = await redis.get(`room${spyUser}`);
+
+        if (isSpy) {
+            return { message: '시민들이 정답 단어 확인 중 입니다.' };
+        }
+        //category 랜덤으로 출력
         const givecategory = await GameRepo.giveWord(category);
+
         let answer = [];
 
         for (let i = 0; i < givecategory.length; i++) {
@@ -110,37 +120,36 @@ class GameProvider {
 
         shuffle(answer);
         let categoryFix = answer.slice(-1);
-        return shuffle(categoryFix);
+        shuffle(categoryFix);
 
         //주어진 categoryFix 안의 단어들 랜덤으로 1개 지정
-        // const giveWord = await GameRepo.giveWord(word);
+        await GameRepo.giveWord(word);
 
-        // let result = []
-        // for (let i = 0; i < giveWord.length; i++) {
-        //     result.push(giveWord[i]);
-        // }
-
-        // shuffle(result);
-        // let answerWord = result.slice(-1);
-        // return answerWord;
-    };
-    // 카테고리 픽스안의 단어 보여주기 //스파이도 보여주기
-    //단어 랜덤으로 보여주기
-    giveExample = async (word) => {
-        const gameCategory = await GameRepo.giveExample(category);
         let result = [];
 
-        for (let i = 0; i < gameCategory.length; i++) {
-            result.push(gameCategory[i]);
+        for (let i = 0; i < categoryFix.length; i++) {
+            result.push(categoryFix[i]);
         }
 
         shuffle(result);
-        let categoryFix = result.slice(0, 20);
-        return shuffle(categoryFix);
+        let answerWord = result.slice(-1);
+        shuffle(answerWord);
     };
 
-    //발언권 랜덤 설정
-    //발언권 처음 랜덤 설정 / 45초 발언권 / 발언 후 넘길 사람 선택 안할 시 if !click -> 5초후 random 으로 발언권 부여 / 이미 발언 한 사람은 발언 못함 if click de hua bu ke neng check
+    //카테고리 픽스안의 단어 보여주기
+    giveExample = async (category) => {
+        const givecategory = await GameRepo.giveWord(category);
+        const giveExample = await GameRepo.giveExample(category);
+
+        if (givecategory === giveExample) {
+            await GameRepo.giveWord(category);
+            await GameRepo.giveExample(category);
+
+            return;
+        }
+    };
+
+    //발언권 처음 랜덤 설정 / 45초 발언권 / 다음 발언권 상대 클릭
     micToss = async (nickname) => {
         const micToss = await GameRepo.micToss(nickname);
 

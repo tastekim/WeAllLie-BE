@@ -12,7 +12,6 @@ const app = express();
 const http = Server(app);
 
 // middlewares
-passportConfig();
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());

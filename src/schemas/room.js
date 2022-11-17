@@ -36,18 +36,17 @@ const RoomSchema = new Schema({
         default: null,
     },
 
-  roomMaker: {
-    type : String,
-    required: false,
-    default : null,
-  },
+    roomMaker: {
+        type: String,
+        required: false,
+        default: null,
+    },
 
-  spyUser: {
-    type : String,
-    required: false,
-    default : null
-  }
-
+    spyUser: {
+        type: String,
+        required: false,
+        default: null,
+    },
 });
 
 const Room = model('room', RoomSchema);

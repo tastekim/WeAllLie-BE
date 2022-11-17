@@ -1,4 +1,5 @@
 const game = require('../socket');
+const { isSpy } = require('./game-provider');
 const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
@@ -67,21 +68,24 @@ game.on('connection', (socket) => {
 
     //스파이 선택
     socket.on('selectSpy', async (nickname) => {
-        socket.emit('selectSpy', await GameProvider.selectSpy(nickname));
+        //모든 클라이언트에게 메시지 전송
+        socket.broadcast.emit('catch the spy', await GameProvider.selectSpy(nickname));
+        //특정 클라이언트에게 메시지 전송
+        game.to(isSpy).emit('you are spy', await GameProvider.isSpy());
     });
 
-    //카테고리 & 정답 단어 보여주기
+    //카테고리 & 정답단어 보여주기
     socket.on('giveWord', async (category, word) => {
-        socket.emit('giveWord', await GameProvider.giveWord(word))
-    })
+        socket.emit('suggested word', await GameProvider.giveWord(category, word));
+    });
 
-    //단어 랜덤으로 보여주기
-    socket.on('giveExample', async (word) => {
-        socket.emit('giveExample', await GameProvider.giveExample(word))
-    })
+    //선택된 카테고리 단어 보여주기
+    socket.on('giveExample', async (category) => {
+        game.emit('showWord', await GameProvider.giveExample(category));
+    });
 
     //발언권 지목
     socket.on('micToss', async (nickname) => {
-        socket.emit('micToss', await GameProvider.micToss(nickname));
+        socket.to(socket.id).emit('micToss', await GameProvider.micToss(nickname));
     });
 });
