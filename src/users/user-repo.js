@@ -1,4 +1,4 @@
-const { User } = require('../schemas/user');
+const User = require('../schemas/user');
 const axios = require('axios');
 const qs = require('qs');
 require('dotenv').config();
@@ -6,7 +6,7 @@ require('dotenv').config();
 class UserRefo {
     //
     findAllUser = async () => {
-        const allUser = await User.find();
+        const allUser = await User.find({});
         return allUser;
     };
 
@@ -27,22 +27,25 @@ class UserRefo {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded',
             },
-            /* with FE
-      data: qs.stringify({
-        grant_type: 'authorization_code',
-        client_id: process.env.CLIENT_ID_FRONT,
-        client_secret: process.env.CLIENT_SECRET,
-        redirectUri: process.env.CALLBACK_URL_LOCAL,
-        code: code,
-      }),
-      */
 
+            // with FE
+            data: qs.stringify({
+                grant_type: 'authorization_code',
+                client_id: process.env.CLIENT_ID_FRONT,
+                client_secret: process.env.CLIENT_SECRET,
+                redirectUri: process.env.CALLBACK_URL_LOCAL,
+                code: code,
+            }),
+
+            /*
+            // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
                 client_id: process.env.CLIENT_ID,
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
         return kakaoToken.data.access_token;
     };
@@ -60,7 +63,7 @@ class UserRefo {
     };
 
     getPlayRecord = async (user, accessToken) => {
-        let spyWinRating, voteSpyRating, totalCount;
+        let spyWinRating, voteSpyRating;
         if (user.totalCount === 0) {
             spyWinRating = 0;
             voteSpyRating = 0;
@@ -107,11 +110,11 @@ class UserRefo {
             } else {
                 nickname = `Agent_${n}`;
             }
-            nickname = nickname;
+            _id = +nickNum;
         }
         // 위에서 만든 값으로 newUser DB 에 저장하기
         const newUser = await User.create({
-            _id: +nickNum,
+            _id,
             nickname,
             email: kakaoUserInfo.kakao_account.email,
             profileImg: kakaoUserInfo.properties.thumbnail_image
@@ -123,3 +126,18 @@ class UserRefo {
 }
 
 module.exports = new UserRefo();
+
+/*
+0|server  | kakaoUserInfo:::::: {
+0|server  |   id: 2537488884,
+0|server  |   connected_at: '2022-11-16T15:39:39Z',
+0|server  |   properties: { nickname: '닉네임' },
+0|server  |   kakao_account: {
+0|server  |     profile_nickname_needs_agreement: false,
+0|server  |     profile_image_needs_agreement: true,
+0|server  |     profile: { nickname: '진영(Evelyn)' },
+0|server  |     has_email: true,
+0|server  |     email_needs_agreement: true
+0|server  |   }
+0|server  | }
+*/
