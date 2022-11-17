@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
-const passportConfig = require('./middlewares/passport');
+//const passportConfig = require('./middlewares/passport');
 const cors = require('cors');
 
 require('dotenv').config();
@@ -12,8 +12,21 @@ const app = express();
 const http = Server(app);
 
 // middlewares
-passportConfig();
-app.use(cors());
+app.use(function (req, res, next) {
+    res.set({
+        'Access-Control-Allow-Credentials': true,
+        'Access-Control-Allow-Origin': req.headers.origin,
+        'Access-Control-Allow-Methods': '*',
+        'Access-Control-Allow-Headers':
+            'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, authorization, refreshToken, cache-control',
+    });
+    next();
+});
+app.use(
+    cors({
+        origin: '*',
+    })
+);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

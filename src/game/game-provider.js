@@ -87,49 +87,69 @@ class GameProvider {
     // 스파이 랜덤 설정
     selectSpy = async (nickname) => {
         const spyUser = await GameRepo.selectSpy(nickname);
-
         let result = [];
         for (let i = 0; i < spyUser.length; i++) {
             result.push(spyUser[i]);
         }
-
         shuffle(result);
-        return result.slice(-1);
+        let spy = result.slice(-1);
+        return spy;
     };
 
-    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (word) => {
-        const giveWord = await GameRepo.giveWord(word);
+    isSpy = async (spyUser) => {
+        //스파이 저장
+        const isSpy = await redis.set(`room${spyUser}`);
+        return isSpy;
+    };
+
+    giveWord = async (spyUser, category, word) => {
+        //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
+        const isSpy = await redis.get(`room${spyUser}`);
+
         if (isSpy) {
             return { message: '시민들이 정답 단어 확인 중 입니다.' };
         }
+        //category 랜덤으로 출력
+        const givecategory = await GameRepo.giveWord(category);
+
+        let answer = [];
+
+        for (let i = 0; i < givecategory.length; i++) {
+            answer.push(givecategory[i]);
+        }
+
+        shuffle(answer);
+        let categoryFix = answer.slice(-1);
+        shuffle(categoryFix);
+
+        //주어진 categoryFix 안의 단어들 랜덤으로 1개 지정
+        await GameRepo.giveWord(word);
 
         let result = [];
-        for (let i = 0; i < giveWord.length; i++) {
-            result.push(giveWord[i]);
+
+        for (let i = 0; i < categoryFix.length; i++) {
+            result.push(categoryFix[i]);
         }
 
         shuffle(result);
-        return result.slice(-1);
+        let answerWord = result.slice(-1);
+        shuffle(answerWord);
     };
 
-    //카테고리 & 단어 막무가내로 보여주기
-    giveExample = async (category, word) => {
-        const gameCategory = await GameRepo.giveExample(category);
-        let result = [];
+    //카테고리 픽스안의 단어 보여주기
+    giveExample = async (category) => {
+        const givecategory = await GameRepo.giveWord(category);
+        const giveExample = await GameRepo.giveExample(category);
 
-        for (let i = 0; i < gameCategory.length; i++) {
-            result.push(gameCategory[i]);
+        if (givecategory === giveExample) {
+            await GameRepo.giveWord(category);
+            await GameRepo.giveExample(category);
+
+            return;
         }
-
-        shuffle(result);
-        let categoryFix = result.slice(0, 20);
-        return shuffle(categoryFix);
     };
 
-    //발언권 랜덤 설정
-    //발언권 처음 랜덤 설정 / 지목당한 사람이 발언 후 발언권 넘길 다음 상대방 클릭 / 발언권 시간 최대 45초 (넘 긴것같은데..) /
-    //넘길 사람 선택 안할 시 랜덤으로 발언권 부여 / 연속해서 같은 사람을 지목하는 건 안됨 /나한테 발언권 준 사람은 못 찍음
+    //발언권 처음 랜덤 설정 / 45초 발언권 / 다음 발언권 상대 클릭
     micToss = async (nickname) => {
         const micToss = await GameRepo.micToss(nickname);
 
@@ -145,7 +165,8 @@ class GameProvider {
         }
 
         shuffle(result);
-        return result.slice(-1);
+        let randomStart = result.slice(-1);
+        return randomStart;
     };
 }
 

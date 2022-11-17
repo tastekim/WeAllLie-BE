@@ -27,17 +27,14 @@ class GameRepo {
         return await User.find(nickname);
     };
 
-    //스파이 저장 -> db room에 저장
-    // isSpy = (spyUser) => {};
-
-    //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-    giveWord = async (word) => {
-        return await Game.find(word);
+    //카테고리 & 정답 단어 보여주기
+    giveWord = async (category, word) => {
+        return await Game.find(category, word);
     };
 
-    //카테고리 & 단어 막무가내로 보여주기
-    giveExample = async (category, word) => {
-        return await Game.find(category, word);
+    giveExample = async (category) => {
+        const giveExample = await Game.find(category);
+        return giveExample;
     };
 
     //발언권 지목
