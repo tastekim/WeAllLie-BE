@@ -6,18 +6,42 @@ chat.on('connection', async (socket) => {
     console.log(socket.id + ' 여긴 채팅방!!!');
 
     // 로비 채팅
-    socket.on('sendLobbyMsg', async (payload, callback) => {
+    socket.on('sendLobbyMsg', (payload, callback) => {
+        console.log('로비채팅');
+        console.log(payload);
         socket.broadcast.emit('receiveLobbyMsg', payload);
         callback();
     });
     // 룸 채팅
-    socket.on('sendRoomMsg', async (payload, roomNum, callback) => {
-        // socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
-        socket.to(roomNum).emit('receiveRoomMsg', payload);
+    socket.on('sendRoomMsg', (payload, roomNum, callback) => {
+        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        // socket.to(roomNum).emit('receiveRoomMsg', payload);
 
         callback();
     });
 });
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function publicRooms() {
     const sids = chat.sockets.adapter.sids;
@@ -42,3 +66,5 @@ const getLobbyUsers = async () => {
     });
     return lobbyUsers;
 };
+
+*/
