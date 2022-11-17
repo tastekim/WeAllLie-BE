@@ -22,7 +22,7 @@ class GameRepo {
         return roomData.currentCount;
     };
 
-    //스파이 선택
+    //스파이 선택하기
     selectSpy = async (nickname) => {
         return await User.find(nickname);
     };
@@ -37,7 +37,7 @@ class GameRepo {
         return giveExample;
     };
 
-    //발언권 지목
+    //발언권 지목하기
     micToss = async (nickname) => {
         return await User.find(nickname);
     };
