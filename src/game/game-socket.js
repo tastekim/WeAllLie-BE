@@ -60,7 +60,7 @@ game.on('connection', (socket) => {
             game.to(`/gameRoom${roomNum}`).emit('voteStart', curr);
         }
         // 본인의 nickname, 현재 nowVote 를 누른 인원 수
-        socket.to(`/gameRoom${roomNum}`).emit('nowVote', {
+        socket.emit('nowVote', {
             nickname: socket.nickname,
             currNowVoteCount: curr,
         });
