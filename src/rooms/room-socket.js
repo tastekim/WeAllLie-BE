@@ -25,7 +25,7 @@ lobby.on('connection', async (socket) => {
     console.log(socket.id + ' join lobby !');
     console.log(userCnt);
     const shwRoom = await Room.find({});
-    lobby.socket.emit('showRoom', shwRoom);
+    lobby.sockets.emit('showRoom', shwRoom);
     lobby.emit('userCount', userCnt);
 
     socket.on('disconnect', () => {
