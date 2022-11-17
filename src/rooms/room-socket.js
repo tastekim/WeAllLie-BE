@@ -1,6 +1,7 @@
 const lobby = require('../socket');
 const Room = require('../schemas/room');
 const redis = require('../redis');
+const io = require('../socket');
 
 const autoIncrease = function () {
     let a = 1;
@@ -14,14 +15,14 @@ const autoInc = autoIncrease();
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
     console.log(socket.id + ' join lobby !');
-    socket.emit('showRoom', shwRoom)
+    const shwRoom = await Room.find({});
+
+    // socket.emit('showRoom', shwRoom);
 
     // 방 조회
-    socket.on('showRoom', async() => {
-      const shwRoom = await Room.find({});
-
-      socket.emit('showRoom', shwRoom)
-    })
+    socket.on('showRoom', async () => {
+        socket.emit('showRoom', shwRoom);
+    });
 
     socket.on('getNickname', (nickname) => {
         socket.nickname = nickname;
@@ -37,13 +38,13 @@ lobby.on('connection', async (socket) => {
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             socket.leave(`/gameRoom${roomNum}`);
             socket.emit('leaveRoom', udtRoom);
-            socket.emit('showRoom', shwRoom)
+            socket.emit('showRoom', shwRoom);
         } else if (udtRoom.currentCount <= 0) {
             const dteRoom = await Room.deleteOne({ _id: roomNum });
 
             console.log('방이 삭제 되었습니다.');
             socket.emit('leaveRoom', dteRoom);
-            socket.emit('showRoom', shwRoom)
+            socket.emit('showRoom', shwRoom);
         }
     });
 
@@ -99,7 +100,7 @@ lobby.on('connection', async (socket) => {
             if (findRoom.currentCount == readyCount) {
                 console.log('게임 시작 ! ');
                 lobby.to(`/gameRoom${roomNum}`).emit('gameStart');
-                await Room.findByIdAndUpdate({_id : roomNum}, {roomStatus : true})
+                await Room.findByIdAndUpdate({ _id: roomNum }, { roomStatus: true });
                 await redis.del(`ready${roomNum}`);
             }
         }, 5000);
@@ -109,5 +110,10 @@ lobby.on('connection', async (socket) => {
     socket.on('unReady', async () => {
         await redis.decr(`ready${roomNum}`);
         console.log('준비 취소 !');
+    });
+
+    socket.on('test', async () => {
+        const allSocket = await io.sockets.client();
+        console.log(allSocket);
     });
 });
