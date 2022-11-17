@@ -12,23 +12,34 @@ const autoIncrease = function () {
 };
 const autoInc = autoIncrease();
 
+let userCnt = 0;
+
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
+    // 닉네임 가져오기
+    socket.on('getNickname', (nickname) => {
+        socket.nickname = nickname;
+        socket.emit('getNickname', socket.nickname);
+        console.log(socket.nickname);
+    });
+    userCnt++;
     console.log(socket.id + ' join lobby !');
+    console.log(userCnt);
     const shwRoom = await Room.find({});
     socket.emit('showRoom', shwRoom);
+    lobby.emit('userCount', userCnt);
+
+    socket.on('disconnect', () => {
+        userCnt--;
+        console.log(userCnt);
+        lobby.emit('userCount', userCnt);
+    });
 
     // 방 조회
     socket.on('showRoom', async () => {
         const shwRoom = await Room.find({});
 
         socket.emit('showRoom', shwRoom);
-    });
-    // 닉네임 가져오기
-    socket.on('getNickname', (nickname) => {
-        socket.nickname = nickname;
-        socket.emit('getNickname', socket.nickname);
-        console.log(socket.nickname);
     });
 
     // 방 퇴장
