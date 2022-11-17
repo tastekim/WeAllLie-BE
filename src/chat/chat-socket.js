@@ -10,7 +10,7 @@ chat.on('connection', async (socket) => {
         console.log('로비채팅');
         console.log(payload);
         // socket.broadcast.emit('receiveLobbyMsg', payload);
-        chat.emit('receiveLobbyMsg', payload);
+        chat.sockets.emit('receiveLobbyMsg', payload);
         callback();
     });
     // 룸 채팅
