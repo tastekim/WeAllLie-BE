@@ -5,6 +5,14 @@ const chat = require('../socket');
 chat.on('connection', async (socket) => {
     console.log(socket.id + ' 여긴 채팅방!!!');
 
+    // 로비 입장 메세지
+    socket.on('enterLobby', (nickname, callback) => {
+        console.log(`${nickname} 로비 입장`);
+        const msg = `${nickname} 님이 입장하셨습니다.`;
+        socket.emit('receiveLobbyMsg', msg);
+        callback();
+    });
+
     // 로비 채팅
     socket.on('sendLobbyMsg', (payload, callback) => {
         console.log('로비채팅');
