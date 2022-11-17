@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
-const passportConfig = require('./middlewares/passport');
+//const passportConfig = require('./middlewares/passport');
 const cors = require('cors');
 
 require('dotenv').config();
