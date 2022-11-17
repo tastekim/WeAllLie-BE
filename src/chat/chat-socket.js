@@ -12,7 +12,8 @@ chat.on('connection', async (socket) => {
     });
     // 룸 채팅
     socket.on('sendRoomMsg', async (payload, roomNum, callback) => {
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        // socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        socket.to(roomNum).emit('receiveRoomMsg', payload);
 
         callback();
     });
