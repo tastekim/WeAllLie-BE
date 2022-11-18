@@ -64,21 +64,58 @@ class UserRefo {
 
     getPlayRecord = async (user, accessToken) => {
         let spyWinRating, voteSpyRating;
-        if (user.totalCount === 0) {
-            spyWinRating = 0;
-            voteSpyRating = 0;
-        } else if (user.spyPlayCount === 0) {
-            spyWinRating = 0;
-        } else if (user.totalCount - user.spyPlayCount === 0) {
-            voteSpyRating = 0;
-        }
 
         spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
         voteSpyRating =
             (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
 
-        console.log('spyWinRating', spyWinRating);
-        console.log('voteSpyRating', voteSpyRating);
+        if (user.totalCount === 0) {
+            return {
+                accessToken,
+                userId: user._id,
+                nickname: user.nickname,
+                profileImg: user.profileImg,
+                totayPlayCount: user.totalCount,
+                spyPlayCount: user.spyPlayCount,
+                ctzPlayCount: user.totalCount - user.spyPlayCount,
+                spyWinRating: 0,
+                voteSpyRating: 0,
+            };
+        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
+            return {
+                accessToken,
+                userId: user._id,
+                nickname: user.nickname,
+                profileImg: user.profileImg,
+                totayPlayCount: user.totalCount,
+                spyPlayCount: user.spyPlayCount,
+                ctzPlayCount: user.totalCount - user.spyPlayCount,
+                spyWinRating: 0,
+                voteSpyRating,
+            };
+        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
+            return {
+                accessToken,
+                userId: user._id,
+                nickname: user.nickname,
+                profileImg: user.profileImg,
+                totayPlayCount: user.totalCount,
+                spyPlayCount: user.spyPlayCount,
+                ctzPlayCount: user.totalCount - user.spyPlayCount,
+                spyWinRating,
+                voteSpyRating: 0,
+            };
+        }
+
+        console.log(`spyWinRating ::: ${spyWinRating}`);
+        console.log(`voteSpyRating ::: ${voteSpyRating}`);
+
+        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
+        voteSpyRating =
+            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
+
+        console.log(`spyWinRating ::: ${spyWinRating}`);
+        console.log(`voteSpyRating ::: ${voteSpyRating}`);
 
         return {
             accessToken,
