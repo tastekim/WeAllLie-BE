@@ -107,9 +107,6 @@ class UserRefo {
             };
         }
 
-        console.log(`spyWinRating ::: ${spyWinRating}`);
-        console.log(`voteSpyRating ::: ${voteSpyRating}`);
-
         return {
             accessToken,
             userId: user._id,
