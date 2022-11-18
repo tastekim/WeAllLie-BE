@@ -110,13 +110,6 @@ class UserRefo {
         console.log(`spyWinRating ::: ${spyWinRating}`);
         console.log(`voteSpyRating ::: ${voteSpyRating}`);
 
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        console.log(`spyWinRating ::: ${spyWinRating}`);
-        console.log(`voteSpyRating ::: ${voteSpyRating}`);
-
         return {
             accessToken,
             userId: user._id,
