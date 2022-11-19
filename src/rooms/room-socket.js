@@ -50,13 +50,13 @@ lobby.on('connection', async (socket) => {
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             socket.leave(`/gameRoom${roomNum}`);
             socket.emit('leaveRoom', udtRoom);
-            lobby.socket.emit('showRoom', shwRoom);
+            lobby.sockets.emit('showRoom', shwRoom);
         } else if (udtRoom.currentCount <= 0) {
             const dteRoom = await Room.deleteOne({ _id: roomNum });
 
             console.log('방이 삭제 되었습니다.');
             socket.emit('leaveRoom', dteRoom);
-            lobby.socket.emit('showRoom', shwRoom);
+            lobby.sockets.emit('showRoom', shwRoom);
         }
     });
 
