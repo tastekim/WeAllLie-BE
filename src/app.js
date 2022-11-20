@@ -4,6 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
+const { errorLogger, errorHandler } = require('../src/middlewares/error-handler');
 //const passportConfig = require('./middlewares/passport');
 const cors = require('cors');
 
@@ -42,5 +43,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
+app.use(errorLogger, errorHandler);
 
 module.exports = http;
