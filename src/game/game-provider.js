@@ -84,33 +84,40 @@ class GameProvider {
         return [roomCurrentCount, currNowVote];
     };
 
+    //방안에 있는 사람을 모아야 하는 로직을 만들어야함
+    //랜덤으로 스파이 유저를 뽑고, 그 방에 스파이 정보를 에밋을 받고
+    //스파이인유저랑 시민유저들 저장후 셔플
+
+    collectUserNickname = async (roomNum) => {
+        // 방에 참여 중인 유저 닉네임.
+        await redis.set(`gameRoom${roomNum}Users`, 0, -1);
+    };
+
     // 스파이 랜덤 설정
-    selectSpy = async (nickname) => {
-        const spyUser = await GameRepo.selectSpy(nickname);
+    selectSpy = async (roomNum, spyUser) => {
+        const getAllNickname = await redis.get(`gameRoom${roomNum}Users`, 0, -1);
+
         let result = [];
-        for (let i = 0; i < spyUser.length; i++) {
-            result.push(spyUser[i]);
+        for (let i = 0; i < getAllNickname.length; i++) {
+            result.push(getAllNickname[i]);
         }
         shuffle(result);
         let spy = result.slice(-1);
-        return spy;
-    };
 
-    isSpy = async (spyUser) => {
         //스파이 저장
-        const isSpy = await redis.set(`room${spyUser}`);
-        return isSpy;
+        const saveSpy = await redis.set(`roomSpy${roomNum}`, spyUser, spy);
+        return saveSpy;
     };
 
-    giveWord = async (spyUser, category, word) => {
+    giveWord = async (spyUser, category) => {
         //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
         const isSpy = await redis.get(`room${spyUser}`);
 
         if (isSpy) {
-            return { message: '시민들이 정답 단어 확인 중 입니다.' };
+            return { message: '시민들이 제시어를 확인 중 입니다.' };
         }
         //category 랜덤으로 출력
-        const givecategory = await GameRepo.giveWord(category);
+        const givecategory = await GameRepo.giveCategory(category);
 
         let answer = [];
 
@@ -120,32 +127,41 @@ class GameProvider {
 
         shuffle(answer);
         let categoryFix = answer.slice(-1);
-        shuffle(categoryFix);
 
-        //주어진 categoryFix 안의 단어들 랜덤으로 1개 지정
-        await GameRepo.giveWord(word);
+        //shuffle로 추출된 카테고리를 redis에 저장함
+        const selectCategory = await redis.set(`game${selectCategory}`, categoryFix);
+        //mongoose에 있는 카테고리
+        const showCategory = await GameRepo.giveWord(categoryFix);
 
-        let result = [];
+        //단어 랜덤으로 1개 지정 (제시어)
+        if (selectCategory === showCategory.category) {
+            await redis.get(`game${selectCategory}`);
+            const realAnswer = await GameRepo.giveWord(categoryFix);
 
-        for (let i = 0; i < categoryFix.length; i++) {
-            result.push(categoryFix[i]);
+            let result = [];
+
+            for (let i in realAnswer) {
+                result.push(realAnswer[i]);
+            }
+
+            shuffle(result);
+            let answerWord = result.slice(-1);
+            return answerWord;
         }
-
-        shuffle(result);
-        let answerWord = result.slice(-1);
-        shuffle(answerWord);
     };
 
-    //카테고리 픽스안의 단어 보여주기
-    giveExample = async (category) => {
-        const givecategory = await GameRepo.giveWord(category);
+    //카테고리 픽스안의 단어 보여주기 (카테고리에 있는 key값과 카테고리픽스의 key값이 같은 value값을 보여주기)
+    //레디스에서 값으 불러와서 그걸 쿼리로 보내
+    giveExample = async (category, selectCategory) => {
+        const categoryFix = await redis.get(`game${selectCategory}`, 0);
         const giveExample = await GameRepo.giveExample(category);
 
-        if (givecategory === giveExample) {
-            await GameRepo.giveWord(category);
+        if (categoryFix === giveExample) {
+            await redis.get(`game${selectCategory}`);
             await GameRepo.giveExample(category);
-
-            return;
+            let showWord = [];
+            Object.values(category);
+            console.log(showWord);
         }
     };
 
@@ -155,7 +171,7 @@ class GameProvider {
 
         let timer;
         setTimeout(() => {
-            console.log(`발언시간이 끝났습니다.`);
+            console.log(`발언 시간이 끝났습니다.`);
             clearInterval(timer);
         }, 45000);
 
@@ -166,6 +182,7 @@ class GameProvider {
 
         shuffle(result);
         let randomStart = result.slice(-1);
+        console.log(`${nickname} 님 발언을 시작해주세요.`);
         return randomStart;
     };
 }

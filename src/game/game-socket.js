@@ -1,5 +1,4 @@
 const game = require('../socket');
-const { isSpy } = require('./game-provider');
 const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
@@ -67,25 +66,30 @@ game.on('connection', (socket) => {
     });
 
     //스파이 선택
-    socket.on('selectSpy', async (nickname) => {
-        //모든 클라이언트에게 메시지 전송
-        socket.broadcast.emit('catch the spy', await GameProvider.selectSpy(nickname));
+    socket.on('selectSpy', async (roomNum, spyUser) => {
+        //특정 클라이언트 빼고 모든 클라이언트에게 메시지 전송
+        socket.broadcast.emit('catch the spy', notSpy);
+        const notSpy = await GameProvider.selectSpy(roomNum);
         //특정 클라이언트에게 메시지 전송
-        game.to(isSpy).emit('you are spy', await GameProvider.isSpy());
+        game.to(spyUser).emit('you are spy', youSpy);
+        const youSpy = await GameProvider.selectSpy(roomNum.saveSpy);
     });
 
     //카테고리 & 정답단어 보여주기
     socket.on('giveWord', async (category, word) => {
-        socket.emit('suggested word', await GameProvider.giveWord(category, word));
+        socket.emit('suggested word', giveWord);
+        const giveWord = await GameProvider.giveWord(category, word);
     });
 
     //선택된 카테고리 단어 보여주기
     socket.on('giveExample', async (category) => {
-        game.emit('showWord', await GameProvider.giveExample(category));
+        game.emit('showWord', giveExample);
+        const giveExample = await GameProvider.giveExample(category);
     });
 
     //발언권 지목
     socket.on('micToss', async (nickname) => {
-        socket.to(socket.id).emit('micToss', await GameProvider.micToss(nickname));
+        socket.to(socket.id).emit('micToss', micToss);
+        const micToss = await GameProvider.micToss(nickname);
     });
 });
