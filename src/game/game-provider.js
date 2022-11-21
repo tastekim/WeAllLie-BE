@@ -185,6 +185,10 @@ class GameProvider {
         console.log(`${nickname} 님 발언을 시작해주세요.`);
         return randomStart;
     };
+    //찾아서 넣기
+    // await redis.del(`gameRoom${roomNum}Users`);
+    // await redis.del(`room${spyUser}`);
+    // await redis.del(`roomSpy${roomNum}`);
+    // await redis.del(`game${selectCategory}`);
 }
-
 module.exports = new GameProvider();
