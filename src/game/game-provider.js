@@ -97,9 +97,9 @@ class GameProvider {
         return spy;
     };
 
-    isSpy = async (spyUser) => {
+    isSpy = async (roomNum, spyUser) => {
         //스파이 저장
-        const isSpy = await redis.set(`room${spyUser}`);
+        const isSpy = await redis.set(`roomSpy${roomNum}`, spyUser);
         return isSpy;
     };
 

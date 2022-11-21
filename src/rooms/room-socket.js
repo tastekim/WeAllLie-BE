@@ -25,7 +25,7 @@ lobby.on('connection', async (socket) => {
     console.log(socket.id + ' join lobby !');
     console.log(userCnt);
     const shwRoom = await Room.find({});
-    lobby.socket.emit('showRoom', shwRoom);
+    lobby.sockets.emit('showRoom', shwRoom);
     lobby.emit('userCount', userCnt);
 
     socket.on('disconnect', () => {
@@ -38,7 +38,7 @@ lobby.on('connection', async (socket) => {
     socket.on('showRoom', async () => {
         const shwRoom = await Room.find({});
 
-        lobby.socket.emit('showRoom', shwRoom);
+        lobby.sockets.emit('showRoom', shwRoom);
     });
 
     // 방 퇴장
@@ -78,7 +78,7 @@ lobby.on('connection', async (socket) => {
         socket.join(`/gameRoom${autoNum}`);
         console.log(makedRoom);
         socket.emit('createRoom', makedRoom);
-        lobby.socket.emit('showRoom', shwRoom);
+        lobby.sockets.emit('showRoom', shwRoom);
     });
 
     // 게임방입장

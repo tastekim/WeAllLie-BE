@@ -67,11 +67,11 @@ game.on('connection', (socket) => {
     });
 
     //스파이 선택
-    socket.on('selectSpy', async (nickname) => {
+    socket.on('selectSpy', async (roomNum, nickname) => {
         //모든 클라이언트에게 메시지 전송
         socket.broadcast.emit('catch the spy', await GameProvider.selectSpy(nickname));
         //특정 클라이언트에게 메시지 전송
-        game.to(isSpy).emit('you are spy', await GameProvider.isSpy());
+        game.to(isSpy).emit('you are spy', await GameProvider.isSpy(roomNum, nickname));
     });
 
     //카테고리 & 정답단어 보여주기
