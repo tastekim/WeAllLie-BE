@@ -75,16 +75,11 @@ game.on('connection', (socket) => {
         const youSpy = await GameProvider.selectSpy(roomNum.saveSpy);
     });
 
-    //카테고리 & 정답단어 보여주기
+    //카테고리 & 정답단어 보여주기 //선택된 카테고리 단어 보여주기
     socket.on('giveWord', async (category, word) => {
-        socket.emit('suggested word', giveWord);
         const giveWord = await GameProvider.giveWord(category, word);
-    });
-
-    //선택된 카테고리 단어 보여주기
-    socket.on('giveExample', async (category) => {
-        game.emit('showWord', giveExample);
         const giveExample = await GameProvider.giveExample(category);
+        socket.emit('suggested word', giveWord, giveExample);
     });
 
     //발언권 지목
