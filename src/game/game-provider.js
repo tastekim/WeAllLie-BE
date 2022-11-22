@@ -149,18 +149,23 @@ class GameProvider {
             return answerWord;
         }
     };
-
+    
     //카테고리 픽스안의 단어 보여주기 (카테고리에 있는 key값과 카테고리픽스의 key값이 같은 value값을 보여주기)
     //레디스에서 값으 불러와서 그걸 쿼리로 보내
-    giveExample = async (category, selectCategory) => {
-        const categoryFix = await redis.get(`game${selectCategory}`, 0);
-        const giveExample = await GameRepo.giveExample(category);
+    giveExample = async (categoryFix) => {
+        //redis에 저장된 카테고리 불러오기
+        const selectCategory = await redis.set(`game${selectCategory}`, categoryFix);
+        const giveExample = await GameRepo.giveExample(categoryFix);
 
-        if (categoryFix === giveExample) {
+        if (selectCategory === giveExample) {
             await redis.get(`game${selectCategory}`);
-            await GameRepo.giveExample(category);
-            let showWord = [];
-            Object.values(category);
+            const showWord = await GameRepo.giveExample(category);
+
+            let result = [];
+
+            for (let i in showWord){
+                result.push(showWord[i]);
+            }
             console.log(showWord);
         }
     };
