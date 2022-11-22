@@ -36,8 +36,8 @@ class GameRepo {
         return giveWord;
     };
 
-    giveExample = async (category) => {
-        const giveExample = await Game.find(category);
+    giveExample = async (categoryFix) => {
+        const giveExample = await Game.find({ category: categoryFix });
         return giveExample;
     };
 
