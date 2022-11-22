@@ -45,17 +45,24 @@ lobby.on('connection', async (socket) => {
     socket.on('leaveRoom', async (roomNum) => {
         await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
         const udtRoom = await Room.findOne({ _id: roomNum });
-        const shwRoom = await Room.find({});
+        let shwRoom = await Room.find({});
 
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             socket.leave(`/gameRoom${roomNum}`);
             socket.emit('leaveRoom', udtRoom);
             lobby.sockets.emit('showRoom', shwRoom);
         } else if (udtRoom.currentCount <= 0) {
-            const dteRoom = await Room.deleteOne({ _id: roomNum });
-
+            await Room.deleteOne({ _id: roomNum });
+            shwRoom = await Room.find({});
             console.log('방이 삭제 되었습니다.');
-            socket.emit('leaveRoom', dteRoom);
+            socket.emit('leaveRoom');
+            lobby.sockets.emit('showRoom', shwRoom);
+        } else if (udtRoom.roomMaker === socket.nickname) {
+            console.log('방장이 퇴장했습니다.');
+            socket.leave(`/gameRoom${roomNum}`);
+            lobby.in(`/gameRoom${roomNum}`).disconnectSockets(true);
+            await Room.deleteOne({ _id: roomNum });
+            shwRoom = await Room.find({});
             lobby.sockets.emit('showRoom', shwRoom);
         }
     });
