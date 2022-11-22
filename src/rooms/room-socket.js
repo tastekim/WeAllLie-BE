@@ -25,7 +25,7 @@ lobby.on('connection', async (socket) => {
     console.log(socket.id + ' join lobby !');
     console.log(userCnt);
     const shwRoom = await Room.find({});
-    lobby.socket.emit('showRoom', shwRoom);
+    lobby.sockets.emit('showRoom', shwRoom);
     lobby.emit('userCount', userCnt);
 
     socket.on('disconnect', () => {
@@ -38,7 +38,7 @@ lobby.on('connection', async (socket) => {
     socket.on('showRoom', async () => {
         const shwRoom = await Room.find({});
 
-        lobby.socket.emit('showRoom', shwRoom);
+        lobby.sockets.emit('showRoom', shwRoom);
     });
 
     // 방 퇴장
@@ -78,7 +78,7 @@ lobby.on('connection', async (socket) => {
         socket.join(`/gameRoom${autoNum}`);
         console.log(makedRoom);
         socket.emit('createRoom', makedRoom);
-        lobby.socket.emit('showRoom', shwRoom);
+        lobby.sockets.emit('showRoom', shwRoom);
     });
 
     // 게임방입장
@@ -91,7 +91,6 @@ lobby.on('connection', async (socket) => {
             const currntRoom = await Room.findOne({ _id: roomNum });
 
             await socket.join(`/gameRoom${roomNum}`);
-            // socket.to(`/gameRoom${roomNum}`).emit('welcome');
             console.log(socket.adapter.rooms);
             console.log(currntRoom);
             socket.emit('enterRoom', currntRoom);
@@ -123,18 +122,4 @@ lobby.on('connection', async (socket) => {
             }, 5000);
         }
     });
-    // --------------- 화상 채팅 ---------------------------------------------------------------
-
-    // // 프론트에서 offer를 받음
-    // socket.on('offer', (offer, roomNum) => {
-    //     socket.to(`/gameRoom${roomNum}`).emit('offer', offer);
-    // });
-    // // answer
-    // socket.on('answer', (answer, roomNum) => {
-    //     socket.to(`gameRoom${roomNum}`).emit('answer', answer);
-    // });
-    // // icecandidate를 받으면 클라이언트로 전송
-    // socket.on('ice', (ice, roomNum) => {
-    //     socket.to(`gameRoom${roomNum}`).emit('ice', ice);
-    // });
 });
