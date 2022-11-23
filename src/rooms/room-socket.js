@@ -50,8 +50,9 @@ lobby.on('connection', async (socket) => {
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             if (udtRoom.roomMaker === socket.nickname) {
                 console.log('방장이 퇴장했습니다.');
+                lobby.in(`/gameRoom${roomNum}`).socketsLeave(`/gameRoom${roomNum}`);
                 socket.leave(`/gameRoom${roomNum}`);
-                lobby.in(`/gameRoom${roomNum}`).disconnectSockets(true);
+                lobby.sockets.to(`/gameRoom${roomNum}`).emit('leaveRoom', roomNum);
                 await Room.deleteOne({ _id: roomNum });
                 shwRoom = await Room.find({});
                 lobby.sockets.emit('showRoom', shwRoom);
@@ -67,6 +68,8 @@ lobby.on('connection', async (socket) => {
             socket.emit('leaveRoom');
             lobby.sockets.emit('showRoom', shwRoom);
         }
+        console.log(socket.rooms);
+        console.log(socket.adapter.rooms);
     });
 
     // 게임방생성
