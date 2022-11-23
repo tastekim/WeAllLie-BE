@@ -3,6 +3,10 @@ const Room = require('../schemas/room');
 const Game = require('../schemas/game');
 
 class GameRepo {
+    setSpy = async (roomNum, nickname) => {
+        await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { spyUser: nickname } });
+    };
+
     getSpy = async (roomNum) => {
         const roomData = await Room.findById({ _id: roomNum });
         return roomData.spyUser;
@@ -18,26 +22,25 @@ class GameRepo {
     };
 
     getRoomCurrentCount = async (roomNum) => {
-        const roomData = await Room.findById({ _id: roomNum });
+        const roomData = await Room.findById({ roomNum });
         return roomData.currentCount;
     };
 
-    giveCategory = async (category) => {
-        const giveCategory = await Game.find({ category });
-        const oneCategory = giveCategory.map((y) => {
-            category = y.category;
-        });
-        return oneCategory;
+    giveCategory = async () => {
+        const giveCategory = await Game.find({});
+        const oneCategory = giveCategory.map((y) => y.category);
+        const list = new Set(oneCategory);
+        return Array.from(list);
     };
 
     //카테고리 & 정답 단어 보여주기
     giveWord = async (categoryFix) => {
         const giveWord = await Game.find({ category: categoryFix });
-        return giveWord;
+        return giveWord.map((y) => y.word);
     };
 
-    giveExample = async (category) => {
-        const giveExample = await Game.find(category);
+    giveExample = async (categoryFix) => {
+        const giveExample = await Game.find({ category: categoryFix });
         return giveExample;
     };
 

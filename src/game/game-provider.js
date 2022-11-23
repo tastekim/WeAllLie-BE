@@ -16,7 +16,7 @@ class GameProvider {
     };
 
     setVoteResult = async (roomNum, nickname) => {
-        await redis.lpush(`gameRoom${roomNum}Result`, [nickname]);
+        await redis.lpush(`gameRoom${roomNum}Result`, nickname);
         console.log('voteResult : ', await redis.lrange(`gameRoom${roomNum}Result`, 0, -1));
     };
 
@@ -88,79 +88,60 @@ class GameProvider {
     //랜덤으로 스파이 유저를 뽑고, 그 방에 스파이 정보를 에밋을 받고
     //스파이인유저랑 시민유저들 저장후 셔플
 
-    collectUserNickname = async (roomNum) => {
+    collectUserNickname = async (roomNum, nickname) => {
         // 방에 참여 중인 유저 닉네임.
-        await redis.set(`gameRoom${roomNum}Users`, 0, -1);
+        await redis.rpush(`gameRoom${roomNum}Users`, nickname);
     };
 
     // 스파이 랜덤 설정
-    selectSpy = async (roomNum, spyUser) => {
-        const getAllNickname = await redis.get(`gameRoom${roomNum}Users`, 0, -1);
+    selectSpy = async (roomNum) => {
+        let getAllNickname = await redis.get(`gameRoom${roomNum}Users`, 0, -1);
 
-        let result = [];
-        for (let i = 0; i < getAllNickname.length; i++) {
-            result.push(getAllNickname[i]);
-        }
-        shuffle(result);
-        let spy = result.slice(-1);
+        // let result = [];
+        // for (let i = 0; i < getAllNickname.length; i++) {
+        //     result.push(getAllNickname[i]);
+        // }
+        const shuffleList = shuffle(getAllNickname);
+        const spy = shuffleList.slice(-1);
 
         //스파이 저장
-        const saveSpy = await redis.set(`roomSpy${roomNum}`, spyUser, spy);
-        return saveSpy;
+        await GameRepo.setSpy(spy);
+        return spy;
     };
 
-    giveWord = async (spyUser, category) => {
-        //정답 단어 보여주기 //if스파이면 단어랑 카테고리 안보여주기
-        const isSpy = await redis.get(`room${spyUser}`);
-
-        if (isSpy) {
-            return { message: '시민들이 제시어를 확인 중 입니다.' };
-        }
+    giveWord = async () => {
         //category 랜덤으로 출력
-        const givecategory = await GameRepo.giveCategory(category);
-
-        let answer = [];
-
-        for (let i = 0; i < givecategory.length; i++) {
-            answer.push(givecategory[i]);
+        const exists = await redis.exists('allCategory');
+        if (exists !== 1) {
+            const allCategory = await GameRepo.giveCategory();
+            await redis.set('allCategory', allCategory);
         }
+        const givecategory = await redis.lrange('allCategory', 0, -1);
 
-        shuffle(answer);
-        let categoryFix = answer.slice(-1);
+        let categoryFix = shuffle(givecategory).slice(-1);
 
-        //shuffle로 추출된 카테고리를 redis에 저장함
-        const selectCategory = await redis.set(`game${selectCategory}`, categoryFix);
         //mongoose에 있는 카테고리
-        const showCategory = await GameRepo.giveWord(categoryFix);
+        const showWords = await GameRepo.giveWord(categoryFix);
 
-        //단어 랜덤으로 1개 지정 (제시어)
-        if (selectCategory === showCategory.category) {
-            await redis.get(`game${selectCategory}`);
-            const realAnswer = await GameRepo.giveWord(categoryFix);
-
-            let result = [];
-
-            for (let i in realAnswer) {
-                result.push(realAnswer[i]);
-            }
-
-            shuffle(result);
-            let answerWord = result.slice(-1);
-            return answerWord;
-        }
+        return shuffle(showWords).slice(-1);
     };
 
     //카테고리 픽스안의 단어 보여주기 (카테고리에 있는 key값과 카테고리픽스의 key값이 같은 value값을 보여주기)
     //레디스에서 값으 불러와서 그걸 쿼리로 보내
-    giveExample = async (category, selectCategory) => {
-        const categoryFix = await redis.get(`game${selectCategory}`, 0);
-        const giveExample = await GameRepo.giveExample(category);
+    giveExample = async (categoryFix) => {
+        //redis에 저장된 카테고리 불러오기
+        const selectCategory = await redis.set(`game${selectCategory}`, categoryFix);
+        const giveExample = await GameRepo.giveExample(categoryFix);
 
-        if (categoryFix === giveExample) {
+        if (selectCategory === giveExample) {
             await redis.get(`game${selectCategory}`);
-            await GameRepo.giveExample(category);
-            let showWord = [];
-            Object.values(category);
+            const showWord = await GameRepo.giveExample(categoryFix);
+
+            let result = [];
+
+            for (let i in showWord) {
+                result.push(showWord[i]);
+            }
             console.log(showWord);
         }
     };
@@ -191,4 +172,5 @@ class GameProvider {
     // await redis.del(`roomSpy${roomNum}`);
     // await redis.del(`game${selectCategory}`);
 }
+
 module.exports = new GameProvider();
