@@ -17,8 +17,10 @@ if (process.env.NODE_ENV === 'production') {
         io = socketIo(https, cors({ origin: '*' }));
     } catch (e) {
         console.log('io가 HTTPS 에서 실행되지 않습니다.');
+        io = socketIo(http);
     }
+} else {
+    io = socketIo(http);
 }
-io = socketIo(http);
 
 module.exports = io;
