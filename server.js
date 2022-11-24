@@ -7,8 +7,10 @@ require('./src/chat/chat-socket');
 const mongodb = require('./src/schemas');
 const Room = require('./src/schemas/room');
 
-if (Room) {
+try {
     Room.collection.drop();
+} catch (e) {
+    console.log(e.message);
 }
 
 mongodb();
