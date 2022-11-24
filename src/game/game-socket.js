@@ -65,21 +65,25 @@ game.on('connection', (socket) => {
         });
     });
 
+    socket.on('collectUserNickname', async (roomNum, nickname) => {
+        await GameProvider.collectUserNickname(roomNum, nickname);
+    });
+
     //스파이 선택
-    socket.on('selectSpy', async (roomNum, spyUser) => {
+    socket.on('selectSpy', async (roomNum) => {
         //특정 클라이언트 빼고 모든 클라이언트에게 메시지 전송
-        socket.broadcast.emit('catch the spy', notSpy);
-        const notSpy = await GameProvider.selectSpy(roomNum);
+        const spy = await GameProvider.selectSpy(roomNum);
+        game.to(`/gameRoom${roomNum}`).sockets.emit('catch the spy', spy);
         //특정 클라이언트에게 메시지 전송
-        game.to(spyUser).emit('you are spy', youSpy);
-        const youSpy = await GameProvider.selectSpy(roomNum.saveSpy);
+        // const youSpy = await GameProvider.selectSpy(roomNum.saveSpy);
+        // game.to(spyUser).emit('you are spy', youSpy);
     });
 
     //카테고리 & 정답단어 보여주기 //선택된 카테고리 단어 보여주기
-    socket.on('giveWord', async (category, word) => {
-        const giveWord = await GameProvider.giveWord(category, word);
-        const giveExample = await GameProvider.giveExample(category);
-        socket.emit('suggested word', giveWord, giveExample);
+    socket.on('giveWord', async () => {
+        const gameData = await GameProvider.giveWord();
+        socket.gameData = gameData;
+        socket.emit('giveWord', gameData);
     });
 
     //발언권 지목
