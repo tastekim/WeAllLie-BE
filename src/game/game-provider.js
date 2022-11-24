@@ -122,8 +122,12 @@ class GameProvider {
 
         //mongoose에 있는 카테고리
         const showWords = await GameRepo.giveWord(categoryFix);
-
-        return shuffle(showWords).slice(-1);
+        const answerWord = shuffle(showWords).slice(-1);
+        return {
+            category: categoryFix,
+            showWords: showWords,
+            answerWord: answerWord,
+        };
     };
 
     //카테고리 픽스안의 단어 보여주기 (카테고리에 있는 key값과 카테고리픽스의 key값이 같은 value값을 보여주기)
