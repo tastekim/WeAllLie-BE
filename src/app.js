@@ -1,5 +1,6 @@
 const express = require('express');
 const { Server } = require('http');
+// const HTTPS = require('https');
 const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
@@ -43,4 +44,4 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
 
-module.exports = http;
+module.exports = { http, app };
