@@ -81,8 +81,9 @@ game.on('connection', (socket) => {
 
     //카테고리 & 정답단어 보여주기 //선택된 카테고리 단어 보여주기
     socket.on('giveWord', async () => {
-        const giveWord = await GameProvider.giveWord();
-        socket.answer = giveWord;
+        const gameData = await GameProvider.giveWord();
+        socket.gameData = gameData;
+        socket.emit('giveWord', gameData);
     });
 
     //발언권 지목
