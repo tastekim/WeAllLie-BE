@@ -1,7 +1,13 @@
 const socketIo = require('socket.io');
-const http = require('./app');
+const { http, https } = require('./app');
+const cors = require('cors');
 
-const io = socketIo(http);
+let io;
+if (process.env.NODE_ENV === 'production') {
+    io = socketIo(https, cors({ origin: '*' }));
+} else {
+    io = socketIo(http);
+}
 
 io.on('connection', (socket) => {
     console.log('socket.js connected', socket.id);
