@@ -52,10 +52,10 @@ class UserRefo {
 
     getKakaoUserInfo = async (kakaoToken) => {
         const userInfo = await axios({
-            method: 'post',
+            method: 'POST',
             url: 'https://kapi.kakao.com/v2/user/me',
             headers: {
-                'content-Type': 'application/x-www-form-urlencoded',
+                'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
                 Authorization: `Bearer ${kakaoToken}`,
             },
         });
