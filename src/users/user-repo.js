@@ -52,10 +52,10 @@ class UserRefo {
 
     getKakaoUserInfo = async (kakaoToken) => {
         const userInfo = await axios({
-            method: 'post',
+            method: 'POST',
             url: 'https://kapi.kakao.com/v2/user/me',
             headers: {
-                'content-Type': 'application/x-www-form-urlencoded',
+                'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
                 Authorization: `Bearer ${kakaoToken}`,
             },
         });
@@ -64,21 +64,48 @@ class UserRefo {
 
     getPlayRecord = async (user, accessToken) => {
         let spyWinRating, voteSpyRating;
-        if (user.totalCount === 0) {
-            spyWinRating = 0;
-            voteSpyRating = 0;
-        } else if (user.spyPlayCount === 0) {
-            spyWinRating = 0;
-        } else if (user.totalCount - user.spyPlayCount === 0) {
-            voteSpyRating = 0;
-        }
 
         spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
         voteSpyRating =
             (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
 
-        console.log('spyWinRating', spyWinRating);
-        console.log('voteSpyRating', voteSpyRating);
+        if (user.totalCount === 0) {
+            return {
+                accessToken,
+                userId: user._id,
+                nickname: user.nickname,
+                profileImg: user.profileImg,
+                totayPlayCount: user.totalCount,
+                spyPlayCount: user.spyPlayCount,
+                ctzPlayCount: user.totalCount - user.spyPlayCount,
+                spyWinRating: 0,
+                voteSpyRating: 0,
+            };
+        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
+            return {
+                accessToken,
+                userId: user._id,
+                nickname: user.nickname,
+                profileImg: user.profileImg,
+                totayPlayCount: user.totalCount,
+                spyPlayCount: user.spyPlayCount,
+                ctzPlayCount: user.totalCount - user.spyPlayCount,
+                spyWinRating: 0,
+                voteSpyRating,
+            };
+        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
+            return {
+                accessToken,
+                userId: user._id,
+                nickname: user.nickname,
+                profileImg: user.profileImg,
+                totayPlayCount: user.totalCount,
+                spyPlayCount: user.spyPlayCount,
+                ctzPlayCount: user.totalCount - user.spyPlayCount,
+                spyWinRating,
+                voteSpyRating: 0,
+            };
+        }
 
         return {
             accessToken,
@@ -126,18 +153,3 @@ class UserRefo {
 }
 
 module.exports = new UserRefo();
-
-/*
-0|server  | kakaoUserInfo:::::: {
-0|server  |   id: 2537488884,
-0|server  |   connected_at: '2022-11-16T15:39:39Z',
-0|server  |   properties: { nickname: '닉네임' },
-0|server  |   kakao_account: {
-0|server  |     profile_nickname_needs_agreement: false,
-0|server  |     profile_image_needs_agreement: true,
-0|server  |     profile: { nickname: '진영(Evelyn)' },
-0|server  |     has_email: true,
-0|server  |     email_needs_agreement: true
-0|server  |   }
-0|server  | }
-*/

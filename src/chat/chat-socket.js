@@ -1,19 +1,12 @@
 const chat = require('../socket');
-// const ChatProvider = require('./chat-provider');
 
 // 로비에 연결 되었을때
 chat.on('connection', async (socket) => {
-    console.log(socket.id + ' 여긴 채팅방!!!');
-
     // 로비 입장 메세지
     socket.on('enterLobby', (nickname, callback) => {
         console.log(`${nickname} 로비 입장`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
-        const payload = {
-            name: nickname,
-            msg,
-        };
-        chat.sockets.emit('receiveLobbyMsg', payload);
+        chat.sockets.emit('receiveLobbyMsg', { notice: msg });
         callback();
     });
 
@@ -21,7 +14,6 @@ chat.on('connection', async (socket) => {
     socket.on('sendLobbyMsg', (payload, callback) => {
         console.log('로비채팅');
         console.log('payload:::', payload);
-        // socket.broadcast.emit('receiveLobbyMsg', payload);
         chat.sockets.emit('receiveLobbyMsg', payload);
         callback();
     });
@@ -31,7 +23,6 @@ chat.on('connection', async (socket) => {
         console.log('payload:::', payload);
         console.log(`roomNum::: ${roomNum}`);
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
-
         callback();
     });
 });
