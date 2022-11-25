@@ -23,6 +23,7 @@ if (process.env.NODE_ENV == 'production') {
         });
     } catch (error) {
         console.log('HTTPS 서버가 실행되지 않습니다.');
+        console.log(error);
         http.listen(process.env.PORT, () => {
             console.log('HTTP 서버가 실행되었습니다. 포트 :: ' + process.env.PORT);
         });
