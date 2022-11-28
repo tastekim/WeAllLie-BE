@@ -47,6 +47,12 @@ const RoomSchema = new Schema({
         required: false,
         default: null,
     },
+
+    gameWord: {
+        type: String,
+        required: false,
+        default: null,
+    },
 });
 
 const Room = model('room', RoomSchema);
