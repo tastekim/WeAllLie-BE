@@ -1,4 +1,6 @@
-const http = require('./src/app');
+const { http, app } = require('./src/app');
+const HTTPS = require('https');
+const fs = require('fs');
 require('dotenv').config();
 require('./src/socket');
 require('./src/game/game-socket');
@@ -7,12 +9,31 @@ require('./src/chat/chat-socket');
 const mongodb = require('./src/schemas');
 const Room = require('./src/schemas/room');
 
-if (Room) {
+try {
     Room.collection.drop();
+} catch (e) {
+    console.log(e.message);
 }
 
 mongodb();
 
-http.listen(process.env.PORT, () => {
-    console.log(`connect on http://127.0.0.1:${process.env.PORT}`);
-});
+// 운영 환경일때만 적용
+if (process.env.NODE_ENV == 'production') {
+    try {
+        const option = {
+            ca: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`),
+            key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`),
+            cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
+        };
+
+        HTTPS.createServer(option, app).listen(3000, () => {
+            console.log('HTTPS 서버가 실행되었습니다. 포트 :: ' + process.env.PORT);
+        });
+    } catch (error) {
+        console.log('HTTPS 서버가 실행되지 않습니다.');
+    }
+} else {
+    http.listen(process.env.PORT, () => {
+        console.log('HTTP 서버가 실행되었습니다. 포트 :: ' + process.env.PORT);
+    });
+}

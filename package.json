@@ -6,7 +6,7 @@
   "author": "",
   "scripts": {
     "dev": "nodemon",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js --ignore node_modules --max-old-space-size=4096"
   },
   "license": "MIT",
   "dependencies": {

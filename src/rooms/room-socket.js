@@ -1,6 +1,7 @@
 const lobby = require('../socket');
 const Room = require('../schemas/room');
 const redis = require('../redis');
+const gameProvider = require('../game/game-provider');
 
 const autoIncrease = function () {
     let a = 1;
@@ -45,24 +46,38 @@ lobby.on('connection', async (socket) => {
     socket.on('leaveRoom', async (roomNum) => {
         await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
         const udtRoom = await Room.findOne({ _id: roomNum });
-        const shwRoom = await Room.find({});
+        let shwRoom = await Room.find({});
 
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
-            socket.leave(`/gameRoom${roomNum}`);
-            socket.emit('leaveRoom', udtRoom);
-            lobby.sockets.emit('showRoom', shwRoom);
+            if (udtRoom.roomMaker === socket.nickname) {
+                console.log('방장이 퇴장했습니다.');
+                lobby.in(`/gameRoom${roomNum}`).socketsLeave(`/gameRoom${roomNum}`);
+                socket.leave(`/gameRoom${roomNum}`);
+                lobby.sockets.to(`/gameRoom${roomNum}`).emit('leaveRoom', roomNum);
+                await Room.deleteOne({ _id: roomNum });
+                shwRoom = await Room.find({});
+                lobby.sockets.emit('showRoom', shwRoom);
+            } else {
+                socket.leave(`/gameRoom${roomNum}`);
+                socket.emit('leaveRoom', udtRoom);
+                lobby.sockets.emit('showRoom', shwRoom);
+            }
         } else if (udtRoom.currentCount <= 0) {
-            const dteRoom = await Room.deleteOne({ _id: roomNum });
-
+            await Room.deleteOne({ _id: roomNum });
+            shwRoom = await Room.find({});
             console.log('방이 삭제 되었습니다.');
-            socket.emit('leaveRoom', dteRoom);
-            console.log(dteRoom);
+            socket.emit('leaveRoom');
             lobby.sockets.emit('showRoom', shwRoom);
         }
+        console.log(socket.rooms);
+        console.log(socket.adapter.rooms);
     });
 
     // 게임방생성
     socket.on('createRoom', async (gameMode, roomTitle) => {
+        let giveWord = await gameProvider.giveWord().answerWord;
+        socket.giveWord = giveWord;
+        console.log(socket.giveWord);
         let autoNum = autoInc();
 
         await Room.create({
@@ -92,7 +107,6 @@ lobby.on('connection', async (socket) => {
             const currntRoom = await Room.findOne({ _id: roomNum });
 
             await socket.join(`/gameRoom${roomNum}`);
-            // socket.to(`/gameRoom${roomNum}`).emit('welcome');
             console.log(socket.adapter.rooms);
             console.log(currntRoom);
             socket.emit('enterRoom', currntRoom);
@@ -124,18 +138,4 @@ lobby.on('connection', async (socket) => {
             }, 5000);
         }
     });
-    // --------------- 화상 채팅 ---------------------------------------------------------------
-
-    // // 프론트에서 offer를 받음
-    // socket.on('offer', (offer, roomNum) => {
-    //     socket.to(`/gameRoom${roomNum}`).emit('offer', offer);
-    // });
-    // // answer
-    // socket.on('answer', (answer, roomNum) => {
-    //     socket.to(`gameRoom${roomNum}`).emit('answer', answer);
-    // });
-    // // icecandidate를 받으면 클라이언트로 전송
-    // socket.on('ice', (ice, roomNum) => {
-    //     socket.to(`gameRoom${roomNum}`).emit('ice', ice);
-    // });
 });
