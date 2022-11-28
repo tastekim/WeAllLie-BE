@@ -25,7 +25,7 @@ class UserRefo {
             method: 'POST',
             url: 'https://kauth.kakao.com/oauth/token',
             headers: {
-                'content-type': 'application/x-www-form-urlencoded',
+                'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
 
             // with FE
@@ -52,10 +52,10 @@ class UserRefo {
 
     getKakaoUserInfo = async (kakaoToken) => {
         const userInfo = await axios({
-            method: 'post',
+            method: 'POST',
             url: 'https://kapi.kakao.com/v2/user/me',
             headers: {
-                'content-Type': 'application/x-www-form-urlencoded',
+                'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
                 Authorization: `Bearer ${kakaoToken}`,
             },
         });
@@ -153,18 +153,3 @@ class UserRefo {
 }
 
 module.exports = new UserRefo();
-
-/*
-0|server  | kakaoUserInfo:::::: {
-0|server  |   id: 2537488884,
-0|server  |   connected_at: '2022-11-16T15:39:39Z',
-0|server  |   properties: { nickname: '닉네임' },
-0|server  |   kakao_account: {
-0|server  |     profile_nickname_needs_agreement: false,
-0|server  |     profile_image_needs_agreement: true,
-0|server  |     profile: { nickname: '진영(Evelyn)' },
-0|server  |     has_email: true,
-0|server  |     email_needs_agreement: true
-0|server  |   }
-0|server  | }
-*/

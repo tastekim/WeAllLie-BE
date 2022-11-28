@@ -1,17 +1,23 @@
 const express = require('express');
 const { Server } = require('http');
-// const HTTPS = require('https');
+const HTTPS = require('https');
+const fs = require('fs');
 const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
-const { errorLogger, errorHandler } = require('../src/middlewares/error-handler');
-//const passportConfig = require('./middlewares/passport');
 const cors = require('cors');
 
 require('dotenv').config();
 const app = express();
 const http = Server(app);
+
+const option = {
+    ca: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`),
+    key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`),
+    cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
+};
+const https = HTTPS.createServer(option, app);
 
 // middlewares
 app.use(function (req, res, next) {
@@ -44,6 +50,5 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
-app.use(errorLogger, errorHandler);
 
-module.exports = { http, app };
+module.exports = { http, https };
