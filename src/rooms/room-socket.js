@@ -49,19 +49,9 @@ lobby.on('connection', async (socket) => {
         let shwRoom = await Room.find({});
 
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
-            if (udtRoom.roomMaker === socket.nickname) {
-                console.log('방장이 퇴장했습니다.');
-                lobby.sockets.to(`/gameRoom${roomNum}`).emit('leaveRoom', roomNum);
-                lobby.in(`/gameRoom${roomNum}`).socketsLeave(`/gameRoom${roomNum}`);
-                socket.leave(`/gameRoom${roomNum}`);
-                await Room.deleteOne({ _id: roomNum });
-                shwRoom = await Room.find({});
-                lobby.sockets.emit('showRoom', shwRoom);
-            } else {
-                socket.leave(`/gameRoom${roomNum}`);
-                socket.emit('leaveRoom', udtRoom);
-                lobby.sockets.emit('showRoom', shwRoom);
-            }
+            socket.leave(`/gameRoom${roomNum}`);
+            socket.emit('leaveRoom', udtRoom);
+            lobby.sockets.emit('showRoom', shwRoom);
         } else if (udtRoom.currentCount <= 0) {
             await Room.deleteOne({ _id: roomNum });
             shwRoom = await Room.find({});
@@ -122,9 +112,11 @@ lobby.on('connection', async (socket) => {
             socket.isReady = 1;
         } else if (socket.isReady === 0) {
             redis.incr(`ready${roomNum}`);
+            Room.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
         } else if (socket.isReady === 1) {
             redis.decr(`ready${roomNum}`);
+            Room.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
             console.log('준비 취소 !');
         }
         let readyCount = await redis.get(`ready${roomNum}`);
