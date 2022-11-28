@@ -51,9 +51,9 @@ lobby.on('connection', async (socket) => {
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             if (udtRoom.roomMaker === socket.nickname) {
                 console.log('방장이 퇴장했습니다.');
+                lobby.sockets.to(`/gameRoom${roomNum}`).emit('leaveRoom', roomNum);
                 lobby.in(`/gameRoom${roomNum}`).socketsLeave(`/gameRoom${roomNum}`);
                 socket.leave(`/gameRoom${roomNum}`);
-                lobby.sockets.to(`/gameRoom${roomNum}`).emit('leaveRoom', roomNum);
                 await Room.deleteOne({ _id: roomNum });
                 shwRoom = await Room.find({});
                 lobby.sockets.emit('showRoom', shwRoom);
