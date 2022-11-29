@@ -4,6 +4,7 @@ require('dotenv').config();
 if (!process.env.SECRET_KEY) throw new Error('SECRET_KEY is required!!');
 
 module.exports = async (req, res, next) => {
+    console.log('req ::', req);
     const { authorization } = req.headers;
     const [authType, accessToken] = (authorization || '').split(' ');
 
