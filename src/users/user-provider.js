@@ -1,5 +1,6 @@
 const UserRepo = require('./user-repo');
 const jwtService = require('./jwt');
+// const redis = require('../redis');
 require('dotenv').config();
 
 class UserProvider {
@@ -41,37 +42,79 @@ class UserProvider {
     /*
   1. 클라이언트에서 토큰 전달 받아서 카카오에 유저정보 요청
   2. DB의 유저정보와 비교하여 필요시 회원가입
-  3. 유저정보 가공하여 클라이언트로 전달
+  3. 유저정보 가공하여 클라이언트로 전달 => 쿠키로 토큰 전달 / 바디로 닉네임만 전달
     */
-    getKakaoUserInfo = async (req, res) => {
+    getKakaoUserInfo = async (req, res, next) => {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
 
-        const { authorization } = req.headers;
-        const kakaoToken = (authorization || '').split(' ')[1];
+        try {
+            const { authorization } = req.headers;
+            const kakaoToken = (authorization || '').split(' ')[1];
 
-        // 토큰 카카오에 보내고 유저정보 받아오기
-        const kakaoUserInfo = await UserRepo.getKakaoUserInfo(kakaoToken);
+            // 토큰 카카오에 보내고 유저정보 받아오기
+            const kakaoUserInfo = await UserRepo.getKakaoUserInfo(kakaoToken);
 
-        console.log('kakaoToken:::::: ', kakaoToken);
-        console.log('kakaoUserInfo::::::', kakaoUserInfo);
+            console.log('kakaoToken:::::: ', kakaoToken);
+            console.log('kakaoUserInfo::::::', kakaoUserInfo);
 
-        // 카카오에서서 받은 유저정보에서 이메일로 DB에 저장된 유저 확인, 존재한다면 유저정보 가져오기 (undefinded일 수도.)
-        // 유저가 존재한다면 전달할 형태로 Refo에서 가공되어져서 받아옴!!
-        const exUserInfo = await this.exUserGetToken(kakaoUserInfo);
+            // 카카오에서서 받은 유저정보에서 이메일로 DB에 저장된 유저 확인, 존재한다면 유저정보 가져오기 (undefinded일 수도.)
+            // 유저가 존재한다면 전달할 형태로 Refo에서 가공되어져서 받아옴!!
+            const exUserInfo = await this.exUserGetToken(kakaoUserInfo);
 
-        // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
-        if (exUserInfo) {
-            console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
-            console.log('--------------------------------------------');
-            return res.status(200).json(exUserInfo);
+            // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
+            if (exUserInfo) {
+                console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
+                console.log('--------------------------------------------');
+                // await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
+                res.cookie('accessToken', exUserInfo.accessToken, {
+                    expires: new Date(Date.now() + 1000 * 60 * 60),
+                    secure: true,
+                    httpOnly: true,
+                    SameSite: 'None',
+                });
+
+                return res
+                    .status(200)
+                    .json({ nickname: exUserInfo.nickname, accessToken: exUserInfo.accessToken });
+            }
+            // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
+            const newUserInfo = await this.createUserToken(kakaoUserInfo);
+            console.log('user-provider.js, newUserInfo::::::', newUserInfo);
+            console.log('-------------------쿠키설정-------------------------');
+            // await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
+            res.cookie('accessToken', exUserInfo.accessToken, {
+                expires: new Date(Date.now() + 1000 * 60 * 60),
+                secure: true,
+                httpOnly: true,
+                SameSite: 'None',
+            });
+
+            return res
+                .status(201)
+                .json({ nickname: newUserInfo.nickname, accessToken: newUserInfo.accessToken });
+        } catch (e) {
+            next(e);
         }
-        // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
-        const newUserInfo = await this.createUserToken(kakaoUserInfo);
-        console.log('user-provider.js, newUserInfo::::::', newUserInfo);
-        console.log('--------------------------------------------');
-        res.header('Autorization', `Bearer ${newUserInfo.accessToken}`);
-        return res.status(201).json(newUserInfo);
+    };
+
+    // 유저 정보 조회
+    onlyGetPlayRecord = async (req, res) => {
+        try {
+            const { nickname } = req.params;
+            if (!nickname) throw new Error('nickname을 입력해야 합니다.');
+            const exUser = await UserRepo.findOneByNickname(nickname);
+            if (!exUser) throw new Error('nickname과 일치하는 유저가 존재하지 않습니다.');
+
+            const userInfo = await UserRepo.onlyGetPlayRecord(exUser);
+            if (!userInfo.nickname === res.locals.user.nickname)
+                throw new Error('nickname과 토큰 정보가 일치하지 않습니다.');
+            console.log('res.locals.user:: ', res.locals.user);
+            return res.status(200).json(userInfo);
+        } catch (e) {
+            console.log(e);
+            return res.status(400).json({ error: e.message });
+        }
     };
 
     /*

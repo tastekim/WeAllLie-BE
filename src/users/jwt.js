@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User = require('../schemas/user');
 require('dotenv').config();
 
 class jwtService {
@@ -39,6 +40,22 @@ class jwtService {
             return true;
         } catch (error) {
             return false;
+        }
+    };
+
+    // 소켓 쿼리로 넘어온 토큰 검증 (accessToken만 이용시)
+    validateSocketToken = async (query) => {
+        const { accessToken } = query;
+
+        if (!accessToken) return;
+        try {
+            const { _id } = jwt.verify(accessToken, process.env.SECRET_KEY);
+            const userInfo = await User.findById(_id); // const userInfo = await User.findOne({ _id });
+            console.log('userInfo :::', userInfo);
+            return userInfo;
+        } catch (e) {
+            console.log(e);
+            return;
         }
     };
 }
