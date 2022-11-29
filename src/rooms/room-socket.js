@@ -57,6 +57,7 @@ lobby.on('connection', async (socket) => {
             console.log('방이 삭제 되었습니다.');
             socket.emit('leaveRoom');
             lobby.sockets.emit('showRoom', shwRoom);
+            await redis.del(`ready${roomNum}`);
         }
         console.log(socket.rooms);
         console.log(socket.adapter.rooms);
@@ -106,12 +107,15 @@ lobby.on('connection', async (socket) => {
         const findRoom = await Room.findOne({ _id: roomNum });
         if (socket.isReady === undefined) {
             socket.isReady = 1;
-        } else if (socket.isReady === 0) {
             redis.incr(`ready${roomNum}`);
+        } else if (socket.isReady === 0) {
+            socket.isReady = 1;
+            redis.incr(`ready${roomNum}`, 1);
             Room.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
         } else if (socket.isReady === 1) {
-            redis.decr(`ready${roomNum}`);
+            socket.isReady = 0;
+            redis.decr(`ready${roomNum}`, 1);
             Room.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
             console.log('준비 취소 !');
         }
