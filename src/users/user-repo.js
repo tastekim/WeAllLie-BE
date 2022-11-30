@@ -109,6 +109,7 @@ class UserRefo {
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
         console.log(`spyWinRating ::: ${spyWinRating}`);
         console.log(`voteSpyRating ::: ${voteSpyRating}`);
 
@@ -123,6 +124,8 @@ class UserRefo {
 
 =======
 >>>>>>> 028dbcf (불필요한 코드 삭제 #97)
+=======
+>>>>>>> c86e9ab (불필요한 코드 삭제 2 #97)
         return {
             accessToken,
             userId: user._id,
