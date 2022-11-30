@@ -80,8 +80,8 @@ game.on('connection', (socket) => {
     });
 
     //카테고리 & 정답단어 보여주기 //선택된 카테고리 단어 보여주기
-    socket.on('giveWord', async () => {
-        const gameData = await GameProvider.giveWord();
+    socket.on('giveWord', async (roomNum) => {
+        const gameData = await GameProvider.giveWord(roomNum);
         socket.gameData = gameData;
         socket.emit('giveWord', gameData);
     });
