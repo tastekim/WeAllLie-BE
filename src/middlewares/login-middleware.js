@@ -1,31 +1,27 @@
-const { User } = require('../schemas/user');
+const UserRepo = require('../users/user-repo');
 const jwtService = require('../users/jwt');
 require('dotenv').config();
 
 module.exports = async (req, res, next) => {
     try {
+        console.log('------------------------------------');
+        console.log('여기는 login-middleware.js');
+        // 직접 발급한 토큰이 없다면 다음으로 넘기기 (직접 토큰 발급 받을 수 있도록)
         const { authorization } = req.headers;
-        const [authType, authToken] = (authorization || '').split(' ');
-        if (!authToken || authType !== 'Bearer') {
-            // 토큰이 잘못된 방식으로 전달된 경우...이지만 어쨌든 카카오 인증 성공한 상태이므로 재발급!
-            // 에러만 나지 않도록 따로 처리
-            const { email } = await jwtService.validateAccessToken(authToken);
-            const user = await User.findOne({ email });
-            user.accesToken = authToken;
-            res.locals.user = user;
+        const accessToken = (authorization || '').split(' ')[1];
+        console.log('로그인 미들웨어 accessToken 확인 ::::::', accessToken);
+        if (!accessToken) {
             next();
+        } else {
+            // authToken(카카오에서 받은 토큰)을 헤더의 authorization으로 넘겨주고 있으므로,
+            // 직접 발급한 토큰은 accessToken 으로 구분하기
+            const _id = await jwtService.validateAccessToken(accessToken);
+            const user = await UserRepo.findOneById(_id);
+            console.log('user::::::', user);
+            const userPlayRecord = await UserRepo.getPlayRecord(user, accessToken);
+            res.status(200).json(userPlayRecord);
         }
-
-        const { email } = await jwtService.validateAccessToken(authToken);
-
-        const user = await User.findOne({ email });
-        // 유효한 토큰일 경우 미리 유저 정보에 넣어서 다음 미들웨어에서 사용할 수 있도록 함
-        user.accesToken = authToken;
-        // DB에 저장된 user 정보 =>  res.locals.user 에 담겨 있으니 이용하시면 됩니다!
-        res.locals.user = user;
-        next();
     } catch (error) {
-        // 토큰은 확인되는데 유효성 검증에 실패한 경우 (재발급)
-        next();
+        next(error);
     }
 };
