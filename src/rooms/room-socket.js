@@ -108,6 +108,7 @@ lobby.on('connection', async (socket) => {
         if (socket.isReady === undefined) {
             socket.isReady = 1;
             redis.incr(`ready${roomNum}`);
+            Room.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
         } else if (socket.isReady === 0) {
             socket.isReady = 1;
             redis.incr(`ready${roomNum}`, 1);
