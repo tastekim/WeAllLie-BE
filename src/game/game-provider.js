@@ -85,10 +85,6 @@ class GameProvider {
         return [roomCurrentCount, currNowVote];
     };
 
-    //방안에 있는 사람을 모아야 하는 로직을 만들어야함
-    //랜덤으로 스파이 유저를 뽑고, 그 방에 스파이 정보를 에밋을 받고
-    //스파이인유저랑 시민유저들 저장후 셔플
-
     collectUserNickname = async (roomNum, nickname) => {
         // 방에 참여 중인 유저 닉네임.
         await redis.rpush(`gameRoom${roomNum}Users`, nickname);
@@ -96,12 +92,8 @@ class GameProvider {
 
     // 스파이 랜덤 설정
     selectSpy = async (roomNum) => {
-        let getAllNickname = await redis.get(`gameRoom${roomNum}Users`, 0, -1);
+        let getAllNickname = await redis.lrange(`gameRoom${roomNum}Users`, 0, -1);
 
-        // let result = [];
-        // for (let i = 0; i < getAllNickname.length; i++) {
-        //     result.push(getAllNickname[i]);
-        // }
         const shuffleList = shuffle(getAllNickname);
         const spy = shuffleList.slice(-1);
 
@@ -152,11 +144,6 @@ class GameProvider {
         console.log(`${nickname} 님 발언을 시작해주세요.`);
         return randomStart;
     };
-    //찾아서 넣기
-    // await redis.del(`gameRoom${roomNum}Users`);
-    // await redis.del(`room${spyUser}`);
-    // await redis.del(`roomSpy${roomNum}`);
-    // await redis.del(`game${selectCategory}`);
 }
 
 module.exports = new GameProvider();
