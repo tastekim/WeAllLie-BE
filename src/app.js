@@ -6,7 +6,12 @@ const session = require('express-session');
 const passport = require('passport');
 const logger = require('morgan');
 const userRouter = require('./users/user-route');
+<<<<<<< HEAD
 
+=======
+const { errorLogger, errorHandler } = require('../src/middlewares/error-handler');
+//const passportConfig = require('./middlewares/passport');
+>>>>>>> d9a4b3d (로그인 미들웨어 수정 및 적용, 에러 핸들러 추가)
 const cors = require('cors');
 
 require('dotenv').config();
@@ -51,5 +56,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', userRouter);
+app.use(errorLogger, errorHandler);
 
 module.exports = { http, https };
