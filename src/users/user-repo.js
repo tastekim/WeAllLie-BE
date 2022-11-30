@@ -112,6 +112,7 @@ class UserRefo {
         console.log(`spyWinRating ::: ${spyWinRating}`);
         console.log(`voteSpyRating ::: ${voteSpyRating}`);
 
+<<<<<<< HEAD
         spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
         voteSpyRating =
             (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
@@ -120,6 +121,8 @@ class UserRefo {
         console.log(`voteSpyRating ::: ${voteSpyRating}`);
 >>>>>>> 4aac36b (전적 0일 때 승률 NaN으로 나오는 문제 해결 - close #97)
 
+=======
+>>>>>>> 028dbcf (불필요한 코드 삭제 #97)
         return {
             accessToken,
             userId: user._id,
