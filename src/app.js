@@ -7,28 +7,20 @@ const logger = require('morgan');
 // const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const userRouter = require('./users/user-route');
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-
-=======
 const { errorLogger, errorHandler } = require('../src/middlewares/error-handler');
-//const passportConfig = require('./middlewares/passport');
->>>>>>> d9a4b3d (로그인 미들웨어 수정 및 적용, 에러 핸들러 추가)
->>>>>>> master
 const cors = require('cors');
 
 require('dotenv').config();
 const app = express();
 const http = Server(app);
-/*
+
 const option = {
     ca: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`),
     key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`),
     cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
 };
 const https = HTTPS.createServer(option, app);
-*/
+
 // middlewares
 app.use(function (req, res, next) {
     res.set({
@@ -68,4 +60,4 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', userRouter);
 app.use(errorLogger, errorHandler);
 
-module.exports = { http /*, https*/ };
+module.exports = { http, https };

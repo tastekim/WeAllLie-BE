@@ -82,14 +82,16 @@ class UserProvider {
             const newUserInfo = await this.createUserToken(kakaoUserInfo);
             console.log('user-provider.js, newUserInfo::::::', newUserInfo);
             console.log('-------------------쿠키설정-------------------------');
-            // await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
+            /*
+            // 프론트로 쿠키 전달되지 않아 쿠키 세팅 보류
+            await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
             res.cookie('accessToken', exUserInfo.accessToken, {
                 expires: new Date(Date.now() + 1000 * 60 * 60),
                 secure: true,
                 httpOnly: true,
                 SameSite: 'None',
             });
-
+            */
             return res
                 .status(201)
                 .json({ nickname: newUserInfo.nickname, accessToken: newUserInfo.accessToken });

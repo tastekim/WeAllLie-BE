@@ -1,10 +1,9 @@
 const express = require('express');
-const authMiddleware = require('../middlewares/auth-middleware');
 const router = express.Router();
-// 로그인 미들웨어 현재 미사용
+// 로그인 미들웨어, 인증 미들웨어 현재 미사용
 // const loginMiddleware = require('../middlewares/login-middleware');
+// const authMiddleware = require('../middlewares/auth-middleware');
 const UserProvider = require('./user-provider');
-// const loginMiddleware = require('../middlewares/login-middleware');
 
 // 카카오 로그인 1 : 클라이언트에서 인가코드 전달 받음 =>  카카오로 토큰 요청 =>  클라이언트에 카카오 토큰 전달
 router.get('/api/auth/kakao/callback', /* loginMiddleware,*/ UserProvider.getKakaoToken);
