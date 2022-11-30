@@ -1,4 +1,5 @@
 const GameRepo = require('./game-repo');
+const Room = require('../schemas/room');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
 
@@ -109,7 +110,7 @@ class GameProvider {
         return spy;
     };
 
-    giveWord = async () => {
+    giveWord = async (roomNum) => {
         //category 랜덤으로 출력
         const exists = await redis.exists('allCategory');
         if (exists !== 1) {
@@ -123,31 +124,12 @@ class GameProvider {
         //mongoose에 있는 카테고리
         const showWords = await GameRepo.giveWord(categoryFix);
         const answerWord = shuffle(showWords).slice(-1);
+        await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { gameWord: answerWord } });
         return {
             category: categoryFix,
             showWords: showWords,
             answerWord: answerWord,
         };
-    };
-
-    //카테고리 픽스안의 단어 보여주기 (카테고리에 있는 key값과 카테고리픽스의 key값이 같은 value값을 보여주기)
-    //레디스에서 값으 불러와서 그걸 쿼리로 보내
-    giveExample = async (categoryFix) => {
-        //redis에 저장된 카테고리 불러오기
-        const selectCategory = await redis.set(`game${selectCategory}`, categoryFix);
-        const giveExample = await GameRepo.giveExample(categoryFix);
-
-        if (selectCategory === giveExample) {
-            await redis.get(`game${selectCategory}`);
-            const showWord = await GameRepo.giveExample(categoryFix);
-
-            let result = [];
-
-            for (let i in showWord) {
-                result.push(showWord[i]);
-            }
-            console.log(showWord);
-        }
     };
 
     //발언권 처음 랜덤 설정 / 45초 발언권 / 다음 발언권 상대 클릭
