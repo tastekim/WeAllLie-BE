@@ -85,20 +85,15 @@ class GameProvider {
         return [roomCurrentCount, currNowVote];
     };
 
-    collectUserNickname = async (roomNum, nickname) => {
-        // 방에 참여 중인 유저 닉네임.
-        await redis.rpush(`gameRoom${roomNum}Users`, nickname);
-    };
-
     // 스파이 랜덤 설정
     selectSpy = async (roomNum) => {
         let getAllNickname = await redis.lrange(`gameRoom${roomNum}Users`, 0, -1);
 
         const shuffleList = shuffle(getAllNickname);
-        const spy = shuffleList.slice(-1);
+        const spy = shuffleList.pop();
 
         //스파이 저장
-        await GameRepo.setSpy(spy);
+        await GameRepo.setSpy(roomNum, spy);
         return spy;
     };
 
@@ -107,15 +102,15 @@ class GameProvider {
         const exists = await redis.exists('allCategory');
         if (exists !== 1) {
             const allCategory = await GameRepo.giveCategory();
-            await redis.set('allCategory', allCategory);
+            await redis.lpush('allCategory', allCategory);
         }
         const givecategory = await redis.lrange('allCategory', 0, -1);
 
-        let categoryFix = shuffle(givecategory).slice(-1);
+        let categoryFix = shuffle(givecategory).pop();
 
         //mongoose에 있는 카테고리
         const showWords = await GameRepo.giveWord(categoryFix);
-        const answerWord = shuffle(showWords).slice(-1);
+        const answerWord = shuffle(showWords).pop();
         await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { gameWord: answerWord } });
         return {
             category: categoryFix,
@@ -140,7 +135,7 @@ class GameProvider {
         }
 
         shuffle(result);
-        let randomStart = result.slice(-1);
+        let randomStart = result.pop();
         console.log(`${nickname} 님 발언을 시작해주세요.`);
         return randomStart;
     };
