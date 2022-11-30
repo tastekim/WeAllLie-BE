@@ -6,9 +6,11 @@ require('./src/rooms/room-socket');
 require('./src/chat/chat-socket');
 const mongodb = require('./src/schemas');
 const Room = require('./src/schemas/room');
+const redis = require('./src/redis');
 
 try {
     Room.collection.drop();
+    redis.flushall();
 } catch (e) {
     console.log(e.message);
 }
