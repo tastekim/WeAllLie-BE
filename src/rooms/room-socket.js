@@ -112,18 +112,21 @@ lobby.on('connection', async (socket) => {
         if (socket.isReady === undefined) {
             socket.isReady = 1;
             await redis.incr(`ready${roomNum}`);
-            lobby.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
+            await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
         } else if (socket.isReady === 0) {
             // ready 버튼 활성화 시킬 때.
             socket.isReady = 1;
-            await redis.incr(`ready${roomNum}`, 1);
-            lobby.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
+            await redis.incr(`ready${roomNum}`);
+            await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
         } else if (socket.isReady === 1) {
             // ready 버튼 비활성화 시킬 때.
             socket.isReady = 0;
-            await redis.decr(`ready${roomNum}`, 1);
-            lobby.sockets.to(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
+            await redis.decr(`ready${roomNum}`);
+            await redis.lrem(`gameRoom${roomNum}Users`, 1, socket.nickname);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
             console.log('준비 취소 !');
         }
         let readyCount = await redis.get(`ready${roomNum}`);
