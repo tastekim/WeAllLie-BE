@@ -172,21 +172,3 @@ class UserProvider {
 }
 
 module.exports = new UserProvider();
-
-/* 예시
-  user-route.js 1, res.locals에 저장한 userInfo:::::: {
-    id: 2519073484,
-    connected_at: '2022-11-10T01:02:16Z',
-    properties: { nickname: '미뇽' },
-    kakao_account: {
-      profile_nickname_needs_agreement: false,
-      profile_image_needs_agreement: true,
-      profile: { nickname: '미뇽' },
-      has_email: true,
-      email_needs_agreement: false,
-      is_email_valid: true,
-      is_email_verified: true,
-      email: 'alsuddl25@naver.com'
-    }
-  }
-*/
