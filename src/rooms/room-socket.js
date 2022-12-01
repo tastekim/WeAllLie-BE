@@ -47,21 +47,21 @@ lobby.on('connection', async (socket) => {
         await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
         const udtRoom = await Room.findOne({ _id: roomNum });
         let shwRoom = await Room.find({});
+        const leaveMsg = `${socket.nickname}님이 퇴장하였습니다.`;
 
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             socket.leave(`/gameRoom${roomNum}`);
             socket.emit('leaveRoom', udtRoom);
-            lobby.sockets.emit('showRoom', shwRoom);
+            lobby.sockets.emit('showRoom', shwRoom, socket.nickname);
+            lobby.sockets.emit('receiveRoomMsg', { notice: leaveMsg });
         } else if (udtRoom.currentCount <= 0) {
             await Room.deleteOne({ _id: roomNum });
             shwRoom = await Room.find({});
             console.log('방이 삭제 되었습니다.');
             socket.emit('leaveRoom');
-            lobby.sockets.emit('showRoom', shwRoom);
+            lobby.sockets.emit('showRoom', shwRoom, socket.nickname);
             await redis.del(`ready${roomNum}`);
         }
-        console.log(socket.rooms);
-        console.log(socket.adapter.rooms);
     });
 
     // 게임방생성
@@ -87,8 +87,9 @@ lobby.on('connection', async (socket) => {
     });
 
     // 게임방입장
-    socket.on('enterRoom', async (roomNum) => {
+    socket.on('enterRoom', async (roomNum, callback) => {
         const udtRoom = await Room.findOne({ _id: roomNum });
+        const enterMsg = `${socket.nickname} 님이 입장하셨습니다`;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
@@ -99,7 +100,9 @@ lobby.on('connection', async (socket) => {
             await socket.join(`/gameRoom${roomNum}`);
             console.log(socket.adapter.rooms);
             console.log(currentRoom);
-            socket.emit('enterRoom', currentRoom);
+            socket.emit('enterRoom', currentRoom, socket.nickname);
+            lobby.sockets.emit('receiveRoomMsg', { notice: enterMsg });
+            callback();
         } else if (udtRoom.currentCount > 8) {
             console.log('풀방입니다.');
         }
