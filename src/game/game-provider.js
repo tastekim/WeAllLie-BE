@@ -120,25 +120,33 @@ class GameProvider {
     };
 
     //발언권 처음 랜덤 설정 / 45초 발언권 / 다음 발언권 상대 클릭
-    micToss = async (nickname) => {
-        const micToss = await GameRepo.micToss(nickname);
+    //시간안에 마이크를 넘길수 있고 넘어갈수있는데
+    //셋타임아웃 안에 마이크를 넘길 수 있는 로직이 있을 거고, 45초 뒤에 랜덤으로 돌리는 로직
+    //
+    // micToss = async (nickname) => {
+    //     const micToss = await GameRepo.micToss(nickname);
 
-        let timer;
-        setTimeout(() => {
-            console.log(`발언 시간이 끝났습니다.`);
-            clearInterval(timer);
-        }, 45000);
+    //     let timer = setTimeout(() => {
+    //         console.log(`발언 시간이 끝났습니다.`);
+    //         //질문하는 사람이 주어진 시간을 다 소비하고, 질문할 상대를 지목하지 않은 상태
+    //         //질문하는 사람의 마이크를 랜덤으로 다른사람한테 토스
+    //     }, 45000);
+    //     //질문자가 주어진 시간전에 질문할 사림을 지목했을 때.
+    //     //지목한 사람한테 넘김
+    //     //위에서 자동으로 실행되는 setTimeout을 정지
+    //     //if문 으로
+    //     clearTimeout(timer);
 
-        let result = [];
-        for (let i = 0; i < micToss.length; i++) {
-            result.push(micToss[i]);
-        }
+    //     let result = [];
+    //     for (let i = 0; i < micToss.length; i++) {
+    //         result.push(micToss[i]);
+    //     }
 
-        shuffle(result);
-        let randomStart = result.pop();
-        console.log(`${nickname} 님 발언을 시작해주세요.`);
-        return randomStart;
-    };
+    //     shuffle(result);
+    //     let randomStart = result.pop();
+    //     console.log(`${nickname} 님 발언을 시작해주세요.`);
+    //     return randomStart;
+    // };
 }
 
 module.exports = new GameProvider();
