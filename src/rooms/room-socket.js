@@ -47,21 +47,21 @@ lobby.on('connection', async (socket) => {
         await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
         const udtRoom = await Room.findOne({ _id: roomNum });
         let shwRoom = await Room.find({});
+        const leaveMsg = `${socket.nickname}님이 퇴장하였습니다.`;
 
         if (udtRoom.currentCount <= 8 && udtRoom.currentCount >= 1) {
             socket.leave(`/gameRoom${roomNum}`);
             socket.emit('leaveRoom', udtRoom);
-            lobby.sockets.emit('showRoom', shwRoom);
+            lobby.sockets.emit('showRoom', shwRoom, socket.nickname);
+            lobby.sockets.emit('receiveRoomMsg', { notice: leaveMsg });
         } else if (udtRoom.currentCount <= 0) {
             await Room.deleteOne({ _id: roomNum });
             shwRoom = await Room.find({});
             console.log('방이 삭제 되었습니다.');
             socket.emit('leaveRoom');
-            lobby.sockets.emit('showRoom', shwRoom);
+            lobby.sockets.emit('showRoom', shwRoom, socket.nickname);
             await redis.del(`ready${roomNum}`);
         }
-        console.log(socket.rooms);
-        console.log(socket.adapter.rooms);
     });
 
     // 게임방생성
@@ -100,6 +100,7 @@ lobby.on('connection', async (socket) => {
             console.log(socket.adapter.rooms);
             console.log(currentRoom);
             socket.emit('enterRoom', currentRoom);
+            lobby.sockets.emit('userNickname', socket.nickname);
         } else if (udtRoom.currentCount > 8) {
             console.log('풀방입니다.');
         }
