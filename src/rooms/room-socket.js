@@ -87,9 +87,8 @@ lobby.on('connection', async (socket) => {
     });
 
     // 게임방입장
-    socket.on('enterRoom', async (roomNum, callback) => {
+    socket.on('enterRoom', async (roomNum) => {
         const udtRoom = await Room.findOne({ _id: roomNum });
-        const enterMsg = `${socket.nickname} 님이 입장하셨습니다`;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
@@ -100,9 +99,8 @@ lobby.on('connection', async (socket) => {
             await socket.join(`/gameRoom${roomNum}`);
             console.log(socket.adapter.rooms);
             console.log(currentRoom);
-            socket.emit('enterRoom', currentRoom, socket.nickname);
-            lobby.sockets.emit('receiveRoomMsg', { notice: enterMsg });
-            callback();
+            socket.emit('enterRoom', currentRoom);
+            lobby.sockets.emit('userNickname', socket.nickname);
         } else if (udtRoom.currentCount > 8) {
             console.log('풀방입니다.');
         }
