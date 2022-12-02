@@ -7,7 +7,6 @@ game.on('connection', (socket) => {
         // fn -> [FE]지목당한 nickname의 숫자를 1 증감 시켜주는 액션.
         // 유저 별로 실시간 자기가 지목당한 카운트를 표시한다.
         // fn(nickname);
-
         // 지목한 사람(socket)한테 지목당한 사람(nickname)의 정보를 담는다.
         // 투표가 끝나고 나서 socket.voteSpy안에 스파이의 nickname을 갖고있는 사람은 스파이를 찾는데 성공.
         socket.voteSpy = nickname;
@@ -40,9 +39,11 @@ game.on('connection', (socket) => {
         socket.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
     });
 
-    // 3분 후, nowVote 활성화.
+    // nowVote 세팅.
     socket.on('setNowVote', async (roomNum) => {
         await GameProvider.setNowVote(roomNum);
+        const currGameUsers = await GameProvider.getGameRoomUsers(roomNum);
+        socket.in(`/gameRoom${roomNum}`).emit('setNowVote', currGameUsers);
     });
 
     // 게임 진행 중 스파이 투표 찬반 투표 실행.
@@ -54,19 +55,16 @@ game.on('connection', (socket) => {
 
         // max -> 스파이를 제외한 정원 수, curr -> 현재 nowVote 를 누른 수.
         const [max, curr] = await GameProvider.nowVote(roomNum, socket.nowVote);
-        if (max - 1 === curr) {
-            // 바로 최종 스파이 투표로 진행.
-            game.to(`/gameRoom${roomNum}`).emit('voteStart', curr);
-        }
+        // if (max === curr) {
+        //     // 바로 최종 스파이 투표로 진행.
+        //     game.sockets.in(`/gameRoom${roomNum}`).emit('voteStart', curr);
+        // }
         // 본인의 nickname, 현재 nowVote 를 누른 인원 수
-        socket.to(`/gameRoom${roomNum}`).emit('nowVote', {
+        game.sockets.in(`/gameRoom${roomNum}`).emit('nowVote', {
             nickname: socket.nickname,
             currNowVoteCount: curr,
+            currGameRoomUsers: max,
         });
-    });
-
-    socket.on('collectUserNickname', async (roomNum, nickname) => {
-        await GameProvider.collectUserNickname(roomNum, nickname);
     });
 
     //스파이 선택
@@ -87,8 +85,8 @@ game.on('connection', (socket) => {
     });
 
     //발언권 지목
-    socket.on('micToss', async (nickname) => {
-        socket.to(socket.id).emit('micToss', micToss);
-        const micToss = await GameProvider.micToss(nickname);
-    });
+    // socket.on('micToss', async (nickname) => {
+    //     socket.to(socket.id).emit('micToss', micToss);
+    //     const micToss = await GameProvider.micToss(nickname);
+    // });
 });
