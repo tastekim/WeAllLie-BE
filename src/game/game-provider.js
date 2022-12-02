@@ -4,6 +4,10 @@ const redis = require('../redis');
 const shuffle = require('shuffle-array');
 
 class GameProvider {
+    getGameRoomUsers = async (roomNum) => {
+        return await GameRepo.getRoomCurrentCount(roomNum);
+    };
+
     getSpy = async (roomNum) => {
         return await GameRepo.getSpy(roomNum);
     };
@@ -29,29 +33,44 @@ class GameProvider {
         // spy 유저인 닉네임.
         const spyUser = await GameRepo.getSpy(roomNum);
 
+        // 게임이 끝난 후 redis 메모리 정리.
+        await redis.del(`gameRoom${roomNum}Result`);
+        await redis.del(`gameRoom${roomNum}Users`);
+
         // 가장 표를 많이 받은 사람의 ['nickname', 투표받은 수]
         let maxVoteUser = ['', 0];
+        let sameVote = false;
 
         for (let user of roomUsers) {
             let count = 0;
             resultList.forEach((vote) => {
                 if (vote === user) count++;
             });
-            if (count > maxVoteUser[1]) {
-                maxVoteUser[0] = user;
-                maxVoteUser[1] = count;
+            if (count >= maxVoteUser[1]) {
+                if ((user === spyUser || maxVoteUser[0] === spyUser) && count === maxVoteUser[1]) {
+                    sameVote = true;
+                    maxVoteUser[0] = user === spyUser ? maxVoteUser[0] : user;
+                    maxVoteUser[1] = count;
+                } else {
+                    maxVoteUser[0] = user;
+                    maxVoteUser[1] = count;
+                }
             }
         }
-        // 게임이 끝난 후 redis 메모리 확보.
-        await redis.del(`gameRoom${roomNum}Result`);
-        await redis.del(`gameRoom${roomNum}Users`);
-
         // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
-        return {
-            spyWin: maxVoteUser[0] === spyUser,
-            maxVoteUser: maxVoteUser[0],
-            maxVoteResult: maxVoteUser[1],
-        };
+        if (maxVoteUser === spyUser && !sameVote) {
+            return {
+                spyWin: false,
+                maxVoteUser: maxVoteUser[0],
+                maxVoteResult: maxVoteUser[1],
+            };
+        } else {
+            return {
+                spyWin: true,
+                maxVoteUser: maxVoteUser[0],
+                maxVoteResult: maxVoteUser[1],
+            };
+        }
     };
 
     // 각 방에 참여한 유저들의 닉네임 저장.

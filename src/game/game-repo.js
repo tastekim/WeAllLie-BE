@@ -45,10 +45,10 @@ class GameRepo {
     };
 
     //발언권 지목하기
-    micToss = async (nickname) => {
-        const micToss = await User.find(nickname);
-        return micToss;
-    };
+    // micToss = async (nickname) => {
+    //     const micToss = await User.find(nickname);
+    //     return micToss;
+    // };
 }
 
 module.exports = new GameRepo();
