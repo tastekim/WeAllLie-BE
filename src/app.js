@@ -7,6 +7,7 @@ const logger = require('morgan');
 // const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const userRouter = require('./users/user-route');
+const webRTCRouter = require('./webRTC/webRTC');
 const cors = require('cors');
 
 require('dotenv').config();
@@ -56,6 +57,6 @@ app.use(express.urlencoded({ extended: true }));
 // );
 // app.use(passport.initialize());
 // app.use(passport.session());
-app.use('/', userRouter);
+app.use('/', userRouter, webRTCRouter);
 
 module.exports = { http, https };

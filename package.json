@@ -24,6 +24,7 @@
     "mongoose": "^6.7.2",
     "morgan": "^1.10.0",
     "node-fetch": "^3.3.0",
+    "openvidu-node-client": "^2.24.0",
     "passport": "^0.6.0",
     "passport-kakao": "^1.0.1",
     "passport-oauth2": "^1.6.1",
