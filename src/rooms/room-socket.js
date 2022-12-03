@@ -36,7 +36,7 @@ lobby.on('connection', async (socket) => {
         } else {
             redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
             let currentMember = redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
-            lobby.sockets.emit('userNickname', currentMember);
+            lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
         }
     });
 
@@ -59,7 +59,7 @@ lobby.on('connection', async (socket) => {
             socket.leave(`/gameRoom${roomNum}`);
             socket.emit('leaveRoom', udtRoom);
             lobby.sockets.emit('showRoom', shwRoom);
-            lobby.sockets.emit('userNickname', currentMember);
+            lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
         } else if (udtRoom.currentCount <= 0) {
             await redis.del(`currentMember${roomNum}`);
             await Room.deleteOne({ _id: roomNum });
@@ -108,7 +108,7 @@ lobby.on('connection', async (socket) => {
             const currentRoom = await Room.findOne({ _id: roomNum });
             await socket.join(`/gameRoom${roomNum}`);
             socket.emit('enterRoom', currentRoom);
-            lobby.sockets.emit('userNickname', currentMember);
+            lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
         } else if (udtRoom.currentCount > 8) {
             socket.emit('fullRoom');
             console.log('풀방입니다.');
