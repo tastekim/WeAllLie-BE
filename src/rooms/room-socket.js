@@ -30,18 +30,14 @@ lobby.on('connection', async (socket) => {
     lobby.emit('userCount', userCnt);
 
     socket.on('disconnect', () => {
-        userCnt--;
-        lobby.emit('userCount', userCnt);
-    });
-
-    socket.on('disconnecting', async (roomNum) => {
-        const nickname = socket.nickname;
-        await redis.lrem(`currentMember${roomNum}`, 1, socket.nickname);
-        let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
-        console.log(`${nickname} 방 퇴장`);
-        const msg = `${nickname} 님이 퇴장하셨습니다.`;
-        lobby.sockets.emit('userNickname', currentMember);
-        socket.rooms.forEach((room) => socket.to(room).emit('receiveRoomMsg', { notice: msg }));
+        if (socket.room.size === 1) {
+            userCnt--;
+            lobby.emit('userCount', userCnt);
+        } else {
+            redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
+            let currentMember = redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
+            lobby.sockets.emit('userNickname', currentMember);
+        }
     });
 
     // 방 조회
@@ -52,6 +48,7 @@ lobby.on('connection', async (socket) => {
 
     // 방 퇴장
     socket.on('leaveRoom', async (roomNum) => {
+        socket.roomNum = null;
         await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
         const udtRoom = await Room.findOne({ _id: roomNum });
         let shwRoom = await Room.find({});
@@ -76,6 +73,7 @@ lobby.on('connection', async (socket) => {
 
     // 게임방생성
     socket.on('createRoom', async (gameMode, roomTitle) => {
+        socket.roomNum = autoNum;
         let autoNum = autoInc();
 
         await Room.create({
@@ -100,6 +98,7 @@ lobby.on('connection', async (socket) => {
     // 게임방입장
     socket.on('enterRoom', async (roomNum) => {
         const udtRoom = await Room.findOne({ _id: roomNum });
+        socket.roomNum = roomNum;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
