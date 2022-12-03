@@ -37,6 +37,8 @@ lobby.on('connection', async (socket) => {
             redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
             let currentMember = redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
             lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
+            userCnt--;
+            lobby.emit('userCount', userCnt);
         }
     });
 
