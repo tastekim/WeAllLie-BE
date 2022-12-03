@@ -31,14 +31,22 @@ lobby.on('connection', async (socket) => {
 
     socket.on('disconnect', () => {
         userCnt--;
-        console.log(userCnt);
         lobby.emit('userCount', userCnt);
+    });
+
+    socket.on('disconnecting', async (roomNum) => {
+        const nickname = socket.nickname;
+        await redis.lrem(`currentMember${roomNum}`, 1, socket.nickname);
+        let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
+        console.log(`${nickname} 방 퇴장`);
+        const msg = `${nickname} 님이 퇴장하셨습니다.`;
+        lobby.sockets.emit('userNickname', currentMember);
+        socket.rooms.forEach((room) => socket.to(room).emit('receiveRoomMsg', { notice: msg }));
     });
 
     // 방 조회
     socket.on('showRoom', async () => {
         const shwRoom = await Room.find({});
-
         lobby.sockets.emit('showRoom', shwRoom);
     });
 
@@ -96,7 +104,7 @@ lobby.on('connection', async (socket) => {
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
             await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: 1 } });
-            await redis.lpush(`currentMember${roomNum}`, socket.nickname);
+            await redis.rpush(`currentMember${roomNum}`, socket.nickname);
             let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
             const currentRoom = await Room.findOne({ _id: roomNum });
             await socket.join(`/gameRoom${roomNum}`);
