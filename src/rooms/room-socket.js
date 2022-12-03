@@ -29,16 +29,61 @@ lobby.on('connection', async (socket) => {
     lobby.sockets.emit('showRoom', shwRoom);
     lobby.emit('userCount', userCnt);
 
-    socket.on('disconnect', () => {
-        if (socket.room.size === 1) {
+    socket.on('disconnect', async () => {
+        if (socket.roomNum === undefined && socket.roomNum === null) {
             userCnt--;
             lobby.emit('userCount', userCnt);
         } else {
-            redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
-            let currentMember = redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
+            await redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
+            let currentMember = await redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
+            await Room.findByIdAndUpdate({ _id: socket.roomNum }, { $inc: { currentCount: -1 } });
             lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
             userCnt--;
             lobby.emit('userCount', userCnt);
+            try {
+                if (socket.isReady === true) {
+                    const findRoom = await Room.findOne({ _id: socket.roomNum });
+                    await redis.decr(`ready${socket.roomNum}`);
+                    await redis.lrem(`gameRoom${socket.roomNum}Users`, 1, socket.nickname);
+                    let readyCount = await redis.get(`ready${socket.roomNum}`);
+                    const readyStatus = await redis.get(`readyStatus${socket.roomNum}`);
+                    if (readyStatus !== '') {
+                        clearTimeout(readyStatus);
+                    }
+                    if (findRoom.currentCount === Number(readyCount) && findRoom.currentCount > 3) {
+                        console.log('게임시작 5초전!');
+
+                        // 특정 방의 timer identifier 를 저장, 나중에 누군가가 ready 가 취소됬을 때 해당하는 timer id 를 찾아서 멈추기 위해.
+                        const readyStatus = setTimeout(async () => {
+                            console.log('게임 시작 ! ');
+
+                            // 스파이 랜덤 지정 후 게임 시작 전 emit.
+                            const spyUser = await GameProvider.selectSpy(socket.roomNum);
+                            lobby.sockets.in(`/gameRoom${socket.roomNum}`).emit('spyUser', spyUser);
+
+                            // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
+                            const gameData = await GameProvider.giveWord(socket.roomNum);
+                            lobby.sockets
+                                .in(`/gameRoom${socket.roomNum}`)
+                                .emit('gameStart', gameData);
+
+                            // 게임방 진행 활성화. 다른 유저 입장 제한.
+                            await Room.findByIdAndUpdate(
+                                { _id: socket.roomNum },
+                                { roomStatus: true }
+                            );
+                            await redis.del(`ready${socket.roomNum}`);
+                            await redis.del(`readyStatus${socket.roomNum}`);
+                            await redis.del(`currentMember${socket.roomNum}`);
+                        }, 5000);
+
+                        // 방의 timer id 저장.
+                        await redis.set(`readyStatus${socket.roomNum}`, readyStatus);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
     });
 
@@ -75,8 +120,8 @@ lobby.on('connection', async (socket) => {
 
     // 게임방생성
     socket.on('createRoom', async (gameMode, roomTitle) => {
-        socket.roomNum = autoNum;
         let autoNum = autoInc();
+        socket.roomNum = autoNum;
 
         await Room.create({
             _id: autoNum,
@@ -168,7 +213,8 @@ lobby.on('connection', async (socket) => {
 
             // 방의 timer id 저장.
             await redis.set(`readyStatus${roomNum}`, readyStatus);
-        } else if (readyStatus !== '') {
+        }
+        if (readyStatus !== '') {
             // setTimeout 이 실행된 후 누군가 ready 를 취소했을 때 그 방의 setTimeout 정지시키기.
             clearTimeout(readyStatus);
         }
