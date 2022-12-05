@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../schemas/user');
+const User = require('../../schemas/user');
 require('dotenv').config();
 
 class jwtService {

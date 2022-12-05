@@ -4,10 +4,9 @@ const errorLogger = (error, req, res, next) => {
 };
 
 const errorHandler = (error, req, res) => {
-    const statusCode = error.statusCode || 400;
+    const statusCode = error.statusCode;
 
-    res.status(statusCode);
-    res.json({
+    res.status(statusCode).json({
         errorMessage: error.message,
     });
 };
