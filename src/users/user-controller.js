@@ -1,15 +1,15 @@
 const UserService = require('./user-service');
 const { CustomError } = require('./util/user-exception');
+
 require('dotenv').config();
 
-class UserProvider {
+class UserController {
     getKakaoToken = async (req, res) => {
         const { code } = req.query;
         console.log('전달받은 인가 코드 ::: ', code);
         if (!code) throw new CustomError('인가코드가 존재하지 않습니다.', 400);
 
         const kakaoToken = await UserService.getKakaoToken(code);
-        console.log('kakao에서 받아온 accessToken ::: ', kakaoToken);
 
         // 헤더 설정 : 필요한 부분인지 테스트 필요
         res.header('Access-Control-Allow-Origin', '*');
@@ -24,7 +24,7 @@ class UserProvider {
     3. 유저정보 가공하여 클라이언트로 전달 => 쿠키로 토큰 전달 / 바디로 닉네임만 전달
     */
     getKakaoUserInfo = async (req, res, next) => {
-        console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
+        console.log('여기는 user-controller.js 의 getKakaoUserInfo');
         try {
             const { authorization } = req.headers;
             const [authType, kakaoToken] = (authorization || '').split(' ');
@@ -37,9 +37,6 @@ class UserProvider {
 
             // 토큰 카카오에 보내고 유저정보 확인하여 회원가입/로그인 후 서버에서 발급한 accessToken 받아오기
             const { nickname, accessToken } = await UserService.getAccessToken(kakaoToken);
-
-            console.log('nickname:: ', nickname);
-            console.log('accessToken:: ', accessToken);
 
             /*
             // 프론트로 쿠키 전달되지 않아 쿠키 세팅 보류
@@ -57,4 +54,4 @@ class UserProvider {
     };
 }
 
-module.exports = new UserProvider();
+module.exports = new UserController();

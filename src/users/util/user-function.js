@@ -1,5 +1,5 @@
 class UserFunction {
-    // DB에 저장할 형태로 유저 정보 가공
+    // 유저 정보 가공 1 : 카카오에서 받아온 유저정보 => DB에 저장할 형태로 가공하기
     getNewUser = async (kakaoUserInfo, allUser) => {
         const allUserCount = allUser.length;
         let nickNum, nickname, _id;
@@ -22,7 +22,7 @@ class UserFunction {
         }
 
         // 위에서 만든 값으로 DB에 저장할 유저 정보 가공해서 리턴
-        const newUser = {
+        return {
             _id,
             nickname,
             email: kakaoUserInfo.kakao_account.email,
@@ -30,9 +30,9 @@ class UserFunction {
                 ? kakaoUserInfo.properties.thumbnail_image
                 : 'default',
         };
-        return newUser;
     };
 
+    // 유저 정보 가공 2 : 유저 정보 승률 계산 => 프론트로 전달할 형태로 가공하기
     // user: DB에서 가져온 유저 정보
     getPlayRecord = async (user) => {
         let spyWinRating, voteSpyRating;

@@ -1,4 +1,4 @@
-const { http /*, https*/ } = require('./src/app');
+const { http, https } = require('./src/app');
 require('dotenv').config();
 require('./src/socket');
 require('./src/game/game-socket');

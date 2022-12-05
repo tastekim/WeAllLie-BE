@@ -1,11 +1,11 @@
+const qs = require('qs');
+const axios = require('axios');
+
 const UserRepo = require('./user-repo');
 const jwtService = require('./util/jwt');
 const UserFunction = require('./util/user-function');
-const axios = require('axios');
-const qs = require('qs');
+
 require('dotenv').config();
-console.log(process.env.CLIENT_ID);
-console.log(process.env.CALLBACK_URL_LOCAL);
 
 class UserService {
     // 카카오에 요청해서 토큰 받아오기
@@ -16,7 +16,7 @@ class UserService {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
-            /*
+
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -25,7 +25,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
+            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -33,6 +33,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
         return kakaoToken.data.access_token;
     };
@@ -68,13 +69,11 @@ class UserService {
             return [exUser.nickname, accessToken];
         } else {
             // 유저가 없다면 회원 가입 후 토큰 발급해서 전달
+
             // 저장할 형태로 유저정보 가공
             const allUser = await UserRepo.findAllUser();
-            let newUser = await UserFunction.getNewUser(userInfo.data, allUser);
-            console.log('이거 제대로 찍힘?? newUser', newUser);
-            // DB에 유저 정보 저장, 토큰 발급과 프론트 전달을 위해 _id, nickname 가져오기
+            const newUser = await UserFunction.getNewUser(userInfo.data, allUser);
 
-            console.log('여기는 user-service.js!!, newUser:::', newUser);
             // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
             const newUserToken = await jwtService.createAccessToken(newUser._id);
             return { nickname: newUser.nickname, accessToken: newUserToken };
