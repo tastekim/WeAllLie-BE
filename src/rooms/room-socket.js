@@ -2,6 +2,7 @@ const lobby = require('../socket');
 const Room = require('../schemas/room');
 const redis = require('../redis');
 const GameProvider = require('../game/game-provider');
+//const { findOne } = require('../schemas/user');
 
 const autoIncrease = function () {
     let a = 1;
@@ -16,24 +17,12 @@ let userCnt = 0;
 
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
-    // 닉네임 가져오기
-    socket.on('getNickname', (nickname) => {
-        socket.nickname = nickname;
-        socket.emit('getNickname', socket.nickname);
-        console.log(socket.nickname);
-    });
-    userCnt++;
-    console.log(socket.id + ' join lobby !');
-    console.log(userCnt);
-    const shwRoom = await Room.find({});
-    lobby.sockets.emit('showRoom', shwRoom);
-    lobby.emit('userCount', userCnt);
-
     socket.on('disconnect', async () => {
-        if (socket.roomNum === undefined && socket.roomNum === null) {
+        if (socket.roomNum === undefined || socket.roomNum === null) {
             userCnt--;
             lobby.emit('userCount', userCnt);
         } else {
+            console.log('비정상적인 퇴장 발생!');
             await redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
             let currentMember = await redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
             await Room.findByIdAndUpdate({ _id: socket.roomNum }, { $inc: { currentCount: -1 } });
@@ -41,7 +30,7 @@ lobby.on('connection', async (socket) => {
             userCnt--;
             lobby.emit('userCount', userCnt);
             try {
-                if (socket.isReady === true) {
+                if (socket.isReady === 1) {
                     const findRoom = await Room.findOne({ _id: socket.roomNum });
                     await redis.decr(`ready${socket.roomNum}`);
                     await redis.lrem(`gameRoom${socket.roomNum}Users`, 1, socket.nickname);
@@ -49,6 +38,7 @@ lobby.on('connection', async (socket) => {
                     const readyStatus = await redis.get(`readyStatus${socket.roomNum}`);
                     if (readyStatus !== '') {
                         clearTimeout(readyStatus);
+                        await redis.set(`readyStatus${socket.roomNum}`, '');
                     }
                     if (findRoom.currentCount === Number(readyCount) && findRoom.currentCount > 3) {
                         console.log('게임시작 5초전!');
@@ -87,12 +77,6 @@ lobby.on('connection', async (socket) => {
         }
     });
 
-    // 방 조회
-    socket.on('showRoom', async () => {
-        const shwRoom = await Room.find({});
-        lobby.sockets.emit('showRoom', shwRoom);
-    });
-
     // 방 퇴장
     socket.on('leaveRoom', async (roomNum) => {
         socket.roomNum = null;
@@ -122,6 +106,7 @@ lobby.on('connection', async (socket) => {
     socket.on('createRoom', async (gameMode, roomTitle) => {
         let autoNum = autoInc();
         socket.roomNum = autoNum;
+        socket.isReady = false;
 
         await Room.create({
             _id: autoNum,
@@ -146,6 +131,7 @@ lobby.on('connection', async (socket) => {
     socket.on('enterRoom', async (roomNum) => {
         const udtRoom = await Room.findOne({ _id: roomNum });
         socket.roomNum = roomNum;
+        socket.isReady = false;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
@@ -163,22 +149,17 @@ lobby.on('connection', async (socket) => {
     });
 
     // 게임 준비
-    socket.on('ready', async (roomNum) => {
+    socket.on('ready', async (roomNum, isReady) => {
         const findRoom = await Room.findOne({ _id: roomNum });
         // 처음 ready 버튼을 눌렀을 때.
-        if (socket.isReady === undefined) {
-            socket.isReady = 1;
-            await redis.incr(`ready${roomNum}`);
-            await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
-            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
-        } else if (socket.isReady === 0) {
+        if (isReady) {
             // ready 버튼 활성화 시킬 때.
             socket.isReady = 1;
             await redis.incr(`ready${roomNum}`);
             await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
-        } else if (socket.isReady === 1) {
+        } else {
             // ready 버튼 비활성화 시킬 때.
             socket.isReady = 0;
             await redis.decr(`ready${roomNum}`);
@@ -213,10 +194,10 @@ lobby.on('connection', async (socket) => {
 
             // 방의 timer id 저장.
             await redis.set(`readyStatus${roomNum}`, readyStatus);
-        }
-        if (readyStatus !== '') {
+        } else if (readyStatus !== '') {
             // setTimeout 이 실행된 후 누군가 ready 를 취소했을 때 그 방의 setTimeout 정지시키기.
             clearTimeout(readyStatus);
+            await redis.set(`readyStatus${roomNum}`, '');
         }
     });
 });
