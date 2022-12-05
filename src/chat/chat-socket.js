@@ -55,9 +55,4 @@ chat.on('connection', async (socket) => {
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
         callback();
     });
-
-    socket.on('enterRoomTest', (roomName) => {
-        socket.join(roomName);
-        console.log(`${socket.id} join the room ${roomName}`);
-    });
 });

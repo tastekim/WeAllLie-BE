@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const UserProvider = require('./user-provider');
+const UserProvider = require('./user-controller');
 // 로그인 미들웨어, 인증 미들웨어 현재 미사용
 // const loginMiddleware = require('../middlewares/login-middleware');
 // const authMiddleware = require('../middlewares/auth-middleware');
