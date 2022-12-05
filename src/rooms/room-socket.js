@@ -76,6 +76,9 @@ lobby.on('connection', async (socket) => {
             roomTitle: roomTitle,
             roomMaker: socket.nickname,
         });
+        await redis.lpush(`currentMember${autoNum}`, socket.nickname);
+        let currentMember = await redis.lrange(`currentMember${autoNum}`, 0, -1);
+        lobby.sockets.emit('userNickname', currentMember);
 
         const makedRoom = await Room.findOne({ _id: autoNum });
         const shwRoom = await Room.find({});
