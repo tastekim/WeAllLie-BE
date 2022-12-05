@@ -43,7 +43,7 @@ chat.on('connection', async (socket) => {
             const nickname = socket.nickname;
             console.log(`${nickname} 방 퇴장`);
             const msg = `${nickname} 님이 퇴장하셨습니다.`;
-            socket.rooms.forEach((room) => socket.to(room).emit('receiveRoomMsg', { notice: msg }));
+            socket.to(socket.roomNum).emit('receiveRoomMsg', { notice: msg });
         }
     });
 
