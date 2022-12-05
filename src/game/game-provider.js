@@ -89,7 +89,7 @@ class GameProvider {
 
     // nowVote 배열 생성.
     setNowVote = async (roomNum) => {
-        await redis.set(`nowVote${roomNum}`, '0');
+        await redis.set(`nowVote${roomNum}`, 0);
     };
 
     // nowVote 에 1++ / 1--

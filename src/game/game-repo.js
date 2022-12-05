@@ -22,7 +22,7 @@ class GameRepo {
     };
 
     getRoomCurrentCount = async (roomNum) => {
-        const roomData = await Room.findById({ roomNum });
+        const roomData = await Room.findById({ _id: roomNum });
         return roomData.currentCount;
     };
 

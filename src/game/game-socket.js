@@ -50,8 +50,9 @@ game.on('connection', (socket) => {
     socket.on('nowVote', async (roomNum) => {
         if (socket.nowVote === undefined) {
             socket.nowVote = true;
+        } else {
+            socket.nowVote ? (socket.nowVote = false) : (socket.nowVote = true);
         }
-        socket.nowVote ? (socket.nowVote = false) : (socket.nowVote = true);
 
         // max -> 스파이를 제외한 정원 수, curr -> 현재 nowVote 를 누른 수.
         const [max, curr] = await GameProvider.nowVote(roomNum, socket.nowVote);
