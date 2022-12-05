@@ -27,7 +27,7 @@ chat.on('connection', async (socket) => {
     });
 
     // 룸 퇴장 메세지 1 - 나가기 버튼 통해 퇴장
-    socket.on('퇴장메세지이벤트(확인필요)', (roomNum, nickname) => {
+    socket.on('leaveRoomMsg', (roomNum, nickname) => {
         console.log(`${nickname} ${roomNum}번 방 퇴장`);
         const msg = `${nickname} 님이 퇴장하셨습니다.`;
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
