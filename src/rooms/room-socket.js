@@ -72,6 +72,7 @@ lobby.on('connection', async (socket) => {
 
     // 방 퇴장
     socket.on('leaveRoom', async (roomNum) => {
+        await RoomProvider.leaveRoom(roomNum);
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
         socket.roomNum = null;
         if (currentCount > 0 && currentCount < 9) {
@@ -104,6 +105,7 @@ lobby.on('connection', async (socket) => {
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (currentCount <= 8 && RoomProvider.getRoom(roomNum).roomStatus === false) {
+            await RoomProvider.enterRoom(roomNum);
             const currentMember = await RoomProvider.getCurrentMember(roomNum);
             const currentRoom = await RoomProvider.getRoom(roomNum);
             await RoomProvider.enterRoom(roomNum);
