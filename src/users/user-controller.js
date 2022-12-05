@@ -36,7 +36,10 @@ class UserProvider {
             console.log('kakaoToken:::::: ', kakaoToken);
 
             // 토큰 카카오에 보내고 유저정보 확인하여 회원가입/로그인 후 서버에서 발급한 accessToken 받아오기
-            const [nickname, accessToken] = await UserService.getAccessToken(kakaoToken);
+            const { nickname, accessToken } = await UserService.getAccessToken(kakaoToken);
+
+            console.log('nickname:: ', nickname);
+            console.log('accessToken:: ', accessToken);
 
             /*
             // 프론트로 쿠키 전달되지 않아 쿠키 세팅 보류

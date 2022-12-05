@@ -65,19 +65,19 @@ class UserService {
             const accessToken = await jwtService.createAccessToken(exUser._id);
             console.log('getAccessToken!, accessToken :::', accessToken);
 
-            return accessToken;
+            return [exUser.nickname, accessToken];
         } else {
             // 유저가 없다면 회원 가입 후 토큰 발급해서 전달
             // 저장할 형태로 유저정보 가공
             const allUser = await UserRepo.findAllUser();
-            let newUser = UserFunction.getNewUser(userInfo.data, allUser);
+            let newUser = await UserFunction.getNewUser(userInfo.data, allUser);
+            console.log('이거 제대로 찍힘?? newUser', newUser);
             // DB에 유저 정보 저장, 토큰 발급과 프론트 전달을 위해 _id, nickname 가져오기
-            const { _id, nickname } = await UserRepo.createNewUser(newUser);
+
             console.log('여기는 user-service.js!!, newUser:::', newUser);
             // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
-            const newUserToken = await jwtService.createAccessToken(_id);
-
-            return [nickname, newUserToken];
+            const newUserToken = await jwtService.createAccessToken(newUser._id);
+            return { nickname: newUser.nickname, accessToken: newUserToken };
         }
     };
 }
