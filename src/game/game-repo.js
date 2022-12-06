@@ -4,7 +4,7 @@ const Game = require('../schemas/game');
 
 class GameRepo {
     setSpy = async (roomNum, nickname) => {
-        await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { spyUser: nickname } });
+        await Room.findOneAndUpdate({ _id: roomNum }, { $set: { spyUser: nickname } });
     };
 
     getSpy = async (roomNum) => {
@@ -22,7 +22,7 @@ class GameRepo {
     };
 
     getRoomCurrentCount = async (roomNum) => {
-        const roomData = await Room.findById({ _id: roomNum });
+        const roomData = await Room.findById(roomNum);
         return roomData.currentCount;
     };
 
@@ -38,17 +38,6 @@ class GameRepo {
         const giveWord = await Game.find({ category: categoryFix });
         return giveWord.map((y) => y.word);
     };
-
-    giveExample = async (categoryFix) => {
-        const giveExample = await Game.find({ category: categoryFix });
-        return giveExample;
-    };
-
-    //발언권 지목하기
-    // micToss = async (nickname) => {
-    //     const micToss = await User.find(nickname);
-    //     return micToss;
-    // };
 }
 
 module.exports = new GameRepo();
