@@ -22,7 +22,13 @@ chat.on('connection', async (socket) => {
     socket.on('enterRoomMsg', (roomNum, nickname, callback) => {
         console.log(`${nickname} ${roomNum}번 방 입장`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
+        console.log(msg);
+        // 방법1
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        // 방법2
+        // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        // 방법3
+        // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
         callback();
     });
 
@@ -30,11 +36,17 @@ chat.on('connection', async (socket) => {
     socket.on('leaveRoomMsg', (roomNum, nickname) => {
         console.log(`${nickname} ${roomNum}번 방 퇴장`);
         const msg = `${nickname} 님이 퇴장하셨습니다.`;
+        // 방법1
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        // 방법2
+        // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        // 방법3
+        // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
     });
 
     // 룸 퇴장 메세지 2 - 비정상적 연결 해제
     socket.on('disconnecting', () => {
+        const roomNum = socket.roomNum;
         console.log(`disconnecting 이벤트 발생!! ${socket.id}`);
         console.log('socket.rooms ::', socket.rooms);
         // socket.rooms.size > 1 이라는 것은 public room 에 입장했던 상태라는 것
@@ -43,16 +55,31 @@ chat.on('connection', async (socket) => {
             const nickname = socket.nickname;
             console.log(`${nickname} 방 퇴장`);
             const msg = `${nickname} 님이 퇴장하셨습니다.`;
-            socket.to(socket.roomNum).emit('receiveRoomMsg', { notice: msg });
+            // 방법1
+            socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+            // 방법2
+            // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+            // 방법3
+            // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
         }
     });
 
     // 룸 채팅 (아직 미확정)
     socket.on('sendRoomMsg', (payload, roomNum, callback) => {
         console.log('룸채팅');
-        console.log('payload:::', payload);
+        console.log('payload:::%o ', payload);
         console.log(`roomNum::: ${roomNum}`);
+        // 방법1
         socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        // 방법2
+        // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        // 방법3
+        // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
         callback();
+    });
+
+    socket.on('enterRoomTest', (roomName) => {
+        socket.join(roomName);
+        console.log(`${socket.id} join the room ${roomName}`);
     });
 });
