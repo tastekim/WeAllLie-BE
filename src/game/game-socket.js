@@ -47,15 +47,15 @@ game.on('connection', (socket) => {
     });
 
     // 게임 진행 중 스파이 투표 찬반 투표 실행.
-    socket.on('nowVote', async (roomNum) => {
-        if (socket.nowVote === undefined) {
-            socket.nowVote = true;
-        } else {
-            socket.nowVote ? (socket.nowVote = false) : (socket.nowVote = true);
-        }
+    socket.on('nowVote', async (roomNum, voteStatus) => {
+        // if (socket.nowVote === undefined) {
+        //     socket.nowVote = true;
+        // } else {
+        //     socket.nowVote ? (socket.nowVote = false) : (socket.nowVote = true);
+        // }
 
         // max -> 스파이를 제외한 정원 수, curr -> 현재 nowVote 를 누른 수.
-        const [max, curr] = await GameProvider.nowVote(roomNum, socket.nowVote);
+        const [max, curr] = await GameProvider.nowVote(roomNum, voteStatus);
         // if (max === curr) {
         //     // 바로 최종 스파이 투표로 진행.
         //     game.sockets.in(`/gameRoom${roomNum}`).emit('voteStart', curr);
