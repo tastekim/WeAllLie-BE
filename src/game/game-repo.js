@@ -8,7 +8,7 @@ class GameRepo {
     };
 
     getSpy = async (roomNum) => {
-        const roomData = await Room.findById({ _id: roomNum });
+        const roomData = await Room.findById(roomNum);
         return roomData.spyUser;
     };
 

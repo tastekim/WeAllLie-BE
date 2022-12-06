@@ -58,7 +58,7 @@ class GameProvider {
             }
         }
         // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
-        if (maxVoteUser === spyUser && !sameVote) {
+        if (maxVoteUser[0] === spyUser && !sameVote) {
             return {
                 spyWin: false,
                 maxVoteUser: maxVoteUser[0],
