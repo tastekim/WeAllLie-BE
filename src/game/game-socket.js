@@ -14,8 +14,6 @@ game.on('connection', (socket) => {
         socket.voteSpy = nickname;
     });
 
-    socket.on('voteResult', );
-
     // 스파이 투표 종료 후 개인 결과 집계.
     socket.on('voteRecord', async (roomNum) => {
         // 현재 게임에서 스파이의 닉네임 찾기.
@@ -36,11 +34,16 @@ game.on('connection', (socket) => {
         await GameProvider.setRoomUsers(roomNum, socket.nickname);
     });
 
-    // 게임 결과 집계.
-    socket.on('endGame', async (roomNum) => {
-        const gameResult = await GameProvider.getResult(roomNum);
-        console.log(gameResult);
-        socket.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
+    // 투표 결과 스파이가 이겼는지 졌는지에 대한 결과값
+    socket.on('spyWin', async (roomNum) => {
+        const result = await GameProvider.getVoteResult(roomNum);
+        console.log(result);
+        socket.to(`/gameRoom${roomNum}`).emit('endGame', result);
+    });
+
+    // 스파이가 제시어를 맞췄는지에 대한 결과값
+    socket.on('spyGuess', async (roomNum, word) => {
+        const result = await GameProvider.getGuessResult(roomNum, word);
     });
 
     // nowVote 세팅.

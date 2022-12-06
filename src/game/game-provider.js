@@ -25,7 +25,7 @@ class GameProvider {
         console.log('voteResult : ', await redis.lrange(`gameRoom${roomNum}Result`, 0, -1));
     };
 
-    getResult = async (roomNum) => {
+    getVoteResult = async (roomNum) => {
         // 투표 집계한 배열.
         const resultList = await redis.lrange(`gameRoom${roomNum}Result`, 0, -1);
         // 방에 참여 중인 유저 닉네임.
@@ -39,7 +39,6 @@ class GameProvider {
 
         // 가장 표를 많이 받은 사람의 ['nickname', 투표받은 수]
         let maxVoteUser = ['', 0];
-        let sameVote = false;
 
         for (let user of roomUsers) {
             let count = 0;
@@ -48,8 +47,7 @@ class GameProvider {
             });
             if (count >= maxVoteUser[1]) {
                 if ((user === spyUser || maxVoteUser[0] === spyUser) && count === maxVoteUser[1]) {
-                    sameVote = true;
-                    maxVoteUser[0] = user === spyUser ? maxVoteUser[0] : user;
+                    maxVoteUser[0] = user === spyUser ? user : maxVoteUser[0];
                     maxVoteUser[1] = count;
                 } else {
                     maxVoteUser[0] = user;
@@ -58,19 +56,24 @@ class GameProvider {
             }
         }
         // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
-        if (maxVoteUser[0] === spyUser && !sameVote) {
-            return {
-                spyWin: false,
-                maxVoteUser: maxVoteUser[0],
-                maxVoteResult: maxVoteUser[1],
-            };
-        } else {
-            return {
-                spyWin: true,
-                maxVoteUser: maxVoteUser[0],
-                maxVoteResult: maxVoteUser[1],
-            };
-        }
+        return maxVoteUser[0] === spyUser ? false : true;
+        // if (maxVoteUser[0] === spyUser) {
+        //     return {
+        //         spyWin: false,
+        //         maxVoteUser: maxVoteUser[0],
+        //         maxVoteResult: maxVoteUser[1],
+        //     };
+        // } else {
+        //     return {
+        //         spyWin: true,
+        //         maxVoteUser: maxVoteUser[0],
+        //         maxVoteResult: maxVoteUser[1],
+        //     };
+        // }
+    };
+
+    getGuessResult = async (roomNum, word) => {
+        
     };
 
     // 각 방에 참여한 유저들의 닉네임 저장.
