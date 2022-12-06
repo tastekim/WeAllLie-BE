@@ -48,35 +48,39 @@ class UserService {
         3) 새로 생성한 유저의 _id로 토큰 발급해서 리턴
     */
     getAccessToken = async (kakaoToken) => {
-        const userInfo = await axios({
-            method: 'POST',
-            url: 'https://kapi.kakao.com/v2/user/me',
-            headers: {
-                'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-                Authorization: `Bearer ${kakaoToken}`,
-            },
-        });
+        try {
+            const userInfo = await axios({
+                method: 'POST',
+                url: 'https://kapi.kakao.com/v2/user/me',
+                headers: {
+                    'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+                    Authorization: `Bearer ${kakaoToken}`,
+                },
+            });
 
-        // DB에 유저 정보가 있는지 확인
-        const userEmail = userInfo.data.kakao_account.email;
-        const exUser = await UserRepo.findOneByEmail(userEmail);
+            // DB에 유저 정보가 있는지 확인
+            const userEmail = userInfo.data.kakao_account.email;
+            const exUser = await UserRepo.findOneByEmail(userEmail);
 
-        if (exUser) {
-            // 유저가 존재한다면 바로 토큰 발급 후 전달
-            const accessToken = await jwtService.createAccessToken(exUser._id);
-            console.log('getAccessToken!, accessToken :::', accessToken);
+            if (exUser) {
+                // 유저가 존재한다면 바로 토큰 발급 후 전달
+                const accessToken = await jwtService.createAccessToken(exUser._id);
+                console.log('getAccessToken!, accessToken :::', accessToken);
 
-            return [exUser.nickname, accessToken];
-        } else {
-            // 유저가 없다면 회원 가입 후 토큰 발급해서 전달
+                return [exUser.nickname, accessToken];
+            } else {
+                // 유저가 없다면 회원 가입 후 토큰 발급해서 전달
 
-            // 저장할 형태로 유저정보 가공
-            const allUser = await UserRepo.findAllUser();
-            const newUser = await UserFunction.getNewUser(userInfo.data, allUser);
+                // 저장할 형태로 유저정보 가공
+                const allUser = await UserRepo.findAllUser();
+                const newUser = await UserFunction.getNewUser(userInfo.data, allUser);
 
-            // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
-            const newUserToken = await jwtService.createAccessToken(newUser._id);
-            return { nickname: newUser.nickname, accessToken: newUserToken };
+                // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
+                const newUserToken = await jwtService.createAccessToken(newUser._id);
+                return { nickname: newUser.nickname, accessToken: newUserToken };
+            }
+        } catch (e) {
+            return e;
         }
     };
 }
