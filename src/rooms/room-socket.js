@@ -34,7 +34,7 @@ lobby.on('connection', async (socket) => {
             userCnt--;
             lobby.emit('userCount', userCnt);
             try {
-                if (socket.isReady === 1) {
+                if (socket.isReady === true) {
                     const findRoom = await Room.findOne({ _id: socket.roomNum });
                     await redis.decr(`ready${socket.roomNum}`);
                     await redis.lrem(`gameRoom${socket.roomNum}Users`, 1, socket.nickname);
