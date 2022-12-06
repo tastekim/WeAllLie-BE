@@ -2,6 +2,7 @@ const GameRepo = require('./game-repo');
 const Room = require('../schemas/room');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
+const lobby = require('../socket');
 
 class GameProvider {
     getSpy = async (roomNum) => {
@@ -138,6 +139,38 @@ class GameProvider {
         let randomStart = result.pop();
         console.log(`${nickname} 님 발언을 시작해주세요.`);
         return randomStart;
+    };
+
+    readyStatus = async (roomNum) => {
+        console.log('게임시작 5초전!');
+
+        // 특정 방의 timer identifier 를 저장, 나중에 누군가가 ready 가 취소됬을 때 해당하는 timer id 를 찾아서 멈추기 위해.
+        const readyStatus = setTimeout(async () => {
+            console.log('게임 시작 ! ');
+
+            // 스파이 랜덤 지정 후 게임 시작 전 emit.
+            const spyUser = await GameProvider.selectSpy(roomNum);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
+
+            // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
+            const gameData = await GameProvider.giveWord(roomNum);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
+
+            // 게임방 진행 활성화. 다른 유저 입장 제한.
+            await Room.findByIdAndUpdate({ _id: roomNum }, { roomStatus: true });
+            await redis.del(`ready${roomNum}`);
+            await redis.del(`readyStatus${roomNum}`);
+            await redis.del(`currentMember${roomNum}`);
+        }, 5000);
+
+        // 방의 timer id 저장.
+        await redis.set(`readyStatus${roomNum}`, readyStatus);
+    };
+    stopGame = async (roomNum) => {
+        const readyStatus = await GameProvider.readyStatus(roomNum);
+        // setTimeout 이 실행된 후 누군가 ready 를 취소했을 때 그 방의 setTimeout 정지시키기.
+        clearTimeout(readyStatus);
+        await redis.set(`readyStatus%{roomNum}`, '');
     };
 }
 
