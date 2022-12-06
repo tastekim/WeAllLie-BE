@@ -27,11 +27,11 @@ chat.on('connection', async (socket) => {
     });
 
     // 룸 퇴장 메세지
-    socket.on('disconnecting', (roomNum, nickname) => {
-        console.log(`${nickname} 방 퇴장`);
-        const msg = `${nickname} 님이 퇴장하셨습니다.`;
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-    });
+    // socket.on('disconnecting', (roomNum, nickname) => {
+    //     console.log(`${nickname} 방 퇴장`);
+    //     const msg = `${nickname} 님이 퇴장하셨습니다.`;
+    //     socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+    // });
 
     // 룸 채팅 (아직 미확정)
     socket.on('sendRoomMsg', (payload, roomNum, callback) => {

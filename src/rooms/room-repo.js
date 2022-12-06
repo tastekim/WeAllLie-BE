@@ -1,6 +1,5 @@
 //const { findById } = require('../schemas/room');
 const Room = require('../schemas/room');
-const socket = require('../socket');
 
 const autoIncrease = function () {
     let a = 1;
@@ -13,14 +12,15 @@ const autoInc = autoIncrease();
 
 class RoomRepo {
     // 방 생성
-    createRoom = async (gameMode, roomTitle) => {
+    createRoom = async (gameMode, roomTitle, nickname) => {
         let autoNum = autoInc();
-        await Room.create({
+        const createdRoom = await Room.create({
             _id: autoNum,
             gameMode: gameMode,
             roomTitle: roomTitle,
-            roomMaker: socket.nickname,
+            roomMaker: nickname,
         });
+        return createdRoom;
     };
     // 방 입장
     enterRoom = async (roomNum) => {
@@ -44,10 +44,20 @@ class RoomRepo {
         const getRoom = await Room.findById(roomNum);
         return getRoom;
     };
+    // 방 상태 조회
+    getRoomStatus = async (roomNum) => {
+        const getRoomStatus = await Room.findById(roomNum);
+        return getRoomStatus.roomStatus;
+    };
     // 방 현재 인원 조회
     currentCount = async (roomNum) => {
         const roomData = await Room.findById(roomNum);
         return roomData.currentCount;
+    };
+    // 방 번호 조회
+    getRoomNum = async (nickname) => {
+        const getRoomNum = await Room.findOne({ roomMaker: nickname });
+        return getRoomNum._id;
     };
 }
 

@@ -8,6 +8,16 @@ class RoomProvider {
         let currentCount = await RoomRepo.currentCount(roomNum);
         return currentCount;
     };
+    // 방 게임 상태 조회
+    getRoomStatus = async (roomNum) => {
+        const roomStatus = await RoomRepo.getRoomStatus(roomNum);
+        return roomStatus;
+    };
+    // 방 번호 조회
+    getRoomNum = async (nickname) => {
+        const getRoomNum = await RoomRepo.getRoomNum(nickname);
+        return getRoomNum;
+    };
     // 현재 인원이 들어있는 redis 배열
     getCurrentMember = async (roomNum) => {
         let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
@@ -26,10 +36,10 @@ class RoomProvider {
         return currentMember;
     };
     // 방 생성
-    createRoom = async (gameMode, roomTitle) => {
-        const createRoom = await RoomRepo.createRoom(gameMode, roomTitle);
+    createRoom = async (gameMode, roomTitle, nickname, autoNum) => {
+        const createRoom = await RoomRepo.createRoom(gameMode, roomTitle, nickname);
         await redis.lpush(`currentMember${RoomRepo.createRoom._id}`, socket.nickname);
-        await redis.set(`ready${RoomRepo.createRoom._id}`, 0);
+        await redis.set(`ready${autoNum}`, 0);
         await redis.set(`readyStatus${RoomRepo.createRoom._id}`, '');
         return createRoom;
     };

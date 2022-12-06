@@ -149,11 +149,11 @@ class GameProvider {
             console.log('게임 시작 ! ');
 
             // 스파이 랜덤 지정 후 게임 시작 전 emit.
-            const spyUser = await GameProvider.selectSpy(roomNum);
+            const spyUser = await this.selectSpy(roomNum);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
 
             // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
-            const gameData = await GameProvider.giveWord(roomNum);
+            const gameData = await this.giveWord(roomNum);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
 
             // 게임방 진행 활성화. 다른 유저 입장 제한.
@@ -167,7 +167,7 @@ class GameProvider {
         await redis.set(`readyStatus${roomNum}`, readyStatus);
     };
     stopGame = async (roomNum) => {
-        const readyStatus = await GameProvider.readyStatus(roomNum);
+        const readyStatus = await this.readyStatus(roomNum);
         // setTimeout 이 실행된 후 누군가 ready 를 취소했을 때 그 방의 setTimeout 정지시키기.
         clearTimeout(readyStatus);
         await redis.set(`readyStatus%{roomNum}`, '');
