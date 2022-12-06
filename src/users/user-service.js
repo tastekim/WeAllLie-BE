@@ -73,7 +73,7 @@ class UserService {
                 const accessToken = await jwtService.createAccessToken(exUser._id);
                 console.log('getAccessToken!, accessToken :::', accessToken);
 
-                return [exUser.nickname, accessToken];
+                return { nickname: exUser.nickname, accessToken: accessToken };
             } else {
                 // 유저가 없다면 회원 가입 후 토큰 발급해서 전달
 
