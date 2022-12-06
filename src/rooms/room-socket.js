@@ -24,13 +24,8 @@ lobby.on('connection', async (socket) => {
 
     // 게임방생성
     socket.on('createRoom', async (gameMode, roomTitle) => {
+        const createdRoom = await RoomProvider.createRoom(gameMode, roomTitle, socket.nickname);
         const roomNum = await RoomProvider.getRoomNum(socket.nickname);
-        const createdRoom = await RoomProvider.createRoom(
-            gameMode,
-            roomTitle,
-            socket.nickname,
-            roomNum
-        );
         await RoomProvider.enterRoom(roomNum);
         socket.roomNum = roomNum;
         socket.isReady = false;
@@ -67,10 +62,8 @@ lobby.on('connection', async (socket) => {
     // 게임 준비
     socket.on('ready', async (roomNum, isReady) => {
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
-        console.log(currentCount);
         const readyStatus = await redis.get(`readyStatus${roomNum}`);
         let readyCount = await RoomProvider.readyCount(roomNum);
-        console.log(readyCount);
         if (isReady) {
             // ready 버튼 활성화 시킬 때.
             socket.isReady = 1;
@@ -80,7 +73,7 @@ lobby.on('connection', async (socket) => {
             // ready 버튼 비활성화 시킬 때.
             socket.isReady = 0;
             await RoomProvider.unready(roomNum);
-            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('unready', socket.nickname, false);
         }
         // 해당하는 방의 setTimeout 의 timer id 값 가져오기.
         if (currentCount === Number(readyCount) && currentCount > 3) {

@@ -36,11 +36,11 @@ class RoomProvider {
         return currentMember;
     };
     // 방 생성
-    createRoom = async (gameMode, roomTitle, nickname, autoNum) => {
+    createRoom = async (gameMode, roomTitle, nickname) => {
         const createRoom = await RoomRepo.createRoom(gameMode, roomTitle, nickname);
-        await redis.lpush(`currentMember${RoomRepo.createRoom._id}`, socket.nickname);
-        await redis.set(`ready${autoNum}`, 0);
-        await redis.set(`readyStatus${RoomRepo.createRoom._id}`, '');
+        await redis.lpush(`currentMember${await RoomRepo.getRoomNum(nickname)}`, socket.nickname);
+        await redis.set(`ready${await RoomRepo.getRoomNum(nickname)}`, 0);
+        await redis.set(`readyStatus${await RoomRepo.getRoomNum(nickname)}`, '');
         return createRoom;
     };
     // 방 입장
