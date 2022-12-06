@@ -18,7 +18,7 @@ class UserService {
                 headers: {
                     'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
                 },
-                /*
+
                 // with FE
                 data: qs.stringify({
                     grant_type: 'authorization_code',
@@ -27,8 +27,8 @@ class UserService {
                     redirectUri: process.env.CALLBACK_URL_LOCAL,
                     code: code,
                 }),
-                */
 
+                /*
                 // BE test
                 data: qs.stringify({
                     grant_type: 'authorization_code',
@@ -36,6 +36,7 @@ class UserService {
                     redirectUri: process.env.CALLBACK_URL_LOCAL,
                     code: code,
                 }),
+                */
             });
             console.log('kakaoToken ::', kakaoToken.data.access_token);
 
@@ -64,9 +65,8 @@ class UserService {
                     Authorization: `Bearer ${kakaoToken}`,
                 },
             });
-            console.log('userInfo :: ', userInfo);
             // DB에 유저 정보가 있는지 확인
-            const userEmail = userInfo?.data?.kakao_account?.email;
+            const userEmail = userInfo.data.kakao_account.email;
             if (!userEmail) throw new UserError('카카오 이메일 정보 확인 실패');
             const exUser = await UserRepo.findOneByEmail(userEmail);
             console.log('exUser ::', exUser);
@@ -74,7 +74,7 @@ class UserService {
                 // 유저가 존재한다면 바로 토큰 발급 후 전달
                 const accessToken = await jwtService.createAccessToken(exUser._id);
                 console.log('getAccessToken!, accessToken :::', accessToken);
-
+                console.log('exUser.nickname ::', exUser.nickname);
                 return { nickname: exUser.nickname, accessToken: accessToken };
             } else {
                 // 유저가 없다면 회원 가입 후 토큰 발급해서 전달

@@ -33,8 +33,9 @@ class UserController {
 
         // 토큰 카카오에 보내고 유저정보 확인하여 회원가입/로그인 후 서버에서 발급한 accessToken 받아오기
         const { nickname, accessToken } = await UserService.getAccessToken(kakaoToken);
-
-        return res.status(200).json({ nickname, accessToken });
+        console.log('유저컨트롤러 !!!!', nickname);
+        console.log('유저컨트롤러 !!!!', accessToken);
+        return res.status(200).send({ nickname: nickname, accessToken: accessToken });
     };
 }
 
