@@ -29,12 +29,12 @@ lobby.on('connection', async (socket) => {
             console.log('비정상적인 퇴장 발생!');
             await redis.lrem(`currentMember${socket.roomNum}`, 1, socket.nickname);
             let currentMember = await redis.lrange(`currentMember${socket.roomNum}`, 0, -1);
-            await Room.findByIdAndUpdate({ _id: socket.roomNum }, { $inc: { currentCount: -1 } });
+            await Room.findOneAndUpdate({ _id: socket.roomNum }, { $inc: { currentCount: -1 } });
             lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
             userCnt--;
             lobby.emit('userCount', userCnt);
             try {
-                if (socket.isReady === 1) {
+                if (socket.isReady === true) {
                     const findRoom = await Room.findOne({ _id: socket.roomNum });
                     await redis.decr(`ready${socket.roomNum}`);
                     await redis.lrem(`gameRoom${socket.roomNum}Users`, 1, socket.nickname);
@@ -62,7 +62,7 @@ lobby.on('connection', async (socket) => {
                                 .emit('gameStart', gameData);
 
                             // 게임방 진행 활성화. 다른 유저 입장 제한.
-                            await Room.findByIdAndUpdate(
+                            await Room.findOneAndUpdate(
                                 { _id: socket.roomNum },
                                 { roomStatus: true }
                             );
@@ -84,7 +84,7 @@ lobby.on('connection', async (socket) => {
     // 방 퇴장
     socket.on('leaveRoom', async (roomNum) => {
         socket.roomNum = null;
-        await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
+        await Room.findOneAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
         const udtRoom = await Room.findOne({ _id: roomNum });
         let shwRoom = await Room.find({});
 
@@ -139,7 +139,7 @@ lobby.on('connection', async (socket) => {
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
-            await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: 1 } });
+            await Room.findOneAndUpdate({ _id: roomNum }, { $inc: { currentCount: 1 } });
             await redis.rpush(`currentMember${roomNum}`, socket.nickname);
             let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
             const currentRoom = await Room.findOne({ _id: roomNum });
@@ -153,19 +153,25 @@ lobby.on('connection', async (socket) => {
     });
 
     // 게임 준비
-    socket.on('ready', async (roomNum, isReady) => {
+    socket.on('ready', async (roomNum) => {
         const findRoom = await Room.findOne({ _id: roomNum });
         // 처음 ready 버튼을 눌렀을 때.
-        if (isReady) {
+        if (socket.isReady == null) {
+            socket.isReady = true;
+            await redis.incr(`ready${roomNum}`);
+            await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
+            console.log('준비 완료 !');
+        } else if (socket.isReady) {
             // ready 버튼 활성화 시킬 때.
-            socket.isReady = 1;
+            socket.isReady = true;
             await redis.incr(`ready${roomNum}`);
             await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
         } else {
             // ready 버튼 비활성화 시킬 때.
-            socket.isReady = 0;
+            socket.isReady = false;
             await redis.decr(`ready${roomNum}`);
             await redis.lrem(`gameRoom${roomNum}Users`, 1, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
@@ -190,7 +196,7 @@ lobby.on('connection', async (socket) => {
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
 
                 // 게임방 진행 활성화. 다른 유저 입장 제한.
-                await Room.findByIdAndUpdate({ _id: roomNum }, { roomStatus: true });
+                await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });
                 await redis.del(`ready${roomNum}`);
                 await redis.del(`readyStatus${roomNum}`);
                 await redis.del(`currentMember${roomNum}`);
