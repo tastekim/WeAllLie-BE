@@ -18,6 +18,9 @@ let userCnt = 0;
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
     socket.on('disconnect', async () => {
+        console.log(`${socket.nickname} 방 퇴장`);
+        const msg = `${socket.nickname} 님이 퇴장하셨습니다.`;
+        socket.to(`/gameRoom${socket.roomNum}`).emit('receiveRoomMsg', { notice: msg });
         if (socket.roomNum === undefined || socket.roomNum === null) {
             userCnt--;
             lobby.emit('userCount', userCnt);
