@@ -9,4 +9,18 @@ class CustomError extends Error {
     }
 }
 
-module.exports = CustomError;
+// User 디렉토리에서 사용하는 에러
+class UserError extends Error {
+    constructor(message, statusCode = 500) {
+        super(message);
+
+        this.name = UserError;
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+}
+
+module.exports = {
+    CustomError,
+    UserError,
+};

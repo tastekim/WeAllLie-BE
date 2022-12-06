@@ -4,11 +4,23 @@ const errorLogger = (error, req, res, next) => {
 };
 
 const errorHandler = (error, req, res) => {
-    const statusCode = error.statusCode;
+    let statusCode;
 
-    res.status(statusCode).json({
-        errorMessage: error.message,
-    });
+    switch (error.name) {
+        case 'UserError':
+            statusCode = error.statusCode;
+            res.status(statusCode).json({
+                errorMessage: error.message,
+            });
+            break;
+
+        case 'GameError':
+            break;
+
+        default:
+            res.json({ errorMessage: error.message });
+            break;
+    }
 };
 
 module.exports = { errorLogger, errorHandler };

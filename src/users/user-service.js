@@ -4,38 +4,43 @@ const axios = require('axios');
 const UserRepo = require('./user-repo');
 const jwtService = require('./util/jwt');
 const UserFunction = require('./util/user-function');
+const UserError = require('../middlewares/exception');
 
 require('dotenv').config();
 
 class UserService {
     // 카카오에 요청해서 토큰 받아오기
     getKakaoToken = async (code) => {
-        const kakaoToken = await axios({
-            method: 'POST',
-            url: 'https://kauth.kakao.com/oauth/token',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-            },
+        try {
+            const kakaoToken = await axios({
+                method: 'POST',
+                url: 'https://kauth.kakao.com/oauth/token',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+                },
 
-            // with FE
-            data: qs.stringify({
-                grant_type: 'authorization_code',
-                client_id: process.env.CLIENT_ID_FRONT,
-                client_secret: process.env.CLIENT_SECRET,
-                redirectUri: process.env.CALLBACK_URL_LOCAL,
-                code: code,
-            }),
-            /*
-            // BE test
-            data: qs.stringify({
-                grant_type: 'authorization_code',
-                client_id: process.env.CLIENT_ID,
-                redirectUri: process.env.CALLBACK_URL_LOCAL,
-                code: code,
-            }),
-            */
-        });
-        return kakaoToken.data.access_token;
+                // with FE
+                data: qs.stringify({
+                    grant_type: 'authorization_code',
+                    client_id: process.env.CLIENT_ID_FRONT,
+                    client_secret: process.env.CLIENT_SECRET,
+                    redirectUri: process.env.CALLBACK_URL_LOCAL,
+                    code: code,
+                }),
+                /*
+                // BE test
+                data: qs.stringify({
+                    grant_type: 'authorization_code',
+                    client_id: process.env.CLIENT_ID,
+                    redirectUri: process.env.CALLBACK_URL_LOCAL,
+                    code: code,
+                }),
+                */
+            });
+            return kakaoToken.data.access_token;
+        } catch (e) {
+            return e;
+        }
     };
 
     /*
@@ -59,7 +64,8 @@ class UserService {
             });
 
             // DB에 유저 정보가 있는지 확인
-            const userEmail = userInfo.data.kakao_account.email;
+            const userEmail = userInfo?.data?.kakao_account?.email;
+            if (!userEmail) throw new UserError('카카오 이메일 정보 확인 실패');
             const exUser = await UserRepo.findOneByEmail(userEmail);
 
             if (exUser) {
