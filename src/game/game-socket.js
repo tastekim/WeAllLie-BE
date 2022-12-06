@@ -2,13 +2,15 @@ const game = require('../socket');
 const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
+    // socket 서버 연결 에러
+    socket.on('connect_error', (err) => {
+        console.log(`에러 코드: ${err.code}`);
+        console.log(`에러 메세지: ${err.message}`);
+        console.log(`연결 해제 소켓 유저: ${socket.nickname}`);
+    });
+
     // 스파이 투표 중 스파이 유저 선택.
-    socket.on('voteSpy', (nickname) => {
-        // fn -> [FE]지목당한 nickname의 숫자를 1 증감 시켜주는 액션.
-        // 유저 별로 실시간 자기가 지목당한 카운트를 표시한다.
-        // fn(nickname);
-        // 지목한 사람(socket)한테 지목당한 사람(nickname)의 정보를 담는다.
-        // 투표가 끝나고 나서 socket.voteSpy안에 스파이의 nickname을 갖고있는 사람은 스파이를 찾는데 성공.
+    socket.on('voteSpy', (roomNum, nickname) => {
         socket.voteSpy = nickname;
     });
 
@@ -32,11 +34,16 @@ game.on('connection', (socket) => {
         await GameProvider.setRoomUsers(roomNum, socket.nickname);
     });
 
-    // 게임 결과 집계.
-    socket.on('endGame', async (roomNum) => {
-        const gameResult = await GameProvider.getResult(roomNum);
-        console.log(gameResult);
-        socket.to(`/gameRoom${roomNum}`).emit('endGame', gameResult);
+    // 투표 결과 스파이가 이겼는지 졌는지에 대한 결과값
+    socket.on('spyWin', async (roomNum) => {
+        const result = await GameProvider.getVoteResult(roomNum);
+        console.log(result);
+        socket.to(`/gameRoom${roomNum}`).emit('endGame', result);
+    });
+
+    // 스파이가 제시어를 맞췄는지에 대한 결과값
+    socket.on('spyGuess', async (roomNum, word) => {
+        const result = await GameProvider.getGuessResult(roomNum, word);
     });
 
     // nowVote 세팅.
