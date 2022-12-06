@@ -7,6 +7,6 @@ const wrapAsync = require('./util/wrap-async');
 router.get('/api/auth/kakao/callback', wrapAsync(UserController.getKakaoToken));
 
 // 카카오 로그인 2 : 토큰으로 카카오에 유저정보 전달하여 클라이언트에 새 토큰 + 유저정보 전달
-router.post('/api/auth/kakao/callback', wrapAsync(UserController.getKakaoToken));
+router.post('/api/auth/kakao/callback', wrapAsync(UserController.getKakaoUserInfo));
 
 module.exports = router;
