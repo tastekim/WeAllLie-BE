@@ -38,12 +38,14 @@ game.on('connection', (socket) => {
     socket.on('spyWin', async (roomNum) => {
         const result = await GameProvider.getVoteResult(roomNum);
         console.log(result);
-        socket.to(`/gameRoom${roomNum}`).emit('endGame', result);
+        socket.emit('endGame', result);
     });
 
     // 스파이가 제시어를 맞췄는지에 대한 결과값
     socket.on('spyGuess', async (roomNum, word) => {
         const result = await GameProvider.getGuessResult(roomNum, word);
+        console.log(word, result);
+        socket.emit('spyGuess', result);
     });
 
     // nowVote 세팅.

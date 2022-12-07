@@ -73,7 +73,8 @@ class GameProvider {
     };
 
     getGuessResult = async (roomNum, word) => {
-        
+        const roomData = await Room.findOne({ _id: roomNum });
+        return roomData.gameWord === word;
     };
 
     // 각 방에 참여한 유저들의 닉네임 저장.
