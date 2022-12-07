@@ -74,9 +74,12 @@ class UserProvider {
                     SameSite: 'None',
                 });
 
-                return res
-                    .status(200)
-                    .json({ nickname: exUserInfo.nickname, accessToken: exUserInfo.accessToken });
+                return res.status(200).json({
+                    accessToken: exUserInfo.accessToken,
+                    nickname: exUserInfo.nickname,
+                    spyWinRating: exUserInfo.spyWinRating,
+                    voteSpyRating: exUserInfo.voteSpyRating,
+                });
             }
             // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
             const newUserInfo = await this.createUserToken(kakaoUserInfo);
@@ -92,9 +95,12 @@ class UserProvider {
                 SameSite: 'None',
             });
             */
-            return res
-                .status(201)
-                .json({ nickname: newUserInfo.nickname, accessToken: newUserInfo.accessToken });
+            return res.status(201).json({
+                nickname: newUserInfo.nickname,
+                accessToken: newUserInfo.accessToken,
+                spyWinRating: 0,
+                voteSpyRating: 0,
+            });
         } catch (e) {
             next(e);
         }
@@ -166,6 +172,7 @@ class UserProvider {
             console.log('exUserGetToken 2, accessToken::::::', accessToken);
 
             const playRecord = await UserRepo.getPlayRecord(exUser, accessToken);
+            console.log('exUserGetToken 3, playRecord::::::', playRecord);
             return playRecord;
         } else return;
     };
