@@ -1,5 +1,5 @@
 const UserRepo = require('./user-repo');
-const jwtService = require('./jwt');
+const jwtService = require('../users/util/jwt');
 // const redis = require('../redis');
 require('dotenv').config();
 

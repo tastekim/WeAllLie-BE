@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
-const User = require('../schemas/user');
+const User = require('../../schemas/user');
 require('dotenv').config();
 
 class jwtService {
     // Access Token 생성
     createAccessToken = async (_id) => {
         return jwt.sign({ _id: _id }, process.env.SECRET_KEY, {
-            expiresIn: '3h',
+            expiresIn: '1h',
         });
     };
     // Refresh Token 생성
