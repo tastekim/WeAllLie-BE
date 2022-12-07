@@ -162,7 +162,7 @@ lobby.on('connection', async (socket) => {
             await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
-        } else if (socket.isReady) {
+        } else if (!socket.isReady) {
             // ready 버튼 활성화 시킬 때.
             socket.isReady = true;
             await redis.incr(`ready${roomNum}`);
