@@ -32,7 +32,7 @@ class UserRefo {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
-
+            /*
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -41,7 +41,7 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            /*
+            */
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -49,7 +49,6 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
         });
         return kakaoToken.data.access_token;
     };
@@ -117,60 +116,6 @@ class UserRefo {
 
         return {
             accessToken,
-            userId: user._id,
-            nickname: user.nickname,
-            profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
-            spyPlayCount: user.spyPlayCount,
-            ctzPlayCount: user.totalCount - user.spyPlayCount,
-            spyWinRating,
-            voteSpyRating,
-        };
-    };
-
-    onlyGetPlayRecord = async (user) => {
-        let spyWinRating, voteSpyRating;
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        if (user.totalCount === 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating: 0,
-            };
-        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating,
-            };
-        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating,
-                voteSpyRating: 0,
-            };
-        }
-
-        return {
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
