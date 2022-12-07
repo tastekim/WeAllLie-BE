@@ -1,174 +1,30 @@
 const User = require('../schemas/user');
-const axios = require('axios');
-const qs = require('qs');
+
 require('dotenv').config();
 
 class UserRefo {
-    //
+    createUser = async (user) => {
+        return await User.create(user);
+    };
+
     findAllUser = async () => {
-        const allUser = await User.find({});
-        return allUser;
+        return await User.find({});
     };
 
     findOneByEmail = async (email) => {
-        const exUser = await User.findOne({ email });
-        return exUser;
+        return await User.findOne({ email });
     };
 
     findOneByNickname = async (nickname) => {
-        const exUser = await User.findOne({ nickname });
-        return exUser;
+        return await User.findOne({ nickname });
     };
 
     findOneById = async (id) => {
-        const exUser = await User.findById(id);
-        return exUser;
+        return await User.findById(id);
     };
 
     updateNick = async (_id, nickname) => {
         return await User.updateOne({ _id }, { nickname });
-    };
-
-    getKakaoToken = async (code) => {
-        try {
-            const kakaoToken = await axios({
-                method: 'POST',
-                url: 'https://kauth.kakao.com/oauth/token',
-                headers: {
-                    'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-                },
-                /*
-                // with FE
-                data: qs.stringify({
-                    grant_type: 'authorization_code',
-                    client_id: process.env.CLIENT_ID_FRONT,
-                    client_secret: process.env.CLIENT_SECRET,
-                    redirectUri: process.env.CALLBACK_URL_LOCAL,
-                    code: code,
-                }),
-                */
-                // BE test
-                data: qs.stringify({
-                    grant_type: 'authorization_code',
-                    client_id: process.env.CLIENT_ID,
-                    redirectUri: process.env.CALLBACK_URL_LOCAL,
-                    code: code,
-                }),
-            });
-            return kakaoToken.data.access_token;
-        } catch (e) {
-            return e;
-        }
-    };
-
-    getKakaoUserInfo = async (kakaoToken) => {
-        try {
-            const userInfo = await axios({
-                method: 'POST',
-                url: 'https://kapi.kakao.com/v2/user/me',
-                headers: {
-                    'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-                    Authorization: `Bearer ${kakaoToken}`,
-                },
-            });
-            return userInfo.data;
-        } catch (e) {
-            return e;
-        }
-    };
-
-    getPlayRecord = async (user, accessToken) => {
-        let spyWinRating, voteSpyRating;
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        if (user.totalCount === 0) {
-            return {
-                accessToken,
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating: 0,
-            };
-        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
-            return {
-                accessToken,
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating,
-            };
-        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
-            return {
-                accessToken,
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating,
-                voteSpyRating: 0,
-            };
-        }
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        return {
-            accessToken,
-            userId: user._id,
-            nickname: user.nickname,
-            profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
-            spyPlayCount: user.spyPlayCount,
-            ctzPlayCount: user.totalCount - user.spyPlayCount,
-            spyWinRating,
-            voteSpyRating,
-        };
-    };
-
-    createNewUser = async (kakaoUserInfo, allUser) => {
-        const allUserCount = allUser.length;
-        let nickNum, nickname, _id;
-
-        // DB에 유저가 하나도 없다면 초기값 세팅
-        if (allUserCount === 0) {
-            _id = 1;
-            nickname = 'Agent_001';
-        } else {
-            // DB에 유저가 있을 경우
-            const n = +allUser[allUserCount - 1]._id + 1;
-            // n이 1000이상이면 Agent_ 뒤에 그대로 붙이고, 1000보다 작으면 001 의 형태로 붙이기
-            if (n < 1000) {
-                nickNum = (0.001 * n).toFixed(3).toString().slice(2);
-                nickname = `Agent_${nickNum}`;
-            } else {
-                nickname = `Agent_${n}`;
-            }
-            _id = +nickNum;
-        }
-        // 위에서 만든 값으로 newUser DB 에 저장하기
-        const newUser = await User.create({
-            _id,
-            nickname,
-            email: kakaoUserInfo.kakao_account.email,
-            profileImg: kakaoUserInfo.properties.thumbnail_image
-                ? kakaoUserInfo.properties.thumbnail_image
-                : 'default',
-        });
-        return newUser;
     };
 }
 

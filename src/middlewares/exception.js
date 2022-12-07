@@ -20,7 +20,18 @@ class UserError extends Error {
     }
 }
 
+class UnKnownError extends Error {
+    constructor(message, statusCode = 500) {
+        super(message);
+
+        this.name = 'UnKnownError';
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+}
+
 module.exports = {
     CustomError,
     UserError,
+    UnKnownError,
 };
