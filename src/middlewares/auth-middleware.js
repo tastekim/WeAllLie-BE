@@ -1,4 +1,4 @@
-const UserError = require('../middlewares/exception');
+const { UserError } = require('../middlewares/exception');
 const jwtService = require('../users/util/jwt');
 const User = require('../schemas/user');
 require('dotenv').config();
@@ -18,7 +18,8 @@ module.exports = async (req, res, next) => {
         const userInfo = await User.findById(_id);
         res.locals.user = userInfo;
         next();
-    } catch (error) {
-        next(error);
+    } catch (e) {
+        console.log(e);
+        res.status(e.statusCode).json({ errorMessage: e.message });
     }
 };

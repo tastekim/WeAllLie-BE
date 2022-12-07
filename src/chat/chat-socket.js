@@ -33,9 +33,9 @@ chat.on('connection', async (socket) => {
         // 방법3
         // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
         // 방법4
-        socket.broadcast.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
+        // socket.broadcast.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
         // 방법5
-        // socket.broadcast.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
+        socket.broadcast.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
         callback();
     });
 
@@ -51,9 +51,9 @@ chat.on('connection', async (socket) => {
         // 방법3
         // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
         // 방법4
-        socket.broadcast.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
+        // socket.broadcast.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
         // 방법5
-        // socket.broadcast.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
+        socket.broadcast.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg }, msgId);
     });
 
     // 룸 채팅
@@ -69,9 +69,9 @@ chat.on('connection', async (socket) => {
         // 방법3
         // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload, msgId);
         // 방법4
-        socket.broadcast.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload, msgId);
+        // socket.broadcast.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload, msgId);
         // 방법5
-        // socket.broadcast.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload, msgId);
+        socket.broadcast.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload, msgId);
         callback();
     });
 });
