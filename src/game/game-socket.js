@@ -8,7 +8,7 @@ game.on('connection', (socket) => {
             await GameProvider.getSpy(roomNum);
             socket.voteSpy = nickname;
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -28,11 +28,8 @@ game.on('connection', (socket) => {
 
             // redis에 각 방의 투표 내용 socket별로 저장.
             await GameProvider.setVoteResult(roomNum, socket.voteSpy);
-
-            // redis 에 각 유저의 닉네임 저장
-            await GameProvider.setRoomUsers(roomNum, socket.nickname);
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -43,7 +40,7 @@ game.on('connection', (socket) => {
             console.log(result);
             socket.emit('endGame', result);
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -54,7 +51,7 @@ game.on('connection', (socket) => {
             console.log(word, result);
             socket.emit('spyGuess', result);
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -65,7 +62,7 @@ game.on('connection', (socket) => {
             const currGameUsers = await GameProvider.getGameRoomUsers(roomNum);
             socket.in(`/gameRoom${roomNum}`).emit('setNowVote', currGameUsers);
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -81,7 +78,7 @@ game.on('connection', (socket) => {
                 currGameRoomUsers: max,
             });
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -91,11 +88,8 @@ game.on('connection', (socket) => {
             //특정 클라이언트 빼고 모든 클라이언트에게 메시지 전송
             const spy = await GameProvider.selectSpy(roomNum);
             game.to(`/gameRoom${roomNum}`).sockets.emit('catch the spy', spy);
-            //특정 클라이언트에게 메시지 전송
-            // const youSpy = await GameProvider.selectSpy(roomNum.saveSpy);
-            // game.to(spyUser).emit('you are spy', youSpy);
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -106,7 +100,7 @@ game.on('connection', (socket) => {
             socket.gameData = gameData;
             socket.emit('giveWord', gameData);
         } catch (err) {
-            socket.emit('error', err.statusCode, err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 });
