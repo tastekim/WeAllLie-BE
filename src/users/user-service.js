@@ -13,7 +13,7 @@ class UserService {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
-            /*
+
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -22,8 +22,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-
-            */
+            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -31,6 +30,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
 
         return kakaoToken.data.access_token;
@@ -60,7 +60,7 @@ class UserService {
 
         // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
         const newUser = await this.createUserToken(userInfo.data);
-        console.log('user-service.js, 새로 가입한 유저 정보 :::', newUser);
+        console.log('user-servic.js, 새로 가입한 유저 정보 :::', newUser);
         return [newUser, 201];
     };
 
@@ -84,13 +84,14 @@ class UserService {
     };
     // DB에 유저 정보 없음 => DB 저장 / 토큰발급 / 토큰 + 유저 게임정보 리턴
     createUserToken = async (kakaoUserInfo) => {
-        console.log('-------------------------------------------');
-        console.log('여기는 user-provider.js 의 createUserToken!!!!!');
-
         const allUser = await UserRepo.findAllUser();
-        const newUser = await UserRepo.createNewUser(kakaoUserInfo, allUser);
 
-        console.log('여기는 user-service.js 3, newUser::::::', newUser);
+        // 카카오 유저 정보를 DB에 저장할 형태로 가공하기
+        const toSaveInfo = await UserFunction.getNewUser(kakaoUserInfo, allUser);
+        console.log('DB에 저장할 유저 정보, toSaveInfo:::', toSaveInfo);
+
+        // DB에 새로 저장된 유저 정보
+        const newUser = await UserRepo.createUser(toSaveInfo);
 
         // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
         const newUserToken = await jwtService.createAccessToken(newUser._id);
@@ -105,10 +106,10 @@ class UserService {
         try {
             const userInfo = await UserRepo.findOneById(_id);
             const userRecord = await UserFunction.getPlayRecord(userInfo);
-            console.log('유저 정보 전적으로 가공 후 !! userRecord ::', userRecord);
+            console.log('DB 유저 정보 전적으로 가공 후 !! userRecord ::', userRecord);
             return userRecord;
         } catch (e) {
-            return e;
+            throw e;
         }
     };
 
