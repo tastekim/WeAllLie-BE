@@ -14,9 +14,7 @@ const errorHandler = (error, req, res) => {
             errorMessage: error.message,
         });
     } else {
-        res.status(500).json({
-            errorMessage: error.message,
-        });
+        next(error);
     }
 };
 

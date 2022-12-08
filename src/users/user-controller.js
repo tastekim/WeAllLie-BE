@@ -1,7 +1,7 @@
 const UserRepo = require('./user-repo');
 const jwtService = require('../users/util/jwt');
 const UserFunction = require('../users/util/user-function');
-// const { UserError } = require('../middlewares/exception');
+const UserError = require('../middlewares/exception');
 require('dotenv').config();
 
 class UserProvider {
@@ -24,7 +24,7 @@ class UserProvider {
   2. DB의 유저정보와 비교하여 필요시 회원가입
   3. 유저정보 가공하여 클라이언트로 전달 => 쿠키로 토큰 전달 / 바디로 닉네임만 전달
     */
-    getKakaoUserInfo = async (req, res) => {
+    getKakaoUserInfo = async (req, res, next) => {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
 
@@ -66,13 +66,12 @@ class UserProvider {
                 voteSpyRating: 0,
             });
         } catch (e) {
-            console.log(e);
-            res.status(500).json({ errorMessage: e.message });
+            next(e);
         }
     };
 
     // 유저 정보 조회
-    getPlayRecord = async (req, res) => {
+    getPlayRecord = async (req, res, next) => {
         try {
             console.log('res.locals.user:: ', res.locals.user);
             const { user } = res.locals;
@@ -82,26 +81,7 @@ class UserProvider {
             return res.status(200).json(userInfo);
         } catch (e) {
             console.log(e);
-            res.status(500).json({ errorMessage: e.message });
-        }
-    };
-
-    // 닉네임 변경
-    updateNick = async (req, res) => {
-        try {
-            const { user } = res.locals;
-            const { nickname } = req.body;
-            const isExistNick = await UserRepo.findOneByNickname(nickname);
-            if (isExistNick) {
-                return res.status(400).json({ errorMessage: '닉네임 중복' });
-            }
-            await UserRepo.updateNick(user._id, nickname);
-            // const updatedInfo = await UserRepo.findOneById(user._id);
-            // console.log('updated Info :::', updatedInfo);
-            return res.status(200).json({ nickname });
-        } catch (e) {
-            console.log(e);
-            res.status(500).json({ errorMessage: e.message });
+            next(e);
         }
     };
 
