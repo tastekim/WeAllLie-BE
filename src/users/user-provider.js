@@ -21,8 +21,7 @@ class UserProvider {
     */
     // 헤더에서 토큰 확인 => 서비스로 전달 => 쿠키와 유저 정보 받아오기
     getLoginInfo = async (req, res) => {
-        console.log('-------------------------------------------');
-        console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
+        console.log('UserProvider.getLoginInfo 함수 시작');
 
         try {
             const { authorization } = req.headers;

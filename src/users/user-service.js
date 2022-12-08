@@ -22,6 +22,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+
             /*
             // BE test
             data: qs.stringify({
@@ -36,6 +37,13 @@ class UserService {
         return kakaoToken.data.access_token;
     };
 
+    /*
+    // 로그인할 때 프론트로 전달할 정보
+    1. 카카오로 토큰을 보내서 유저 정보를 받아온다.
+    2. 받은 정보 중 이메일로 DB 조회하여 가입 여부 확인
+    3. 가입된 유저 => 토큰 + 유저정보 바로 전달
+    4. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
+    */
     loginInfo = async (kakaoToken) => {
         const userInfo = await axios({
             method: 'POST',
@@ -46,16 +54,16 @@ class UserService {
             },
         });
 
-        // userInfo.data : 카카오에서 받은 정보 중 우리에게 필요한 유저 데이터
-        console.log('카카오에서 가져온 유저 정보::::::', userInfo.data);
+        console.log('카카오에서 가져온 유저 정보 userInfo.data:::', userInfo.data);
 
-        // 카카오에서서 받은 유저정보에서 이메일로 DB에 저장된 유저 확인, 존재한다면 유저정보 가져오기 (undefinded일 수도.)
-        const isExistUser = await this.exUserGetToken(userInfo.data);
+        // 카카오에서서 받은 이메일로 DB에 저장된 유저 확인
+        const isExistUser = await UserRepo.findOneByEmail(userInfo.data.kakao_account.email);
 
         // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
         if (isExistUser) {
             console.log('이미 가입되어 있는 유저 정보 :::', isExistUser);
-            return [isExistUser, 200];
+            const toSendInfo = await this.getExUserInfo(isExistUser);
+            return [toSendInfo, 200];
         }
 
         // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
@@ -64,44 +72,7 @@ class UserService {
         return [newUser, 201];
     };
 
-    exUserGetToken = async (kakaoUserInfo) => {
-        // 존재하는 유저일 경우 토큰 발급하여 가져오기
-        console.log('-------------------------------------------');
-        console.log('여기는 user-service.js 의 exUserGetToken!!!!!');
-
-        const exUser = await UserRepo.findOneByEmail(kakaoUserInfo.kakao_account.email);
-        console.log('exUserGetToken 1, exUser:::::: ', exUser);
-
-        if (exUser) {
-            const accessToken = await jwtService.createAccessToken(exUser._id);
-            console.log('exUserGetToken 2, accessToken::::::', accessToken);
-
-            const playRecord = await UserFunction.getPlayRecord(exUser);
-            playRecord.accessToken = accessToken;
-            console.log('exUserGetToken 3, playRecord::::::', playRecord);
-            return playRecord;
-        } else return;
-    };
-    // DB에 유저 정보 없음 => DB 저장 / 토큰발급 / 토큰 + 유저 게임정보 리턴
-    createUserToken = async (kakaoUserInfo) => {
-        const allUser = await UserRepo.findAllUser();
-
-        // 카카오 유저 정보를 DB에 저장할 형태로 가공하기
-        const toSaveInfo = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-        console.log('DB에 저장할 유저 정보, toSaveInfo:::', toSaveInfo);
-
-        // DB에 새로 저장된 유저 정보
-        const newUser = await UserRepo.createUser(toSaveInfo);
-
-        // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
-        const newUserToken = await jwtService.createAccessToken(newUser._id);
-
-        // 클라이언트에 전달하기 위해 유저 정보 가공
-        const playRecord = await UserFunction.getPlayRecord(newUser);
-        playRecord.accessToken = newUserToken;
-        return playRecord;
-    };
-
+    // 유저 정보 조회
     getUserRecord = async (_id) => {
         try {
             const userInfo = await UserRepo.findOneById(_id);
@@ -113,6 +84,7 @@ class UserService {
         }
     };
 
+    // 유저 닉네임 수정
     updateNick = async (_id, nickname) => {
         try {
             const isExistNick = await UserRepo.findOneByNickname(nickname);
@@ -122,6 +94,34 @@ class UserService {
         } catch (e) {
             throw e;
         }
+    };
+
+    // 가입된 유저 : 토큰 발급하여 프론트에 보낼 상태로 가공해서 리턴
+    getExUserInfo = async (isExistUser) => {
+        const accessToken = await jwtService.createAccessToken(isExistUser._id);
+        console.log('getExUserInfo 1, accessToken::::::', accessToken);
+
+        const playRecord = await UserFunction.getPlayRecord(isExistUser);
+        playRecord.accessToken = accessToken;
+        console.log('getExUserInfo 2, playRecord::::::', playRecord);
+        return playRecord;
+    };
+
+    // 신규 유저 생성
+    createUserToken = async (kakaoUserInfo) => {
+        const allUser = await UserRepo.findAllUser();
+
+        // 카카오 유저 정보를 DB에 저장할 형태로 가공 & DB 저장
+        const toSaveInfo = await UserFunction.getNewUser(kakaoUserInfo, allUser);
+        console.log('DB에 저장할 유저 정보, toSaveInfo:::', toSaveInfo);
+        const newUser = await UserRepo.createUser(toSaveInfo);
+
+        // 새로 생성한 newUser에게 _id 값으로 토큰 발급 & 보낼 정보 가공
+        const newUserToken = await jwtService.createAccessToken(newUser._id);
+        const playRecord = await UserFunction.getPlayRecord(newUser);
+        playRecord.accessToken = newUserToken;
+
+        return playRecord;
     };
 }
 
