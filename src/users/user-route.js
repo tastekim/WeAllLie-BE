@@ -12,7 +12,7 @@ router.post('/api/auth/kakao/callback', UserProvider.getKakaoUserInfo);
 // 유저 정보 조회
 router.get('/api/user', authMiddleware, UserProvider.getPlayRecord);
 
-// 닉네임 변경
-router.put('/api/user', authMiddleware, UserProvider.updateNick);
+// 유저 정보 수정 (바디로 { nickname: ㅁㄴㅇㄹㅁㄴㅇㄹ } / 리턴 : 수정된 닉네임 )
+router.put('/api/user');
 
 module.exports = router;

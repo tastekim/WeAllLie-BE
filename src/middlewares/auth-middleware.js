@@ -20,6 +20,6 @@ module.exports = async (req, res, next) => {
         next();
     } catch (e) {
         console.log(e);
-        res.status(e.statusCode).json({ errorMessage: e.message });
+        res.send({ errorMessage: e.message });
     }
 };
