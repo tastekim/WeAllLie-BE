@@ -1,4 +1,5 @@
 const UserRepo = require('./user-repo');
+const UserService = require('./user-service');
 const jwtService = require('../users/util/jwt');
 const UserFunction = require('../users/util/user-function');
 const { UserError } = require('../middlewares/exception');
@@ -10,7 +11,7 @@ class UserProvider {
         console.log('여기는 user-provider.js 의 getKakaoToken!!!!!');
         console.log('전달받은 인가 코드 :::::::::::: ', req.query.code);
 
-        const kakaoToken = await UserRepo.getKakaoToken(req.query.code);
+        const kakaoToken = await UserService.getKakaoToken(req.query.code);
 
         console.log('kakao에서 받아온 accessToken :::::::::::: ', kakaoToken);
         res.header('Access-Control-Allow-Origin', '*');
