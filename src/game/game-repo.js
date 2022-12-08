@@ -1,28 +1,42 @@
 const User = require('../schemas/user');
 const Room = require('../schemas/room');
 const Game = require('../schemas/game');
+const { SetError } = require('../middlewares/exception');
 
 class GameRepo {
     setSpy = async (roomNum, nickname) => {
-        await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { spyUser: nickname } });
+        await Room.findOneAndUpdate({ _id: roomNum }, { $set: { spyUser: nickname } });
     };
 
     getSpy = async (roomNum) => {
-        const roomData = await Room.findById({ _id: roomNum });
+        const roomData = await Room.findOne({ _id: roomNum });
+        if (!('spyUser' in roomData)) {
+            throw new SetError('방 정보가 없습니다.', 400);
+        }
         return roomData.spyUser;
     };
 
     catchSpy = async (nickname) => {
+        const userData = await User.findOne({ nickname: nickname });
+        if (!('nickname' in userData)) {
+            throw new SetError('유저의 정보가 없습니다.', 400);
+        }
         await Room.findOneAndUpdate({ nickname }, { $inc: { voteCount: 1 } });
-        return 'Catch Spy!';
     };
 
     setPlayCount = async (nickname) => {
+        const userData = await User.findOne({ nickname: nickname });
+        if (!('nickname' in userData)) {
+            throw new SetError('유저의 정보가 없습니다.', 400);
+        }
         await User.findOneAndUpdate({ nickname }, { $inc: { totalPlayCount: 1 } });
     };
 
     getRoomCurrentCount = async (roomNum) => {
-        const roomData = await Room.findById({ roomNum });
+        const roomData = await Room.findById(roomNum);
+        if (roomData === null) {
+            throw new SetError('방 정보가 없습니다.', 400);
+        }
         return roomData.currentCount;
     };
 
@@ -35,19 +49,11 @@ class GameRepo {
 
     //카테고리 & 정답 단어 보여주기
     giveWord = async (categoryFix) => {
-        const giveWord = await Game.find({ category: categoryFix });
+        const giveWord = await Game.find({ category: categoryFix }).limit(20);
+        if (giveWord.length !== 20) {
+            throw new SetError('게임 진행에 필요한 제시어가 부족합니다.', 500);
+        }
         return giveWord.map((y) => y.word);
-    };
-
-    giveExample = async (categoryFix) => {
-        const giveExample = await Game.find({ category: categoryFix });
-        return giveExample;
-    };
-
-    //발언권 지목하기
-    micToss = async (nickname) => {
-        const micToss = await User.find(nickname);
-        return micToss;
     };
 }
 

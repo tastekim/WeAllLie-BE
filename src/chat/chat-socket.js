@@ -4,25 +4,29 @@ const chat = require('../socket');
 chat.on('connection', async (socket) => {
     // 로비 입장 메세지
     socket.on('enterLobby', (nickname, callback) => {
-        console.log(`${nickname} 로비 입장`);
+        console.log(`${nickname} 로비 입장(enterLobby)`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
-        chat.sockets.emit('receiveLobbyMsg', { notice: msg });
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveLobbyMsg', { notice: msg }, msgId);
         callback();
     });
 
     // 로비 채팅
     socket.on('sendLobbyMsg', (payload, callback) => {
-        console.log('로비채팅');
+        console.log('로비채팅(sendLobbyMsg)');
         console.log('payload:::', payload);
-        chat.sockets.emit('receiveLobbyMsg', payload);
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveLobbyMsg', payload, msgId);
         callback();
     });
 
     // 룸 입장 메세지
     socket.on('enterRoomMsg', (roomNum, nickname, callback) => {
-        console.log(`${nickname} 방 입장`);
+        console.log(`${nickname} ${roomNum}번 방 입장(enterRoomMsg)`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, roomNum);
+
         callback();
     });
 

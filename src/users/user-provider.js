@@ -1,30 +1,10 @@
 const UserRepo = require('./user-repo');
-const jwtService = require('./jwt');
-// const redis = require('../redis');
+const jwtService = require('../users/util/jwt');
+const UserFunction = require('../users/util/user-function');
+const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
 
 class UserProvider {
-    kakaoCallback = async (req, res) => {
-        // 카카오 Strategy에서 성공한다면 콜백 실행 (패스포트 사용시)
-        // 토큰 생성 및 유저 정보 가공해서 전달하기
-        console.log('-------------------------------------------');
-        console.log('여기는 user-provider.js 의 kakaoCallbace!!!!!');
-        console.log('전달받은 req.user::::::', req.user);
-        console.log('세션 req.session::::::', req.session);
-        const accessToken = await req.user;
-        const decodedId = await jwtService.validateAccessToken(accessToken);
-
-        console.log('------------토큰 값 및 디코딩 결과--------------');
-        console.log('accessToken ::::::::::::', accessToken);
-        console.log('decodeId ::::::::::::', decodedId);
-
-        console.log('--------------DB에서 유저 정보 가져와서 보낼 정보 가공 --------------');
-        const userInfo = await this.getUserInfo(decodedId, accessToken);
-        console.log('userInfo:::>', userInfo);
-        res.header('Access-Control-Allow-Origin', '*');
-        res.status(200).redirect('/user/kakao');
-    };
-
     getKakaoToken = async (req, res) => {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getKakaoToken!!!!!');
@@ -67,55 +47,42 @@ class UserProvider {
                 console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
                 console.log('--------------------------------------------');
                 // await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
-                res.cookie('accessToken', exUserInfo.accessToken, {
-                    expires: new Date(Date.now() + 1000 * 60 * 60),
-                    secure: true,
-                    httpOnly: true,
-                    SameSite: 'None',
-                });
 
-                return res
-                    .status(200)
-                    .json({ nickname: exUserInfo.nickname, accessToken: exUserInfo.accessToken });
+                return res.status(200).json({
+                    accessToken: exUserInfo.accessToken,
+                    nickname: exUserInfo.nickname,
+                    spyWinRating: exUserInfo.spyWinRating,
+                    voteSpyRating: exUserInfo.voteSpyRating,
+                });
             }
             // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
             const newUserInfo = await this.createUserToken(kakaoUserInfo);
-            console.log('user-provider.js, newUserInfo::::::', newUserInfo);
-            console.log('-------------------쿠키설정-------------------------');
-            /*
-            // 프론트로 쿠키 전달되지 않아 쿠키 세팅 보류
-            await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
-            res.cookie('accessToken', exUserInfo.accessToken, {
-                expires: new Date(Date.now() + 1000 * 60 * 60),
-                secure: true,
-                httpOnly: true,
-                SameSite: 'None',
+            console.log('user-provider.js, newUserInfo:::', newUserInfo);
+
+            return res.status(201).json({
+                nickname: newUserInfo.nickname,
+                accessToken: newUserInfo.accessToken,
+                spyWinRating: 0,
+                voteSpyRating: 0,
             });
-            */
-            return res
-                .status(201)
-                .json({ nickname: newUserInfo.nickname, accessToken: newUserInfo.accessToken });
         } catch (e) {
-            next(e);
+            console.log(e);
+            res.send({ errorMessage: e.message });
         }
     };
 
     // 유저 정보 조회
-    onlyGetPlayRecord = async (req, res) => {
+    getPlayRecord = async (req, res, next) => {
         try {
-            const { nickname } = req.params;
-            if (!nickname) throw new Error('nickname을 입력해야 합니다.');
-            const exUser = await UserRepo.findOneByNickname(nickname);
-            if (!exUser) throw new Error('nickname과 일치하는 유저가 존재하지 않습니다.');
-
-            const userInfo = await UserRepo.onlyGetPlayRecord(exUser);
-            if (!userInfo.nickname === res.locals.user.nickname)
-                throw new Error('nickname과 토큰 정보가 일치하지 않습니다.');
             console.log('res.locals.user:: ', res.locals.user);
+            const { user } = res.locals;
+            const exUser = await UserRepo.findOneById(user._id);
+            const userInfo = await UserFunction.getPlayRecord(exUser);
+            console.log('유저 정보 전적으로 가공 후 !! userInfo ::', userInfo);
             return res.status(200).json(userInfo);
         } catch (e) {
             console.log(e);
-            return res.status(400).json({ error: e.message });
+            res.send({ errorMessage: e.message });
         }
     };
 
@@ -143,16 +110,6 @@ class UserProvider {
         return playRecord;
     };
 
-    getUserInfo = async (decodedId, accessToken) => {
-        const exUser = await UserRepo.findOneById(decodedId);
-        console.log('-------------------------------------------');
-        console.log('여기는 user-provider.js 의 getUserInfo!!!!!');
-        console.log('exUser::::::', exUser);
-
-        const playRecord = await UserRepo.getPlayRecord(exUser, accessToken);
-        return playRecord;
-    };
-
     exUserGetToken = async (kakaoUserInfo) => {
         // 존재하는 유저일 경우 토큰 발급하여 가져오기
         console.log('-------------------------------------------');
@@ -166,6 +123,7 @@ class UserProvider {
             console.log('exUserGetToken 2, accessToken::::::', accessToken);
 
             const playRecord = await UserRepo.getPlayRecord(exUser, accessToken);
+            console.log('exUserGetToken 3, playRecord::::::', playRecord);
             return playRecord;
         } else return;
     };

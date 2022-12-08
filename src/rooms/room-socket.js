@@ -44,7 +44,7 @@ lobby.on('connection', async (socket) => {
         let readyCount = await redis.get(`ready${roomNum}`);
         console.log(readyCount);
         socket.roomNum = roomNum;
-        socket.isReady = false;
+        socket.isReady = 0;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (currentCount < 8 && roomStatus === false) {
@@ -89,10 +89,13 @@ lobby.on('connection', async (socket) => {
             // 특정 방의 timer identifier 를 저장, 나중에 누군가가 ready 가 취소됬을 때 해당하는 timer id 를 찾아서 멈추기 위해.
             const readyStatus = setTimeout(async () => {
                 console.log('게임 시작 ! ');
-
                 // 스파이 랜덤 지정 후 게임 시작 전 emit.
                 const spyUser = await GameProvider.selectSpy(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
+
+                if (socket.nickname === spyUser) {
+                    socket.isSpy = 1;
+                }
 
                 // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
                 const gameData = await GameProvider.giveWord(roomNum);
