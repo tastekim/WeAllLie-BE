@@ -66,7 +66,8 @@ class UserProvider {
                 voteSpyRating: 0,
             });
         } catch (e) {
-            next(e);
+            console.log(e);
+            res.send({ errorMessage: e.message });
         }
     };
 
@@ -81,7 +82,7 @@ class UserProvider {
             return res.status(200).json(userInfo);
         } catch (e) {
             console.log(e);
-            next(e);
+            res.send({ errorMessage: e.message });
         }
     };
 

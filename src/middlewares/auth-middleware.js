@@ -18,7 +18,8 @@ module.exports = async (req, res, next) => {
         const userInfo = await User.findById(_id);
         res.locals.user = userInfo;
         next();
-    } catch (error) {
-        next(error);
+    } catch (e) {
+        console.log(e);
+        res.send({ errorMessage: e.message });
     }
 };
