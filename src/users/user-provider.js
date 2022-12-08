@@ -17,7 +17,7 @@ class UserProvider {
 
             return res.send({ accessToken: kakaoToken });
         } catch (e) {
-            next(new UnKnownError(e.message));
+            return res.send({ errorMessage: e.message });
         }
     };
 
@@ -41,12 +41,12 @@ class UserProvider {
             const exUserInfo = await UserService.getAccessToken(kakaoToken);
             return res.status(200).json(exUserInfo);
         } catch (e) {
-            next(e);
+            return res.send({ errorMessage: e.message });
         }
     };
 
     // 유저 정보 조회
-    getPlayRecord = async (req, res, next) => {
+    getPlayRecord = async (req, res) => {
         try {
             console.log('res.locals.user:: ', res.locals.user);
             const { user } = res.locals;
@@ -55,12 +55,12 @@ class UserProvider {
             console.log('유저 정보 전적으로 가공 후 !! userInfo ::', userInfo);
             return res.status(200).json(userInfo);
         } catch (e) {
-            next(e);
+            return res.send({ errorMessage: e.message });
         }
     };
 
     // 닉네임 변경
-    updateNick = async (req, res, next) => {
+    updateNick = async (req, res) => {
         try {
             const { user } = res.locals;
             const { nickname } = req.body;
@@ -70,7 +70,7 @@ class UserProvider {
 
             return res.status(200).json({ nickname });
         } catch (e) {
-            next(e);
+            return res.send({ errorMessage: e.message });
         }
     };
 }
