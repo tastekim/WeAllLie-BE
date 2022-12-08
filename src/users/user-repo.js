@@ -1,6 +1,4 @@
 const User = require('../schemas/user');
-const axios = require('axios');
-const qs = require('qs');
 require('dotenv').config();
 
 class UserRefo {
@@ -27,18 +25,6 @@ class UserRefo {
 
     updateNick = async (_id, nickname) => {
         await User.updateOne({ _id }, { nickname });
-    };
-
-    getKakaoUserInfo = async (kakaoToken) => {
-        const userInfo = await axios({
-            method: 'POST',
-            url: 'https://kapi.kakao.com/v2/user/me',
-            headers: {
-                'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-                Authorization: `Bearer ${kakaoToken}`,
-            },
-        });
-        return userInfo.data;
     };
 
     createNewUser = async (kakaoUserInfo, allUser) => {
