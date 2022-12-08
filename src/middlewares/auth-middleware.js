@@ -1,4 +1,4 @@
-const UserError = require('../middlewares/exception');
+const { UserError } = require('../middlewares/exception');
 const jwtService = require('../users/util/jwt');
 const User = require('../schemas/user');
 require('dotenv').config();

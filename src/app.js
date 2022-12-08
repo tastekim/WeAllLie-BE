@@ -5,7 +5,6 @@ const fs = require('fs');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const userRouter = require('./users/user-route');
-const { errorLogger, errorHandler } = require('./middlewares/user-error-handler');
 const cors = require('cors');
 
 require('dotenv').config();
@@ -40,6 +39,5 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', userRouter);
-app.use(errorLogger, errorHandler);
 
 module.exports = { http, https };

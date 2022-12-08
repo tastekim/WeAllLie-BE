@@ -26,45 +26,13 @@ class UserRefo {
     };
 
     getKakaoToken = async (code) => {
-<<<<<<< HEAD
-        try {
-            const kakaoToken = await axios({
-                method: 'POST',
-                url: 'https://kauth.kakao.com/oauth/token',
-                headers: {
-                    'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-                },
-
-                // with FE
-                data: qs.stringify({
-                    grant_type: 'authorization_code',
-                    client_id: process.env.CLIENT_ID_FRONT,
-                    client_secret: process.env.CLIENT_SECRET,
-                    redirectUri: process.env.CALLBACK_URL_LOCAL,
-                    code: code,
-                }),
-                /*
-                // BE test
-                data: qs.stringify({
-                    grant_type: 'authorization_code',
-                    client_id: process.env.CLIENT_ID,
-                    redirectUri: process.env.CALLBACK_URL_LOCAL,
-                    code: code,
-                }),
-                */
-            });
-            return kakaoToken.data.access_token;
-        } catch (e) {
-            return e;
-        }
-=======
         const kakaoToken = await axios({
             method: 'POST',
             url: 'https://kauth.kakao.com/oauth/token',
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
-            /*
+
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -73,7 +41,7 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
+            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -81,9 +49,9 @@ class UserRefo {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
         return kakaoToken.data.access_token;
->>>>>>> parent of e5a3b68 (일단 에러 핸들 각 파일 내에서 처리하도록 변경 / 닉네임변경, 유저 전적조회 api 추가(로컬 테스트 완료))
     };
 
     getKakaoUserInfo = async (kakaoToken) => {

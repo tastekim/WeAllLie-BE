@@ -5,7 +5,7 @@ const errorLogger = (error, req, res, next) => {
     next(error);
 };
 
-const errorHandler = (error, req, res) => {
+const errorHandler = (error, req, res, next) => {
     let statusCode;
 
     if (error.name === 'UserError') {

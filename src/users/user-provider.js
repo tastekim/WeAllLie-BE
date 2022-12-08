@@ -1,7 +1,7 @@
 const UserRepo = require('./user-repo');
 const jwtService = require('../users/util/jwt');
 const UserFunction = require('../users/util/user-function');
-const UserError = require('../middlewares/exception');
+const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
 
 class UserProvider {
