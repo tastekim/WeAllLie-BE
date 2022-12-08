@@ -11,7 +11,6 @@ lobby.on('connection', async (socket) => {
         await RoomProvider.leaveRoom(roomNum);
         const leaveRoom = await RoomProvider.getRoom(roomNum);
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
-        await RoomProvider.leaveRoom(roomNum);
         socket.roomNum = null;
         const nickname = socket.nickname;
         if (currentCount > 0 && currentCount < 9) {
