@@ -9,14 +9,15 @@ lobby.on('connection', async (socket) => {
     // 방 퇴장
     socket.on('leaveRoom', async (roomNum) => {
         await RoomProvider.leaveRoom(roomNum);
-        const leaveRoom = await RoomProvider.getRoom(roomNum);
+        //const leaveRoom = await RoomProvider.getRoom(roomNum);
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
         socket.roomNum = null;
         const nickname = socket.nickname;
         if (currentCount > 0 && currentCount < 9) {
-            const currentMember = await RoomProvider.decMember(roomNum, nickname);
+            await RoomProvider.decMember(roomNum, nickname);
+            const currentMember = await RoomProvider.getCurrentMember(roomNum);
             const getAllRoom = await RoomProvider.getAllRoom();
-            socket.emit('leaveRoom', leaveRoom);
+            socket.emit('leaveRoom' /*, leaveRoom*/);
             lobby.sockets.emit('showRoom', getAllRoom);
             lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
         } else if (currentCount <= 0) {
