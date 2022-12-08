@@ -1,5 +1,4 @@
 const UserService = require('./user-service');
-const UserRepo = require('./user-repo');
 const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
 
