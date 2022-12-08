@@ -88,6 +88,10 @@ class RoomProvider {
     readyCount = async (roomNum) => {
         return await redis.get(`ready${roomNum}`);
     };
+    // 게임상태 true로 수정
+    getTrue = async (roomNum) => {
+        return await RoomRepo.getTrue(roomNum);
+    };
 }
 
 module.exports = new RoomProvider();

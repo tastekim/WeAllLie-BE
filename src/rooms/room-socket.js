@@ -2,7 +2,6 @@ const lobby = require('../socket');
 const RoomProvider = require('./room-provider');
 const GameProvider = require('../game/game-provider');
 const redis = require('../redis');
-const Room = require('../schemas/room');
 //const { findOne } = require('../schemas/user');
 
 // 로비에 연결 되었을때
@@ -111,7 +110,7 @@ lobby.on('connection', async (socket) => {
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
 
                 // 게임방 진행 활성화. 다른 유저 입장 제한.
-                await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });
+                await RoomProvider.getTrue(roomNum);
                 await redis.del(`ready${roomNum}`);
                 await redis.del(`readyStatus${roomNum}`);
                 await redis.del(`currentMember${roomNum}`);

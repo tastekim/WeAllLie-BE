@@ -59,6 +59,10 @@ class RoomRepo {
         const getRoomNum = await Room.findOne({ roomMaker: nickname });
         return getRoomNum._id;
     };
+    // 방 상태 ture 전환
+    getTrue = async (roomNum) => {
+        await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });
+    };
 }
 
 module.exports = new RoomRepo();
