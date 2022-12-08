@@ -1,6 +1,5 @@
 const UserRepo = require('./user-repo');
 const UserService = require('./user-service');
-const jwtService = require('../users/util/jwt');
 const UserFunction = require('../users/util/user-function');
 const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
@@ -40,7 +39,6 @@ class UserProvider {
             console.log('kakaoUserInfo::::::', kakaoUserInfo);
 
             // 카카오에서서 받은 유저정보에서 이메일로 DB에 저장된 유저 확인, 존재한다면 유저정보 가져오기 (undefinded일 수도.)
-            // 유저가 존재한다면 전달할 형태로 Refo에서 가공되어져서 받아옴!!
             const exUserInfo = await UserService.exUserGetToken(kakaoUserInfo);
 
             // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
@@ -57,7 +55,7 @@ class UserProvider {
                 });
             }
             // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
-            const newUserInfo = await this.createUserToken(kakaoUserInfo);
+            const newUserInfo = await UserService.createUserToken(kakaoUserInfo);
             console.log('user-provider.js, newUserInfo:::', newUserInfo);
 
             return res.status(201).json({
@@ -113,24 +111,6 @@ class UserProvider {
   ===========================================================================
   메소드
   */
-    // DB에 유저 정보 없음 => DB 저장 / 토큰발급 / 토큰 + 유저 게임정보 리턴
-    createUserToken = async (kakaoUserInfo) => {
-        console.log('-------------------------------------------');
-        console.log('여기는 user-provider.js 의 createUserToken!!!!!');
-
-        const allUser = await UserRepo.findAllUser();
-        const newUser = await UserRepo.createNewUser(kakaoUserInfo, allUser);
-
-        console.log('여기는 user-provider.js 3, newUser::::::', newUser);
-
-        // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
-        const newUserToken = await jwtService.createAccessToken(newUser._id);
-
-        // 클라이언트에 전달하기 위해 유저 정보 가공
-        const playRecord = await UserFunction.getPlayRecord(newUser);
-        playRecord.accessToken = newUserToken;
-        return playRecord;
-    };
 }
 
 module.exports = new UserProvider();

@@ -50,7 +50,7 @@ class UserService {
     exUserGetToken = async (kakaoUserInfo) => {
         // 존재하는 유저일 경우 토큰 발급하여 가져오기
         console.log('-------------------------------------------');
-        console.log('여기는 user-provider.js 의 exUserGetToken!!!!!');
+        console.log('여기는 user-service.js 의 exUserGetToken!!!!!');
 
         const exUser = await UserRepo.findOneByEmail(kakaoUserInfo.kakao_account.email);
         console.log('exUserGetToken 1, exUser:::::: ', exUser);
@@ -64,6 +64,24 @@ class UserService {
             console.log('exUserGetToken 3, playRecord::::::', playRecord);
             return playRecord;
         } else return;
+    };
+    // DB에 유저 정보 없음 => DB 저장 / 토큰발급 / 토큰 + 유저 게임정보 리턴
+    createUserToken = async (kakaoUserInfo) => {
+        console.log('-------------------------------------------');
+        console.log('여기는 user-provider.js 의 createUserToken!!!!!');
+
+        const allUser = await UserRepo.findAllUser();
+        const newUser = await UserRepo.createNewUser(kakaoUserInfo, allUser);
+
+        console.log('여기는 user-service.js 3, newUser::::::', newUser);
+
+        // 새로 생셩한 newUser에게 _id 값으로 토큰 발급
+        const newUserToken = await jwtService.createAccessToken(newUser._id);
+
+        // 클라이언트에 전달하기 위해 유저 정보 가공
+        const playRecord = await UserFunction.getPlayRecord(newUser);
+        playRecord.accessToken = newUserToken;
+        return playRecord;
     };
 }
 
