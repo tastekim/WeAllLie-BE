@@ -21,7 +21,6 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-
             /*
             // BE test
             data: qs.stringify({
@@ -83,17 +82,6 @@ class UserService {
         const playRecord = await UserFunction.getPlayRecord(newUser);
         playRecord.accessToken = newUserToken;
         return playRecord;
-    };
-
-    getUserRecord = async (_id) => {
-        try {
-            const exUser = await UserRepo.findOneById(_id);
-            const userInfo = await UserFunction.getPlayRecord(exUser);
-            console.log('유저 정보 전적으로 가공 후 !! userInfo ::', userInfo);
-            return userInfo;
-        } catch (e) {
-            return e;
-        }
     };
 }
 

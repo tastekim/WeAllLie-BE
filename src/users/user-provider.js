@@ -1,5 +1,6 @@
 const UserRepo = require('./user-repo');
 const UserService = require('./user-service');
+const UserFunction = require('../users/util/user-function');
 const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
 
@@ -74,19 +75,17 @@ class UserProvider {
     };
 
     // 유저 정보 조회
-    getUserRecord = async (req, res) => {
+    getPlayRecord = async (req, res) => {
         try {
             console.log('res.locals.user:: ', res.locals.user);
             const { user } = res.locals;
-            const userInfo = await UserRepo.getUserRecord(user._id);
+            const exUser = await UserRepo.findOneById(user._id);
+            const userInfo = await UserFunction.getPlayRecord(exUser);
+            console.log('유저 정보 전적으로 가공 후 !! userInfo ::', userInfo);
             return res.status(200).json(userInfo);
         } catch (e) {
             console.log(e);
-            if (e.name === 'UserError') {
-                res.status(e.statusCode).send({ errorMessage: e.message });
-            } else {
-                res.status(500).send({ errorMessage: e.message });
-            }
+            res.status(500).send({ errorMessage: e.message });
         }
     };
 
