@@ -13,7 +13,7 @@ class UserService {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
-            
+            /*
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -22,8 +22,8 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            
-            /*
+
+            */
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -31,13 +31,12 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            *.
         });
 
         return kakaoToken.data.access_token;
     };
 
-    getKakaoUserInfo = async (kakaoToken) => {
+    loginInfo = async (kakaoToken) => {
         const userInfo = await axios({
             method: 'POST',
             url: 'https://kapi.kakao.com/v2/user/me',
@@ -46,7 +45,23 @@ class UserService {
                 Authorization: `Bearer ${kakaoToken}`,
             },
         });
-        return userInfo.data;
+
+        // userInfo.data : 카카오에서 받은 정보 중 우리에게 필요한 유저 데이터
+        console.log('카카오에서 가져온 유저 정보::::::', userInfo.data);
+
+        // 카카오에서서 받은 유저정보에서 이메일로 DB에 저장된 유저 확인, 존재한다면 유저정보 가져오기 (undefinded일 수도.)
+        const isExistUser = await this.exUserGetToken(userInfo.data);
+
+        // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
+        if (isExistUser) {
+            console.log('이미 가입되어 있는 유저 정보 :::', isExistUser);
+            return [isExistUser, 200];
+        }
+
+        // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
+        const newUser = await this.createUserToken(userInfo.data);
+        console.log('user-service.js, 새로 가입한 유저 정보 :::', newUser);
+        return [newUser, 201];
     };
 
     exUserGetToken = async (kakaoUserInfo) => {
@@ -102,15 +117,10 @@ class UserService {
             const isExistNick = await UserRepo.findOneByNickname(nickname);
             if (isExistNick) throw new UserError('닉네임 중복', 400);
             await UserRepo.updateNick(_id, nickname);
-            return 'nickname is updated successfully.';
+            return;
         } catch (e) {
-            return e;
+            throw e;
         }
-
-        // if (isExistNick) {
-        //     return res.status(400).json({ errorMessage: '닉네임 중복' });
-        // }
-        // await UserRepo.updateNick(user._id, nickname);
     };
 }
 

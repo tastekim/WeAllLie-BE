@@ -7,7 +7,7 @@ const authMiddleware = require('../middlewares/auth-middleware');
 router.get('/api/auth/kakao/callback', UserProvider.getKakaoToken);
 
 // 카카오 로그인 2 : 토큰으로 카카오에 유저정보 전달하여 클라이언트에 새 토큰 + 유저정보 전달
-router.post('/api/auth/kakao/callback', UserProvider.getKakaoUserInfo);
+router.post('/api/auth/kakao/callback', UserProvider.getLoginInfo);
 
 // 유저 정보 조회
 router.get('/api/user', authMiddleware, UserProvider.getUserRecord);

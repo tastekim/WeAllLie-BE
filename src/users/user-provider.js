@@ -1,6 +1,5 @@
-const UserRepo = require('./user-repo');
 const UserService = require('./user-service');
-const UserFunction = require('../users/util/user-function');
+const UserRepo = require('./user-repo');
 const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
 
@@ -21,7 +20,8 @@ class UserProvider {
   2. DB의 유저정보와 비교하여 필요시 회원가입
   3. 유저정보 가공하여 클라이언트로 전달 => 쿠키로 토큰 전달 / 바디로 닉네임만 전달
     */
-    getKakaoUserInfo = async (req, res) => {
+    // 헤더에서 토큰 확인 => 서비스로 전달 => 쿠키와 유저 정보 받아오기
+    getLoginInfo = async (req, res) => {
         console.log('-------------------------------------------');
         console.log('여기는 user-provider.js 의 getKakaoUserInfo!!!!!');
 
@@ -31,39 +31,11 @@ class UserProvider {
             if (!authType || authType !== 'Bearer')
                 throw new UserError('authrization 헤더 타입 인증 실패', 400);
             if (!kakaoToken) throw new UserError('카카오 토큰이 헤더에 없습니다.', 400);
-
-            // 토큰 카카오에 보내고 유저정보 받아오기
-            const kakaoUserInfo = await UserService.getKakaoUserInfo(kakaoToken);
-
             console.log('kakaoToken:::::: ', kakaoToken);
-            console.log('kakaoUserInfo::::::', kakaoUserInfo);
-
-            // 카카오에서서 받은 유저정보에서 이메일로 DB에 저장된 유저 확인, 존재한다면 유저정보 가져오기 (undefinded일 수도.)
-            const exUserInfo = await UserService.exUserGetToken(kakaoUserInfo);
-
-            // 1. 가입한 유저 => 토큰 + 유저정보 바로 전달
-            if (exUserInfo) {
-                console.log('user-route.js 4, exUserInfo:::::', exUserInfo);
-                console.log('--------------------------------------------');
-                // await redis.set(refreshToken, payload.userId, { EX: 3600*24, NX: true });
-
-                return res.status(200).json({
-                    accessToken: exUserInfo.accessToken,
-                    nickname: exUserInfo.nickname,
-                    spyWinRating: exUserInfo.spyWinRating,
-                    voteSpyRating: exUserInfo.voteSpyRating,
-                });
-            }
-            // 2. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
-            const newUserInfo = await UserService.createUserToken(kakaoUserInfo);
-            console.log('user-provider.js, newUserInfo:::', newUserInfo);
-
-            return res.status(201).json({
-                nickname: newUserInfo.nickname,
-                accessToken: newUserInfo.accessToken,
-                spyWinRating: 0,
-                voteSpyRating: 0,
-            });
+            ///
+            const [loginInfo, statusCode] = await UserService.loginInfo(kakaoToken);
+            return res.status(statusCode).send(loginInfo);
+            ///
         } catch (e) {
             console.log(e);
             if (e.name === 'UserError') {
@@ -98,7 +70,7 @@ class UserProvider {
             const { user } = res.locals;
             const { nickname } = req.body;
 
-            const result = await UserService.updateNick(user._id, nickname);
+            await UserService.updateNick(user._id, nickname);
             return res.status(200).json({ nickname });
         } catch (e) {
             console.log(e);
