@@ -2,6 +2,7 @@ const GameRepo = require('./game-repo');
 const Room = require('../schemas/room');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
+const { SetError } = require('../middlewares/exception');
 
 class GameProvider {
     getGameRoomUsers = async (roomNum) => {
@@ -9,27 +10,32 @@ class GameProvider {
     };
 
     getSpy = async (roomNum) => {
+        if (isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         return await GameRepo.getSpy(roomNum);
     };
 
     catchSpy = async (nickname) => {
-        return await GameRepo.catchSpy(nickname);
+        await GameRepo.catchSpy(nickname);
     };
 
     setPlayCount = async (nickname) => {
         await GameRepo.setPlayCount(nickname);
     };
 
-    setVoteResult = async (roomNum, nickname) => {
-        await redis.lpush(`gameRoom${roomNum}Result`, nickname);
-        console.log('voteResult : ', await redis.lrange(`gameRoom${roomNum}Result`, 0, -1));
-    };
+    // setVoteResult = async (roomNum, nickname) => {
+    //     await redis.lpush(`gameRoom${roomNum}Result`, nickname);
+    // };
 
     getVoteResult = async (roomNum) => {
         // 투표 집계한 배열.
         const resultList = await redis.lrange(`gameRoom${roomNum}Result`, 0, -1);
         // 방에 참여 중인 유저 닉네임.
         const roomUsers = await redis.lrange(`gameRoom${roomNum}Users`, 0, -1);
+        if (resultList.length !== roomUsers.length) {
+            throw new SetError('투표를 하지 않은 유저가 있습니다.', 400);
+        }
         // spy 유저인 닉네임.
         const spyUser = await GameRepo.getSpy(roomNum);
 
@@ -56,49 +62,34 @@ class GameProvider {
             }
         }
         // 가장 많이 표를 받은 사람이 spy 면 true, 아니면 false return.
-        return maxVoteUser[0] === spyUser ? false : true;
-        // if (maxVoteUser[0] === spyUser) {
-        //     return {
-        //         spyWin: false,
-        //         maxVoteUser: maxVoteUser[0],
-        //         maxVoteResult: maxVoteUser[1],
-        //     };
-        // } else {
-        //     return {
-        //         spyWin: true,
-        //         maxVoteUser: maxVoteUser[0],
-        //         maxVoteResult: maxVoteUser[1],
-        //     };
-        // }
+        return !(maxVoteUser[0] === spyUser);
     };
 
     getGuessResult = async (roomNum, word) => {
         const roomData = await Room.findOne({ _id: roomNum });
+        if (roomData.gameWord === null) {
+            throw new SetError('게임방 제시어 설정이 되어있지 않습니다.', 500);
+        }
         return roomData.gameWord === word;
     };
 
     // 각 방에 참여한 유저들의 닉네임 저장.
     setRoomUsers = async (roomNum, nickname) => {
-        // roomUsers 가 존재하는 지 확인.
-        const roomExist = await redis.exists(`gameRoom${roomNum}Users`);
-        if (roomExist === 0) {
-            // 없으면 생성 후 유저 닉네임 넣기.
-            await redis.rpush(`gameRoom${roomNum}Users`, [nickname]);
-        } else {
-            // 있으면 그 key 에 닉네임 push.
-            await redis.rpush(`gameRoom${roomNum}Users`, [nickname]);
-        }
-        console.log('roomUsers : ', await redis.lrange(`gameRoom${roomNum}Users`, 0, -1));
+        // roomUsers 에 유저들 닉네임 추가
+        await redis.rpush(`gameRoom${roomNum}Users`, [nickname]);
     };
 
     // nowVote 배열 생성.
     setNowVote = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         await redis.set(`nowVote${roomNum}`, 0);
     };
 
     // nowVote 에 1++ / 1--
     nowVote = async (roomNum, voteStatus) => {
-        if (voteStatus === true) {
+        if (Number(voteStatus)) {
             await redis.incr(`nowVote${roomNum}`);
         } else {
             await redis.decr(`nowVote${roomNum}`);
@@ -110,6 +101,10 @@ class GameProvider {
 
     // 스파이 랜덤 설정
     selectSpy = async (roomNum) => {
+        const exist = await redis.exists(`gameRoom${roomNum}Users`);
+        if (!exist) {
+            throw new SetError('방에 참여한 멤버의 정보가 없습니다.', 500);
+        }
         let getAllNickname = await redis.lrange(`gameRoom${roomNum}Users`, 0, -1);
 
         const shuffleList = shuffle(getAllNickname);
@@ -135,6 +130,7 @@ class GameProvider {
         const showWords = await GameRepo.giveWord(categoryFix);
         const answerWord = shuffle(showWords).pop();
         await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { gameWord: answerWord } });
+        showWords.push(answerWord);
         return {
             category: categoryFix,
             showWords: showWords,

@@ -28,6 +28,7 @@ io.on('connection', async (socket) => {
         socket.emit('getNickname', socket.nickname);
         console.log(socket.nickname);
     });
+
     userCnt++;
     console.log(socket.id + ' join lobby !');
     console.log(userCnt);
