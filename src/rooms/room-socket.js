@@ -34,7 +34,7 @@ lobby.on('connection', async (socket) => {
             userCnt--;
             lobby.emit('userCount', userCnt);
             try {
-                if (socket.isReady === true) {
+                if (socket.isReady === 1) {
                     const findRoom = await Room.findOne({ _id: socket.roomNum });
                     await redis.decr(`ready${socket.roomNum}`);
                     await redis.lrem(`gameRoom${socket.roomNum}Users`, 1, socket.nickname);
@@ -110,7 +110,7 @@ lobby.on('connection', async (socket) => {
     socket.on('createRoom', async (gameMode, roomTitle) => {
         let autoNum = autoInc();
         socket.roomNum = autoNum;
-        socket.isReady = false;
+        socket.isReady = 0;
 
         await Room.create({
             _id: autoNum,
@@ -135,7 +135,7 @@ lobby.on('connection', async (socket) => {
     socket.on('enterRoom', async (roomNum) => {
         const udtRoom = await Room.findOne({ _id: roomNum });
         socket.roomNum = roomNum;
-        socket.isReady = false;
+        socket.isReady = 0;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (udtRoom.currentCount <= 8 && udtRoom.roomStatus === false) {
@@ -157,21 +157,21 @@ lobby.on('connection', async (socket) => {
         const findRoom = await Room.findOne({ _id: roomNum });
         // 처음 ready 버튼을 눌렀을 때.
         if (socket.isReady == null) {
-            socket.isReady = true;
+            socket.isReady = 1;
             await redis.incr(`ready${roomNum}`);
             await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
         } else if (!socket.isReady) {
             // ready 버튼 활성화 시킬 때.
-            socket.isReady = true;
+            socket.isReady = 1;
             await redis.incr(`ready${roomNum}`);
             await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
             console.log('준비 완료 !');
         } else {
             // ready 버튼 비활성화 시킬 때.
-            socket.isReady = false;
+            socket.isReady = 0;
             await redis.decr(`ready${roomNum}`);
             await redis.lrem(`gameRoom${roomNum}Users`, 1, socket.nickname);
             lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
@@ -186,10 +186,13 @@ lobby.on('connection', async (socket) => {
             // 특정 방의 timer identifier 를 저장, 나중에 누군가가 ready 가 취소됬을 때 해당하는 timer id 를 찾아서 멈추기 위해.
             const readyStatus = setTimeout(async () => {
                 console.log('게임 시작 ! ');
-
                 // 스파이 랜덤 지정 후 게임 시작 전 emit.
                 const spyUser = await GameProvider.selectSpy(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
+
+                if (socket.nickname === spyUser) {
+                    socket.isSpy = 1;
+                }
 
                 // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
                 const gameData = await GameProvider.giveWord(roomNum);
