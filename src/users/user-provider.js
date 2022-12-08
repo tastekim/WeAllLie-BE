@@ -86,6 +86,25 @@ class UserProvider {
         }
     };
 
+    // 닉네임 변경
+    updateNick = async (req, res) => {
+        try {
+            const { user } = res.locals;
+            const { nickname } = req.body;
+            const isExistNick = await UserRepo.findOneByNickname(nickname);
+            if (isExistNick) {
+                return res.status(400).json({ errorMessage: '닉네임 중복' });
+            }
+            await UserRepo.updateNick(user._id, nickname);
+            // const updatedInfo = await UserRepo.findOneById(user._id);
+            // console.log('updated Info :::', updatedInfo);
+            return res.status(200).json({ nickname });
+        } catch (e) {
+            console.log(e);
+            res.status(500).json({ errorMessage: e.message });
+        }
+    };
+
     /*
   미들웨어
   ===========================================================================
@@ -105,8 +124,8 @@ class UserProvider {
         const newUserToken = await jwtService.createAccessToken(newUser._id);
 
         // 클라이언트에 전달하기 위해 유저 정보 가공
-        const playRecord = await UserRepo.getPlayRecord(newUser, newUserToken);
-
+        const playRecord = await UserRepo.getPlayRecord(newUser);
+        playRecord.accessToken = newUserToken;
         return playRecord;
     };
 
@@ -122,7 +141,8 @@ class UserProvider {
             const accessToken = await jwtService.createAccessToken(exUser._id);
             console.log('exUserGetToken 2, accessToken::::::', accessToken);
 
-            const playRecord = await UserRepo.getPlayRecord(exUser, accessToken);
+            const playRecord = await UserRepo.getPlayRecord(exUser);
+            playRecord.accessToken = accessToken;
             console.log('exUserGetToken 3, playRecord::::::', playRecord);
             return playRecord;
         } else return;

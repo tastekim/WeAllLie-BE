@@ -25,6 +25,10 @@ class UserRefo {
         return exUser;
     };
 
+    updateNick = async (_id, nickname) => {
+        await User.updateOne({ _id }, { nickname });
+    };
+
     getKakaoToken = async (code) => {
         const kakaoToken = await axios({
             method: 'POST',
@@ -51,6 +55,7 @@ class UserRefo {
             }),
             */
         });
+
         return kakaoToken.data.access_token;
     };
 
@@ -66,7 +71,7 @@ class UserRefo {
         return userInfo.data;
     };
 
-    getPlayRecord = async (user, accessToken) => {
+    getPlayRecord = async (user) => {
         let spyWinRating, voteSpyRating;
 
         spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
@@ -75,7 +80,6 @@ class UserRefo {
 
         if (user.totalCount === 0) {
             return {
-                accessToken,
                 userId: user._id,
                 nickname: user.nickname,
                 profileImg: user.profileImg,
@@ -87,7 +91,6 @@ class UserRefo {
             };
         } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
             return {
-                accessToken,
                 userId: user._id,
                 nickname: user.nickname,
                 profileImg: user.profileImg,
@@ -99,7 +102,6 @@ class UserRefo {
             };
         } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
             return {
-                accessToken,
                 userId: user._id,
                 nickname: user.nickname,
                 profileImg: user.profileImg,
@@ -116,7 +118,6 @@ class UserRefo {
             (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
 
         return {
-            accessToken,
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
