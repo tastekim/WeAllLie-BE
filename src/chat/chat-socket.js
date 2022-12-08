@@ -26,19 +26,21 @@ chat.on('connection', async (socket) => {
         callback();
     });
 
-    // 룸 퇴장 메세지
-    // socket.on('disconnecting', (roomNum, nickname) => {
-    //     console.log(`${nickname} 방 퇴장`);
-    //     const msg = `${nickname} 님이 퇴장하셨습니다.`;
-    //     socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-    // });
+    // 룸 퇴장 메세지 1 - 나가기 버튼 통해 퇴장
+    socket.on('leaveRoomMsg', (roomNum, nickname) => {
+        console.log(`${nickname} ${roomNum}번 방 퇴장(leaveRoomMsg)`);
+        const msg = `${nickname} 님이 퇴장하셨습니다.`;
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, roomNum);
+    });
 
-    // 룸 채팅 (아직 미확정)
+    // 룸 채팅
     socket.on('sendRoomMsg', (payload, roomNum, callback) => {
         console.log('룸채팅');
         console.log('payload:::', payload);
         console.log(`roomNum::: ${roomNum}`);
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveRoomMsg', payload, msgId, roomNum);
         callback();
     });
 });

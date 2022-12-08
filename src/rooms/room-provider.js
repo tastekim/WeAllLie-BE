@@ -38,8 +38,9 @@ class RoomProvider {
     // 방 생성
     createRoom = async (gameMode, roomTitle, nickname) => {
         const createRoom = await RoomRepo.createRoom(gameMode, roomTitle, nickname);
+        const roomNum = await RoomRepo.getRoomNum(nickname);
         await redis.lpush(`currentMember${await RoomRepo.getRoomNum(nickname)}`, socket.nickname);
-        await redis.set(`ready${await RoomRepo.getRoomNum(nickname)}`, 0);
+        await redis.set(`ready${roomNum}`, 0);
         await redis.set(`readyStatus${await RoomRepo.getRoomNum(nickname)}`, '');
         return createRoom;
     };
@@ -55,7 +56,7 @@ class RoomProvider {
     };
     // 방 삭제
     deleteRoom = async (roomNum) => {
-        return await RoomRepo.deleteRoom(roomNum);
+        await RoomRepo.deleteRoom(roomNum);
     };
     // 방 전제 조회
     getAllRoom = async () => {
