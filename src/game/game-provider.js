@@ -2,6 +2,7 @@ const GameRepo = require('./game-repo');
 const Room = require('../schemas/room');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
+const { SetError } = require('../middlewares/exception');
 
 class GameProvider {
     getGameRoomUsers = async (roomNum) => {
@@ -9,6 +10,11 @@ class GameProvider {
     };
 
     getSpy = async (roomNum) => {
+        const allRooms = await GameRepo.getRoomList(roomNum);
+        console.log(roomNum.includes(allRooms));
+        if (isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         return await GameRepo.getSpy(roomNum);
     };
 

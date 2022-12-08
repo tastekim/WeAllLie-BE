@@ -12,12 +12,12 @@ require('dotenv').config();
 const app = express();
 const http = Server(app);
 
-const option = {
-    ca: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`),
-    key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`),
-    cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
-};
-const https = HTTPS.createServer(option, app);
+// const option = {
+//     ca: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`),
+//     key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`),
+//     cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
+// };
+// const https = HTTPS.createServer(option, app);
 
 // middlewares
 app.use(function (req, res, next) {
@@ -42,4 +42,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', userRouter);
 app.use(errorLogger, errorHandler);
 
-module.exports = { http, https };
+// module.exports = { http, https };
+module.exports = http;

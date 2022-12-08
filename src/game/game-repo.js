@@ -3,6 +3,10 @@ const Room = require('../schemas/room');
 const Game = require('../schemas/game');
 
 class GameRepo {
+    getRoomList = () => {
+        return Room.find({}).sort({ _id: 1 });
+    };
+
     setSpy = async (roomNum, nickname) => {
         await Room.findOneAndUpdate({ _id: roomNum }, { $set: { spyUser: nickname } });
     };
