@@ -24,14 +24,14 @@ class RoomProvider {
         return currentMember;
     };
     // 입장인원 추가
-    incMember = async (roomNum) => {
-        await redis.rpush(`currentMember${roomNum}`, socket.nickname);
+    incMember = async (roomNum, nickname) => {
+        await redis.rpush(`currentMember${roomNum}`, nickname);
         let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
         return currentMember;
     };
     // 입장인원 제거
-    decMember = async (roomNum) => {
-        await redis.lrem(`currentMember${roomNum}`, 1, socket.nickname);
+    decMember = async (roomNum, nickname) => {
+        await redis.lrem(`currentMember${roomNum}`, 1, nickname);
         let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
         return currentMember;
     };
@@ -39,7 +39,7 @@ class RoomProvider {
     createRoom = async (gameMode, roomTitle, nickname) => {
         const createRoom = await RoomRepo.createRoom(gameMode, roomTitle, nickname);
         const roomNum = await RoomRepo.getRoomNum(nickname);
-        await redis.lpush(`currentMember${await RoomRepo.getRoomNum(nickname)}`, socket.nickname);
+        await redis.lpush(`currentMember${await RoomRepo.getRoomNum(nickname)}`, nickname);
         await redis.set(`ready${roomNum}`, 0);
         await redis.set(`readyStatus${await RoomRepo.getRoomNum(nickname)}`, '');
         return createRoom;
@@ -57,6 +57,8 @@ class RoomProvider {
     // 방 삭제
     deleteRoom = async (roomNum) => {
         await RoomRepo.deleteRoom(roomNum);
+        await redis.del(`ready${roomNum}`);
+        await redis.del(`readyStatus${roomNum}`);
     };
     // 방 전제 조회
     getAllRoom = async () => {
@@ -67,19 +69,19 @@ class RoomProvider {
         return await RoomRepo.getRoom(roomNum);
     };
     // 게임 준비
-    ready = async (roomNum) => {
+    ready = async (roomNum, nickname) => {
         // ready 버튼 활성화 시킬 때.
         socket.isReady = 1;
         await redis.incr(`ready${roomNum}`);
-        await redis.rpush(`gameRoom${roomNum}Users`, socket.nickname);
+        await redis.rpush(`gameRoom${roomNum}Users`, nickname);
         console.log('준비 완료 !');
     };
     // 준비 취소
-    unready = async (roomNum) => {
+    unready = async (roomNum, nickname) => {
         // ready 버튼 비활성화 시킬 때.
         socket.isReady = 0;
         await redis.decr(`ready${roomNum}`);
-        await redis.lrem(`gameRoom${roomNum}Users`, 1, socket.nickname);
+        await redis.lrem(`gameRoom${roomNum}Users`, 1, nickname);
         console.log('준비 취소 !');
     };
     // 준비 조회
