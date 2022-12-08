@@ -51,7 +51,8 @@ io.on('connection', async (socket) => {
         console.log(`${socket.nickname} 방 퇴장`);
         const msg = `${socket.nickname} 님이 퇴장하셨습니다.`;
         if (socket.roomNum) {
-            socket.to(`/gameRoom${socket.roomNum}`).emit('receiveRoomMsg', { notice: msg });
+            const msgId = new Date().getTime().toString(36);
+            io.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, socket.roomNum);
             console.log('비정상적인 퇴장 발생!');
             await RoomProvider.decMember(socket.roomNum);
             let currentMember = await RoomProvider.getCurrentMember(socket.roomNum);
