@@ -71,42 +71,6 @@ class UserRefo {
         return userInfo.data;
     };
 
-    getPlayRecord = async (user) => {
-        const defaultInfo = {
-            userId: user._id,
-            nickname: user.nickname,
-            profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
-            spyPlayCount: user.spyPlayCount,
-            ctzPlayCount: user.totalCount - user.spyPlayCount,
-        };
-
-        function spyWinRating(user) {
-            return (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        }
-        function voteSpyRating(user) {
-            return (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-        }
-
-        if (user.totalCount === 0) {
-            defaultInfo.spyWinRating = 0;
-            defaultInfo.voteSpyRating = 0;
-            return defaultInfo;
-        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
-            defaultInfo.spyWinRating = 0;
-            defaultInfo.voteSpyRating = voteSpyRating(user);
-            return defaultInfo;
-        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
-            defaultInfo.spyWinRating = spyWinRating(user);
-            defaultInfo.voteSpyRating = 0;
-            return defaultInfo;
-        } else {
-            defaultInfo.spyWinRating = spyWinRating(user);
-            defaultInfo.voteSpyRating = voteSpyRating(user);
-            return defaultInfo;
-        }
-    };
-
     createNewUser = async (kakaoUserInfo, allUser) => {
         const allUserCount = allUser.length;
         let nickNum, nickname, _id;

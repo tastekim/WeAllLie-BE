@@ -124,7 +124,7 @@ class UserProvider {
         const newUserToken = await jwtService.createAccessToken(newUser._id);
 
         // 클라이언트에 전달하기 위해 유저 정보 가공
-        const playRecord = await UserRepo.getPlayRecord(newUser);
+        const playRecord = await UserFunction.getPlayRecord(newUser);
         playRecord.accessToken = newUserToken;
         return playRecord;
     };
@@ -141,7 +141,7 @@ class UserProvider {
             const accessToken = await jwtService.createAccessToken(exUser._id);
             console.log('exUserGetToken 2, accessToken::::::', accessToken);
 
-            const playRecord = await UserRepo.getPlayRecord(exUser);
+            const playRecord = await UserFunction.getPlayRecord(exUser);
             playRecord.accessToken = accessToken;
             console.log('exUserGetToken 3, playRecord::::::', playRecord);
             return playRecord;
