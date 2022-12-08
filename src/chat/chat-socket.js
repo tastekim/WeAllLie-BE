@@ -4,82 +4,47 @@ const chat = require('../socket');
 chat.on('connection', async (socket) => {
     // 로비 입장 메세지
     socket.on('enterLobby', (nickname, callback) => {
-        console.log(`${nickname} 로비 입장`);
+        console.log(`${nickname} 로비 입장(enterLobby)`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
-        chat.sockets.emit('receiveLobbyMsg', { notice: msg });
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveLobbyMsg', { notice: msg }, msgId);
         callback();
     });
 
     // 로비 채팅
     socket.on('sendLobbyMsg', (payload, callback) => {
-        console.log('로비채팅');
+        console.log('로비채팅(sendLobbyMsg)');
         console.log('payload:::', payload);
-        chat.sockets.emit('receiveLobbyMsg', payload);
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveLobbyMsg', payload, msgId);
         callback();
     });
 
     // 룸 입장 메세지
     socket.on('enterRoomMsg', (roomNum, nickname, callback) => {
-        console.log(`${nickname} ${roomNum}번 방 입장`);
+        console.log(`${nickname} ${roomNum}번 방 입장(enterRoomMsg)`);
         const msg = `${nickname} 님이 입장하셨습니다.`;
-        console.log(msg);
-        // 방법1
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-        // 방법2
-        // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-        // 방법3
-        // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, roomNum);
+
         callback();
     });
 
     // 룸 퇴장 메세지 1 - 나가기 버튼 통해 퇴장
     socket.on('leaveRoomMsg', (roomNum, nickname) => {
-        console.log(`${nickname} ${roomNum}번 방 퇴장`);
+        console.log(`${nickname} ${roomNum}번 방 퇴장(leaveRoomMsg)`);
         const msg = `${nickname} 님이 퇴장하셨습니다.`;
-        // 방법1
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-        // 방법2
-        // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-        // 방법3
-        // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, roomNum);
     });
 
-    // 룸 퇴장 메세지 2 - 비정상적 연결 해제
-    socket.on('disconnecting', () => {
-        const roomNum = socket.roomNum;
-        console.log(`disconnecting 이벤트 발생!! ${socket.id}`);
-        console.log('socket.rooms ::', socket.rooms);
-        // socket.rooms.size > 1 이라는 것은 public room 에 입장했던 상태라는 것
-        // 만약 socket.rooms.size 가 1 이라면 굳이 메세지 이벤트를 발생시키지 않아도 된다.
-        if (socket.rooms.size > 1) {
-            const nickname = socket.nickname;
-            console.log(`${nickname} 방 퇴장`);
-            const msg = `${nickname} 님이 퇴장하셨습니다.`;
-            // 방법1
-            socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-            // 방법2
-            // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-            // 방법3
-            // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', { notice: msg });
-        }
-    });
-
-    // 룸 채팅 (아직 미확정)
+    // 룸 채팅
     socket.on('sendRoomMsg', (payload, roomNum, callback) => {
         console.log('룸채팅');
-        console.log('payload:::%o ', payload);
+        console.log('payload:::', payload);
         console.log(`roomNum::: ${roomNum}`);
-        // 방법1
-        socket.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
-        // 방법2
-        // chat.to(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
-        // 방법3
-        // chat.in(`/gameRoom${roomNum}`).emit('receiveRoomMsg', payload);
+        const msgId = new Date().getTime().toString(36);
+        chat.sockets.emit('receiveRoomMsg', payload, msgId, roomNum);
         callback();
-    });
-
-    socket.on('enterRoomTest', (roomName) => {
-        socket.join(roomName);
-        console.log(`${socket.id} join the room ${roomName}`);
     });
 });

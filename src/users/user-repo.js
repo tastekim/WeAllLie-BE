@@ -25,44 +25,57 @@ class UserRefo {
         return exUser;
     };
 
+    updateNick = async (_id, nickname) => {
+        return await User.updateOne({ _id }, { nickname });
+    };
+
     getKakaoToken = async (code) => {
-        const kakaoToken = await axios({
-            method: 'POST',
-            url: 'https://kauth.kakao.com/oauth/token',
-            headers: {
-                'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-            },
-            /*
-            // with FE
-            data: qs.stringify({
-                grant_type: 'authorization_code',
-                client_id: process.env.CLIENT_ID_FRONT,
-                client_secret: process.env.CLIENT_SECRET,
-                redirectUri: process.env.CALLBACK_URL_LOCAL,
-                code: code,
-            }),
-            */
-            // BE test
-            data: qs.stringify({
-                grant_type: 'authorization_code',
-                client_id: process.env.CLIENT_ID,
-                redirectUri: process.env.CALLBACK_URL_LOCAL,
-                code: code,
-            }),
-        });
-        return kakaoToken.data.access_token;
+        try {
+            const kakaoToken = await axios({
+                method: 'POST',
+                url: 'https://kauth.kakao.com/oauth/token',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+                },
+
+                // with FE
+                data: qs.stringify({
+                    grant_type: 'authorization_code',
+                    client_id: process.env.CLIENT_ID_FRONT,
+                    client_secret: process.env.CLIENT_SECRET,
+                    redirectUri: process.env.CALLBACK_URL_LOCAL,
+                    code: code,
+                }),
+                /*
+                // BE test
+                data: qs.stringify({
+                    grant_type: 'authorization_code',
+                    client_id: process.env.CLIENT_ID,
+                    redirectUri: process.env.CALLBACK_URL_LOCAL,
+                    code: code,
+                }),
+                */
+            });
+            return kakaoToken.data.access_token;
+        } catch (e) {
+            return e;
+        }
     };
 
     getKakaoUserInfo = async (kakaoToken) => {
-        const userInfo = await axios({
-            method: 'POST',
-            url: 'https://kapi.kakao.com/v2/user/me',
-            headers: {
-                'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-                Authorization: `Bearer ${kakaoToken}`,
-            },
-        });
-        return userInfo.data;
+        try {
+            const userInfo = await axios({
+                method: 'POST',
+                url: 'https://kapi.kakao.com/v2/user/me',
+                headers: {
+                    'content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+                    Authorization: `Bearer ${kakaoToken}`,
+                },
+            });
+            return userInfo.data;
+        } catch (e) {
+            return e;
+        }
     };
 
     getPlayRecord = async (user, accessToken) => {
@@ -116,60 +129,6 @@ class UserRefo {
 
         return {
             accessToken,
-            userId: user._id,
-            nickname: user.nickname,
-            profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
-            spyPlayCount: user.spyPlayCount,
-            ctzPlayCount: user.totalCount - user.spyPlayCount,
-            spyWinRating,
-            voteSpyRating,
-        };
-    };
-
-    onlyGetPlayRecord = async (user) => {
-        let spyWinRating, voteSpyRating;
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        if (user.totalCount === 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating: 0,
-            };
-        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating,
-            };
-        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating,
-                voteSpyRating: 0,
-            };
-        }
-
-        return {
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
