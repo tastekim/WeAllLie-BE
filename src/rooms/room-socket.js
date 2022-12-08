@@ -50,8 +50,8 @@ lobby.on('connection', async (socket) => {
         if (currentCount < 8 && roomStatus === false) {
             console.log(`${socket.nickname} 님이 ${roomNum} 번 방에 입장하셨습니다`);
             const currentMember = await RoomProvider.getCurrentMember(roomNum);
-            const currentRoom = await RoomProvider.getRoom(roomNum);
             await RoomProvider.enterRoom(roomNum);
+            const currentRoom = await RoomProvider.getRoom(roomNum);
             await socket.join(`/gameRoom${roomNum}`);
             socket.emit('enterRoom', currentRoom);
             lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
@@ -76,7 +76,7 @@ lobby.on('connection', async (socket) => {
             // ready 버튼 비활성화 시킬 때.
             socket.isReady = 0;
             await RoomProvider.unready(roomNum);
-            lobby.sockets.in(`/gameRoom${roomNum}`).emit('unready', socket.nickname, false);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
             readyCount = await redis.get(`ready${roomNum}`);
             console.log(readyCount, '/', currentCount);
         }
