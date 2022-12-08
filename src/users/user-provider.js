@@ -96,8 +96,6 @@ class UserProvider {
                 return res.status(400).json({ errorMessage: '닉네임 중복' });
             }
             await UserRepo.updateNick(user._id, nickname);
-            // const updatedInfo = await UserRepo.findOneById(user._id);
-            // console.log('updated Info :::', updatedInfo);
             return res.status(200).json({ nickname });
         } catch (e) {
             console.log(e);
