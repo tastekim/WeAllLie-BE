@@ -91,68 +91,6 @@ class UserFunction {
             voteSpyRating,
         };
     };
-
-    getPlayRecord = async (user, accessToken) => {
-        let spyWinRating, voteSpyRating;
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        if (user.totalCount === 0) {
-            return {
-                accessToken,
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating: 0,
-            };
-        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
-            return {
-                accessToken,
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating,
-            };
-        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
-            return {
-                accessToken,
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating,
-                voteSpyRating: 0,
-            };
-        }
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        return {
-            accessToken,
-            userId: user._id,
-            nickname: user.nickname,
-            profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
-            spyPlayCount: user.spyPlayCount,
-            ctzPlayCount: user.totalCount - user.spyPlayCount,
-            spyWinRating,
-            voteSpyRating,
-        };
-    };
 }
 
 module.exports = new UserFunction();
