@@ -34,11 +34,12 @@ lobby.on('connection', async (socket) => {
         await RoomProvider.createRoom(gameMode, roomTitle, socket.nickname);
         const roomNum = await RoomProvider.getRoomNum(socket.nickname);
         await RoomProvider.enterRoom(roomNum);
+        await RoomProvider.incMember(roomNum);
         console.log(roomNum);
         socket.roomNum = roomNum;
         socket.isReady = false;
         const showRoom = await RoomProvider.getAllRoom();
-        const createdRoom = await RoomProvider.getRoom(socket.roomNum);
+        const createdRoom = await RoomProvider.getRoom(roomNum);
         let currentMember = await RoomProvider.getCurrentMember(roomNum);
         socket.join(`/gameRoom${roomNum}`);
         lobby.sockets.emit('userNickname', currentMember);
