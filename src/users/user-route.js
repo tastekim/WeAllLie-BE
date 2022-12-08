@@ -10,7 +10,7 @@ router.get('/api/auth/kakao/callback', UserProvider.getKakaoToken);
 router.post('/api/auth/kakao/callback', UserProvider.getKakaoUserInfo);
 
 // 유저 정보 조회
-router.get('/api/user', authMiddleware, UserProvider.getPlayRecord);
+router.get('/api/user', authMiddleware, UserProvider.getUserRecord);
 
 // 닉네임 변경
 router.put('/api/user', authMiddleware, UserProvider.updateNick);

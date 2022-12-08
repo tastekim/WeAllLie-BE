@@ -75,17 +75,20 @@ class UserProvider {
     };
 
     // 유저 정보 조회
-    getPlayRecord = async (req, res) => {
+    getUserRecord = async (req, res) => {
         try {
             console.log('res.locals.user:: ', res.locals.user);
             const { user } = res.locals;
-            const exUser = await UserRepo.findOneById(user._id);
-            const userInfo = await UserFunction.getPlayRecord(exUser);
-            console.log('유저 정보 전적으로 가공 후 !! userInfo ::', userInfo);
-            return res.status(200).json(userInfo);
+
+            const userInfo = await UserService.getUserRecord(user._id);
+            return res.status(200).send(userInfo);
         } catch (e) {
             console.log(e);
-            res.status(500).send({ errorMessage: e.message });
+            if (e.name === 'UserError') {
+                return res.status(e.statusCode).send({ errorMessage: e.message });
+            } else {
+                res.send({ errorMessage: e.message });
+            }
         }
     };
 
@@ -94,15 +97,16 @@ class UserProvider {
         try {
             const { user } = res.locals;
             const { nickname } = req.body;
-            const isExistNick = await UserRepo.findOneByNickname(nickname);
-            if (isExistNick) {
-                return res.status(400).json({ errorMessage: '닉네임 중복' });
-            }
-            await UserRepo.updateNick(user._id, nickname);
+
+            const result = await UserService.updateNick(user._id, nickname);
             return res.status(200).json({ nickname });
         } catch (e) {
             console.log(e);
-            res.status(500).json({ errorMessage: e.message });
+            if (e.name === 'UserError') {
+                return res.status(e.statusCode).send({ errorMessage: e.message });
+            } else {
+                res.send({ errorMessage: e.message });
+            }
         }
     };
 }

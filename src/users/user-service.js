@@ -1,6 +1,7 @@
 const UserRepo = require('./user-repo');
 const jwtService = require('../users/util/jwt');
 const UserFunction = require('../users/util/user-function');
+const { UserError } = require('../middlewares/exception');
 const axios = require('axios');
 const qs = require('qs');
 
@@ -12,7 +13,7 @@ class UserService {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
             },
-
+            
             // with FE
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -21,6 +22,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            
             /*
             // BE test
             data: qs.stringify({
@@ -29,7 +31,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
+            *.
         });
 
         return kakaoToken.data.access_token;
@@ -82,6 +84,33 @@ class UserService {
         const playRecord = await UserFunction.getPlayRecord(newUser);
         playRecord.accessToken = newUserToken;
         return playRecord;
+    };
+
+    getUserRecord = async (_id) => {
+        try {
+            const userInfo = await UserRepo.findOneById(_id);
+            const userRecord = await UserFunction.getPlayRecord(userInfo);
+            console.log('유저 정보 전적으로 가공 후 !! userRecord ::', userRecord);
+            return userRecord;
+        } catch (e) {
+            return e;
+        }
+    };
+
+    updateNick = async (_id, nickname) => {
+        try {
+            const isExistNick = await UserRepo.findOneByNickname(nickname);
+            if (isExistNick) throw new UserError('닉네임 중복', 400);
+            await UserRepo.updateNick(_id, nickname);
+            return 'nickname is updated successfully.';
+        } catch (e) {
+            return e;
+        }
+
+        // if (isExistNick) {
+        //     return res.status(400).json({ errorMessage: '닉네임 중복' });
+        // }
+        // await UserRepo.updateNick(user._id, nickname);
     };
 }
 
