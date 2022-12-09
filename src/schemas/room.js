@@ -10,7 +10,7 @@ const RoomSchema = new Schema({
 
     currentCount: {
         type: Number,
-        default: 1,
+        default: 0,
     },
 
     gameMode: {
