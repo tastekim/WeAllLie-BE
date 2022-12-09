@@ -20,6 +20,7 @@ class RoomProvider {
     // 현재 인원이 들어있는 redis 배열
     getCurrentMember = async (roomNum) => {
         let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
+        for (; currentMember.length < 8; ) currentMember.push('');
         return currentMember;
     };
     // 입장인원 추가
