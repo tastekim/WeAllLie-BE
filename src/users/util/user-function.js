@@ -35,61 +35,36 @@ class UserFunction {
     // 유저 정보 가공 2 : 유저 정보 승률 계산 => 프론트로 전달할 형태로 가공하기
     // user: DB에서 가져온 유저 정보
     getPlayRecord = async (user) => {
-        let spyWinRating, voteSpyRating;
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        if (user.totalCount === 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating: 0,
-            };
-        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating: 0,
-                voteSpyRating,
-            };
-        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
-            return {
-                userId: user._id,
-                nickname: user.nickname,
-                profileImg: user.profileImg,
-                totayPlayCount: user.totalCount,
-                spyPlayCount: user.spyPlayCount,
-                ctzPlayCount: user.totalCount - user.spyPlayCount,
-                spyWinRating,
-                voteSpyRating: 0,
-            };
-        }
-
-        spyWinRating = (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
-        voteSpyRating =
-            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
-
-        return {
+        const defaultInfo = {
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
             totayPlayCount: user.totalCount,
             spyPlayCount: user.spyPlayCount,
             ctzPlayCount: user.totalCount - user.spyPlayCount,
-            spyWinRating,
-            voteSpyRating,
         };
+
+        const spyWinRating = (user) => (user.spyWinCount / user.spyPlayCount).toFixed(2) * 100;
+        const voteSpyRating = (user) =>
+            (user.voteSpyCount / (user.totalCount - user.spyPlayCount)).toFixed(2) * 100;
+
+        if (user.totalCount === 0) {
+            defaultInfo.spyWinRating = 0;
+            defaultInfo.voteSpyRating = 0;
+            return defaultInfo;
+        } else if (user.spyPlayCount === 0 && user.totalCount - user.spyPlayCount !== 0) {
+            defaultInfo.spyWinRating = 0;
+            defaultInfo.voteSpyRating = voteSpyRating(user);
+            return defaultInfo;
+        } else if (user.spyPlayCount !== 0 && user.totalCount - user.spyPlayCount === 0) {
+            defaultInfo.spyWinRating = spyWinRating(user);
+            defaultInfo.voteSpyRating = 0;
+            return defaultInfo;
+        } else {
+            defaultInfo.spyWinRating = spyWinRating(user);
+            defaultInfo.voteSpyRating = voteSpyRating(user);
+            return defaultInfo;
+        }
     };
 }
 
