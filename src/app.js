@@ -15,6 +15,13 @@ const option = {
     ca: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/fullchain.pem`),
     key: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/privkey.pem`),
     cert: fs.readFileSync(`/etc/letsencrypt/live/${process.env.DOMAIN}/cert.pem`),
+    // transportOptions: {
+    //     polling: {
+    //         extraHeaders: {
+    //             Cookie: 'hello=world',
+    //         },
+    //     },
+    // },
 };
 const https = HTTPS.createServer(option, app);
 

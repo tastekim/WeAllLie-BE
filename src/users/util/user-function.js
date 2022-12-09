@@ -39,7 +39,7 @@ class UserFunction {
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
+            totalPlayCount: user.totalCount,
             spyPlayCount: user.spyPlayCount,
             ctzPlayCount: user.totalCount - user.spyPlayCount,
         };

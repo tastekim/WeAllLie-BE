@@ -60,11 +60,9 @@ class UserController {
         try {
             const { user } = res.locals;
             const { nickname } = req.body;
-
             if (!nickname) throw new UserError('변경할 닉네임을 입력해주세요', 400);
             if (nickname.match(/\s/g))
                 throw new UserError('닉네임에 공백이 포함될 수 없습니다.', 400);
-
             await UserService.updateNick(user._id, nickname);
             return res.status(200).json({ nickname });
         } catch (e) {
