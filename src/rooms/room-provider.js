@@ -1,6 +1,6 @@
 const RoomRepo = require('./room-repo');
 const redis = require('../redis');
-
+const { SetError } = require('../middlewares/exception');
 class RoomProvider {
     // 현재 인원 조회
     getCurrentCount = async (roomNum) => {
@@ -11,11 +11,6 @@ class RoomProvider {
     getRoomStatus = async (roomNum) => {
         const roomStatus = await RoomRepo.getRoomStatus(roomNum);
         return roomStatus;
-    };
-    // 방 번호 조회
-    getRoomNum = async (nickname) => {
-        const getRoomNum = await RoomRepo.getRoomNum(nickname);
-        return getRoomNum;
     };
     // 현재 인원이 들어있는 redis 배열
     getCurrentMember = async (roomNum) => {
@@ -37,24 +32,32 @@ class RoomProvider {
     // 방 생성
     createRoom = async (gameMode, roomTitle, nickname) => {
         const createRoom = await RoomRepo.createRoom(gameMode, roomTitle, nickname);
-        const roomNum = await RoomRepo.getRoomNum(nickname);
-        await redis.lpush(`currentMember${await RoomRepo.getRoomNum(nickname)}`, nickname);
-        await redis.set(`ready${roomNum}`, 0);
-        await redis.set(`readyStatus${await RoomRepo.getRoomNum(nickname)}`, '');
+        await redis.rpush(`currentMember${createRoom._id}`, nickname);
+        await redis.set(`ready${createRoom._id}`, 0);
+        await redis.set(`readyStatus${createRoom._id}`, '');
         return createRoom;
     };
     // 방 입장
     enterRoom = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         await RoomRepo.enterRoom(roomNum);
         return;
     };
     // 방 퇴장
     leaveRoom = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('이미 삭제된 방입니다.', 400);
+        }
         await RoomRepo.leaveRoom(roomNum);
         return;
     };
     // 방 삭제
     deleteRoom = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('이미 삭제된 방입니다.', 400);
+        }
         await RoomRepo.deleteRoom(roomNum);
         await redis.del(`ready${roomNum}`);
         await redis.del(`readyStatus${roomNum}`);
@@ -66,10 +69,16 @@ class RoomProvider {
     };
     // 방 조회
     getRoom = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         return await RoomRepo.getRoom(roomNum);
     };
     // 게임 준비
     ready = async (roomNum, nickname) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         // ready 버튼 활성화 시킬 때.
         await redis.incr(`ready${roomNum}`);
         await redis.rpush(`gameRoom${roomNum}Users`, nickname);
@@ -77,6 +86,9 @@ class RoomProvider {
     };
     // 준비 취소
     unready = async (roomNum, nickname) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         // ready 버튼 비활성화 시킬 때.
         await redis.decr(`ready${roomNum}`);
         await redis.lrem(`gameRoom${roomNum}Users`, 1, nickname);
