@@ -1,23 +1,29 @@
-const GameRepo = require('./game-repo');
+const gameRepo = require('./game-repo');
 const Room = require('../schemas/room');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
 
 class GameProvider {
+    GameRepo = new gameRepo();
+
+    constructor() {
+        this.GameRepo = gameRepo;
+    }
+
     getGameRoomUsers = async (roomNum) => {
-        return await GameRepo.getRoomCurrentCount(roomNum);
+        return await this.GameRepo.getRoomCurrentCount(roomNum);
     };
 
     getSpy = async (roomNum) => {
-        return await GameRepo.getSpy(roomNum);
+        return await this.GameRepo.getSpy(roomNum);
     };
 
     catchSpy = async (nickname) => {
-        return await GameRepo.catchSpy(nickname);
+        return await this.GameRepo.catchSpy(nickname);
     };
 
     setPlayCount = async (nickname) => {
-        await GameRepo.setPlayCount(nickname);
+        await this.GameRepo.setPlayCount(nickname);
     };
 
     setVoteResult = async (roomNum, nickname) => {
@@ -72,9 +78,7 @@ class GameProvider {
         // }
     };
 
-    getGuessResult = async (roomNum, word) => {
-        
-    };
+    getGuessResult = async (roomNum, word) => {};
 
     // 각 방에 참여한 유저들의 닉네임 저장.
     setRoomUsers = async (roomNum, nickname) => {
@@ -171,4 +175,4 @@ class GameProvider {
     // };
 }
 
-module.exports = new GameProvider();
+module.exports = GameProvider;
