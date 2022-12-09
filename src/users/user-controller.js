@@ -12,7 +12,7 @@ class UserController {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Content-Type', 'text/html; charset=utf-8');
 
-        return res.send({ accessToken: kakaoToken });
+        return res.status(200).send({ accessToken: kakaoToken });
     };
 
     /*
@@ -37,11 +37,7 @@ class UserController {
             ///
         } catch (e) {
             console.log(e);
-            if (e.name === 'UserError') {
-                res.status(e.statusCode).send({ errorMessage: e.message });
-            } else {
-                res.status(500).send({ errorMessage: e.message });
-            }
+            return res.status((e.statusCode ??= 500)).send({ errorMessage: e.message });
         }
     };
 
@@ -55,11 +51,7 @@ class UserController {
             return res.status(200).send(userInfo);
         } catch (e) {
             console.log(e);
-            if (e.name === 'UserError') {
-                return res.status(e.statusCode).send({ errorMessage: e.message });
-            } else {
-                res.send({ errorMessage: e.message });
-            }
+            return res.status((e.statusCode ??= 500)).send({ errorMessage: e.message });
         }
     };
 
@@ -83,3 +75,9 @@ class UserController {
 }
 
 module.exports = new UserController();
+
+if (e.name === 'UserError') {
+    return res.status(e.statusCode).send({ errorMessage: e.message });
+} else {
+    res.send({ errorMessage: e.message });
+}
