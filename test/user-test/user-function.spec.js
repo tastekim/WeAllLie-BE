@@ -74,7 +74,6 @@ describe('getPlayRecord funtion', () => {
     });
 
     it('UserFunction.getPlayRecord 이 리턴하는 객체의 프로퍼티의 개수는 4개이다.', async () => {
-        
-    }
+    })
     
 });
