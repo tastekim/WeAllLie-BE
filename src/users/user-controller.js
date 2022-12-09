@@ -75,9 +75,3 @@ class UserController {
 }
 
 module.exports = new UserController();
-
-if (e.name === 'UserError') {
-    return res.status(e.statusCode).send({ errorMessage: e.message });
-} else {
-    res.send({ errorMessage: e.message });
-}
