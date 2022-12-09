@@ -34,7 +34,6 @@ class UserFunction {
 
     // 유저 정보 가공 2 : 유저 정보 승률 계산 => 프론트로 전달할 형태로 가공하기
     // user: DB에서 가져온 유저 정보
-
     getPlayRecord = async (user) => {
         const defaultInfo = {
             userId: user._id,

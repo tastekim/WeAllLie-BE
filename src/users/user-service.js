@@ -23,7 +23,6 @@ class UserService {
                 code: code,
             }),
 
-            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -31,7 +30,6 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-            */
         });
 
         return kakaoToken.data.access_token;
@@ -44,7 +42,7 @@ class UserService {
     3. 가입된 유저 => 토큰 + 유저정보 바로 전달
     4. 미가입 유저 => 회원가입 + 토큰발급 후 토큰 + 유저정보 전달
     */
-    loginInfo = async (kakaoToken) => {
+    getLoginInfo = async (kakaoToken) => {
         const userInfo = await axios({
             method: 'POST',
             url: 'https://kapi.kakao.com/v2/user/me',
@@ -74,14 +72,10 @@ class UserService {
 
     // 유저 정보 조회
     getUserRecord = async (_id) => {
-        try {
-            const userInfo = await UserRepo.findOneById(_id);
-            const userRecord = await UserFunction.getPlayRecord(userInfo);
-            console.log('DB 유저 정보 전적으로 가공 후 !! userRecord ::', userRecord);
-            return userRecord;
-        } catch (e) {
-            throw e;
-        }
+        const userInfo = await UserRepo.findOneById(_id);
+        const userRecord = await UserFunction.getPlayRecord(userInfo);
+        console.log('DB 유저 정보 전적으로 가공 후 !! userRecord ::', userRecord);
+        return userRecord;
     };
 
     // 유저 닉네임 수정

@@ -1,5 +1,4 @@
 const User = require('../schemas/user');
-require('dotenv').config();
 
 class UserRefo {
     createUser = async (user) => {

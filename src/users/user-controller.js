@@ -2,7 +2,8 @@ const UserService = require('./user-service');
 const { UserError } = require('../middlewares/exception');
 require('dotenv').config();
 
-class UserProvider {
+class UserController {
+    // 인가코드로 카카오 토큰 받아오기
     getKakaoToken = async (req, res) => {
         console.log('전달받은 인가 코드 :::::::::::: ', req.query.code);
         const kakaoToken = await UserService.getKakaoToken(req.query.code);
@@ -21,7 +22,7 @@ class UserProvider {
     */
     // 헤더에서 토큰 확인 => 서비스로 전달 => 쿠키와 유저 정보 받아오기
     getLoginInfo = async (req, res) => {
-        console.log('UserProvider.getLoginInfo 함수 시작');
+        console.log('UserController.getLoginInfo 함수 시작');
 
         try {
             const { authorization } = req.headers;
@@ -31,7 +32,7 @@ class UserProvider {
             if (!kakaoToken) throw new UserError('카카오 토큰이 헤더에 없습니다.', 400);
             console.log('kakaoToken:::::: ', kakaoToken);
             ///
-            const [loginInfo, statusCode] = await UserService.loginInfo(kakaoToken);
+            const [loginInfo, statusCode] = await UserService.getLoginInfo(kakaoToken);
             return res.status(statusCode).send(loginInfo);
             ///
         } catch (e) {
@@ -68,17 +69,17 @@ class UserProvider {
             const { user } = res.locals;
             const { nickname } = req.body;
 
+            if (!nickname) throw new UserError('변경할 닉네임을 입력해주세요', 400);
+            if (nickname.match(/\s/g))
+                throw new UserError('닉네임에 공백이 포함될 수 없습니다.', 400);
+
             await UserService.updateNick(user._id, nickname);
             return res.status(200).json({ nickname });
         } catch (e) {
             console.log(e);
-            if (e.name === 'UserError') {
-                return res.status(e.statusCode).send({ errorMessage: e.message });
-            } else {
-                res.send({ errorMessage: e.message });
-            }
+            return res.status((e.statusCode ??= 500)).send({ errorMessage: e.message });
         }
     };
 }
 
-module.exports = new UserProvider();
+module.exports = new UserController();
