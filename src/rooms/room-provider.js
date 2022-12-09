@@ -1,5 +1,4 @@
 const RoomRepo = require('./room-repo');
-const socket = require('../socket');
 const redis = require('../redis');
 
 class RoomProvider {
@@ -21,6 +20,7 @@ class RoomProvider {
     // 현재 인원이 들어있는 redis 배열
     getCurrentMember = async (roomNum) => {
         let currentMember = await redis.lrange(`currentMember${roomNum}`, 0, -1);
+        for (; currentMember.length < 8; ) currentMember.push('');
         return currentMember;
     };
     // 입장인원 추가
@@ -59,6 +59,7 @@ class RoomProvider {
         await RoomRepo.deleteRoom(roomNum);
         await redis.del(`ready${roomNum}`);
         await redis.del(`readyStatus${roomNum}`);
+        await redis.del(`currentMember${roomNum}`);
     };
     // 방 전제 조회
     getAllRoom = async () => {
@@ -71,7 +72,6 @@ class RoomProvider {
     // 게임 준비
     ready = async (roomNum, nickname) => {
         // ready 버튼 활성화 시킬 때.
-        socket.isReady = 1;
         await redis.incr(`ready${roomNum}`);
         await redis.rpush(`gameRoom${roomNum}Users`, nickname);
         console.log('준비 완료 !');
@@ -79,7 +79,6 @@ class RoomProvider {
     // 준비 취소
     unready = async (roomNum, nickname) => {
         // ready 버튼 비활성화 시킬 때.
-        socket.isReady = 0;
         await redis.decr(`ready${roomNum}`);
         await redis.lrem(`gameRoom${roomNum}Users`, 1, nickname);
         console.log('준비 취소 !');
