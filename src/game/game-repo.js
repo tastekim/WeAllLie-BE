@@ -24,6 +24,10 @@ class GameRepo {
         await Room.findOneAndUpdate({ nickname }, { $inc: { voteCount: 1 } });
     };
 
+    setSpyWinCount = async (nickname) => {
+        await Room.findOneAndUpdate({ nickname }, { $inc: { spyWinCount: 1 } });
+    };
+
     setPlayCount = async (nickname) => {
         const userData = await User.findOne({ nickname: nickname });
         if (!('nickname' in userData)) {
@@ -54,6 +58,10 @@ class GameRepo {
             throw new SetError('게임 진행에 필요한 제시어가 부족합니다.', 500);
         }
         return giveWord.map((y) => y.word);
+    };
+
+    setGameWord = async (roomNum, answerWord) => {
+        await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { gameWord: answerWord } });
     };
 }
 

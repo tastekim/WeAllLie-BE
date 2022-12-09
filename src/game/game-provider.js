@@ -1,5 +1,5 @@
 const GameRepo = require('./game-repo');
-const Room = require('../schemas/room');
+const RoomRepo = require('../rooms/room-repo');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
 const { SetError } = require('../middlewares/exception');
@@ -27,6 +27,13 @@ class GameProvider {
     // setVoteResult = async (roomNum, nickname) => {
     //     await redis.lpush(`gameRoom${roomNum}Result`, nickname);
     // };
+
+    currVoteCount = async (roomNum) => {
+        await redis.incr(`voteCount${roomNum}`);
+        const count = await redis.get(`voteCount${roomNum}`);
+        const roomUsers = await RoomRepo.currentCount(roomNum);
+        return [count, roomUsers];
+    };
 
     getVoteResult = async (roomNum) => {
         // 투표 집계한 배열.
@@ -65,10 +72,14 @@ class GameProvider {
         return !(maxVoteUser[0] === spyUser);
     };
 
-    getGuessResult = async (roomNum, word) => {
-        const roomData = await Room.findOne({ _id: roomNum });
+    getGuessResult = async (roomNum, word, nickname) => {
+        const roomData = await RoomRepo.getRoom(roomNum);
         if (roomData.gameWord === null) {
             throw new SetError('게임방 제시어 설정이 되어있지 않습니다.', 500);
+        }
+
+        if (roomData.gameWord === word) {
+            await GameRepo.setSpyWinCount(nickname);
         }
         return roomData.gameWord === word;
     };
@@ -126,10 +137,10 @@ class GameProvider {
 
         let categoryFix = shuffle(givecategory).pop();
 
-        //mongoose에 있는 카테고리
+        //mongoose 에 있는 카테고리
         const showWords = await GameRepo.giveWord(categoryFix);
         const answerWord = shuffle(showWords).pop();
-        await Room.findByIdAndUpdate({ _id: roomNum }, { $set: { gameWord: answerWord } });
+        await GameRepo.setGameWord(roomNum, answerWord);
         showWords.push(answerWord);
         return {
             category: categoryFix,

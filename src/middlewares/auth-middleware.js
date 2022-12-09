@@ -20,6 +20,6 @@ module.exports = async (req, res, next) => {
         next();
     } catch (e) {
         console.log(e);
-        res.send({ errorMessage: e.message });
+        return res.status((e.statusCode ??= 500)).send({ errorMessage: e.message });
     }
 };
