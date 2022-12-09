@@ -6,6 +6,7 @@ const axios = require('axios');
 const qs = require('qs');
 
 class UserService {
+    // 인가코드 주고 카카오 토큰 받아오기
     getKakaoToken = async (code) => {
         const kakaoToken = await axios({
             method: 'POST',
@@ -22,7 +23,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
-
+            /*
             // BE test
             data: qs.stringify({
                 grant_type: 'authorization_code',
@@ -30,6 +31,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
 
         return kakaoToken.data.access_token;

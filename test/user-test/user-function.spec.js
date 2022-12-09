@@ -4,7 +4,7 @@ const {
     kakaoUserWithImg,
     allUserLen0,
     allUserNotLen0,
-} = require('../mockData/UserFuntionData');
+} = require('../mockData/user-function-data');
 
 // mockData
 
@@ -17,7 +17,6 @@ describe('getNewUser funtion TEST', () => {
         const allUser = allUserLen0;
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-
         const propertyCount = await Object.keys(result).length;
         expect(propertyCount).toBe(4);
     });
@@ -28,7 +27,6 @@ describe('getNewUser funtion TEST', () => {
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
         const properties = await Object.keys(result);
-
         expect(properties).toEqual(expect.arrayContaining(expected));
     });
 
