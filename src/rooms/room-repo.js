@@ -1,6 +1,6 @@
 //const { findById } = require('../schemas/room');
 const Room = require('../schemas/room');
-const { Seterror } = require('../middlewares/exception');
+const { SetError } = require('../middlewares/exception');
 
 const autoIncrease = function () {
     let a = 1;
@@ -25,26 +25,29 @@ class RoomRepo {
     };
     // 방 입장
     enterRoom = async (roomNum) => {
-        const getRoom = await Room.findById(roomNum);
-        await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: 1 } });
-        if (!('_id' in getRoom)) {
-            throw new Seterror('존재하지 않는 방입니다.', 400);
+        const enterRoom = await Room.findByIdAndUpdate(
+            { _id: roomNum },
+            { $inc: { currentCount: 1 } }
+        );
+        if (enterRoom === -1) {
+            throw new SetError('존재하지 않는 방입니다.', 400);
         }
     };
     // 방 퇴장
     leaveRoom = async (roomNum) => {
-        const getRoom = await Room.findById(roomNum);
-        await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
-        if (!('_id' in getRoom)) {
-            throw new Seterror('이미 삭제된 방입니다.', 400);
+        const leaveRoom = await Room.findByIdAndUpdate(
+            { _id: roomNum },
+            { $inc: { currentCount: -1 } }
+        );
+        if (leaveRoom === -1) {
+            throw new SetError('존재하지 않는 방입니다.', 400);
         }
     };
     // 방 삭제
     deleteRoom = async (roomNum) => {
-        const getRoom = await Room.findById(roomNum);
-        await Room.deleteOne({ _id: roomNum });
-        if (!('_id' in getRoom)) {
-            throw new Seterror('이미 삭제된 방입니다.', 400);
+        const deleteRoom = await Room.deleteOne({ _id: roomNum });
+        if (deleteRoom === -1) {
+            throw new SetError('존재하지 않는 방입니다.', 400);
         }
     };
     // 방 전체 조회
@@ -55,29 +58,29 @@ class RoomRepo {
     // 방 조회
     getRoom = async (roomNum) => {
         const getRoom = await Room.findById(roomNum);
-        if (!('_id' in getRoom)) {
-            throw new Seterror('존재하지 않는 방입니다.', 400);
+        if (!getRoom) {
+            throw new SetError('존재하지 않는 방입니다.', 400);
         }
         return getRoom;
     };
     // 방 상태 조회
     getRoomStatus = async (roomNum) => {
         const getRoomStatus = await Room.findById(roomNum);
-        if (!('_id' in getRoomStatus)) {
-            throw new Seterror('존재하지 않는 방입니다.', 400);
-        }
         return getRoomStatus.roomStatus;
     };
     // 방 현재 인원 조회
     currentCount = async (roomNum) => {
         const roomData = await Room.findById(roomNum);
-        if (!('_id' in roomData)) {
-            throw new Seterror('존재하지 않는 방입니다.', 400);
-        }
         return roomData.currentCount;
     };
     // 방 상태 ture 전환
     getTrue = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
+        if (!roomNum) {
+            throw new SetError('존재하지 않는 방 입니다.', 400);
+        }
         await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });
     };
 }

@@ -40,8 +40,8 @@ io.on('connection', async (socket) => {
     socket.on('getNickname', (nickname) => {
         try {
             socket.nickname = nickname;
-            socket.emit('getNickname', socket.nickname);
-            console.log(socket.nickname);
+            socket.emit('getNickname', nickname);
+            console.log(nickname);
         } catch (err) {
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
@@ -75,17 +75,22 @@ io.on('connection', async (socket) => {
                     await RoomProvider.unready(socket.roomNum);
                     await RoomProvider.decMember(socket.roomNum);
                     let readyCount = await RoomProvider.readyCount(socket.roomNum);
-                    const readyStatus = await redis.get(`readyStatus${socket.roomNum}`);
-                    if (readyStatus !== '') {
-                        // setTimeout 이 실행된 후 누군가 ready 를 취소했을 때 그 방의 setTimeout 정지시키기.
-                        clearTimeout(readyStatus);
-                        await redis.set(`readyStatus${socket.roomNum}`, '');
-                        io.sockets
-                            .in(`/gameRoom${socket.roomNum}`)
-                            .emit('stopGame', socket.roomNum);
-                    }
                     if (findRoom.currentCount === Number(readyCount) && findRoom.currentCount > 3) {
-                        await GameProvider.readyStatus(socket.roomNum);
+                        console.log('게임 시작 ! ');
+                        // 스파이 랜덤 지정 후 게임 시작 전 emit.
+                        const spyUser = await GameProvider.selectSpy(roomNum);
+                        lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
+                        if (nickname === spyUser) {
+                            socket.isSpy = 1;
+                        }
+                        // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
+                        const gameData = await GameProvider.giveWord(roomNum);
+                        lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
+                        // 게임방 진행 활성화. 다른 유저 입장 제한.
+                        await RoomProvider.getTrue(roomNum);
+                        await redis.del(`ready${roomNum}`);
+                        await redis.del(`readyStatus${roomNum}`);
+                        await redis.del(`currentMember${roomNum}`);
                     }
                 }
                 if (socket.isSpy) {
