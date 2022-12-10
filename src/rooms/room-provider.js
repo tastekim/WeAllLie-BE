@@ -49,6 +49,9 @@ class RoomProvider {
     };
     // 방 퇴장
     leaveRoom = async (roomNum) => {
+        if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
         if (!roomNum) {
             throw new SetError('이미 삭제된 방입니다.', 400);
         }
@@ -58,6 +61,9 @@ class RoomProvider {
     // 방 삭제
     deleteRoom = async (roomNum) => {
         if (!isNaN(roomNum)) {
+            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
+        }
+        if (!roomNum) {
             throw new SetError('이미 삭제된 방입니다.', 400);
         }
         await RoomRepo.deleteRoom(roomNum);
