@@ -32,7 +32,7 @@ lobby.on('connection', async (socket) => {
                 lobby.sockets.emit('showRoom', getAllRoom);
             }
         } catch (err) {
-            socket.emit('error', (err.statusCode ??= 400), err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -87,7 +87,7 @@ lobby.on('connection', async (socket) => {
                 console.log('풀방입니다.');
             }
         } catch (err) {
-            socket.emit('error', (err.statusCode ??= 400), err.message);
+            socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
 
@@ -118,7 +118,7 @@ lobby.on('connection', async (socket) => {
                 console.log('게임시작 5초전!');
 
                 // 특정 방의 timer identifier 를 저장, 나중에 누군가가 ready 가 취소됬을 때 해당하는 timer id 를 찾아서 멈추기 위해.
-                const readyStatus = setTimeout(async () => {
+                const readyStatus = async () => {
                     console.log('게임 시작 ! ');
                     // 스파이 랜덤 지정 후 게임 시작 전 emit.
                     const spyUser = await GameProvider.selectSpy(roomNum);
@@ -137,7 +137,7 @@ lobby.on('connection', async (socket) => {
                     await redis.del(`ready${roomNum}`);
                     await redis.del(`readyStatus${roomNum}`);
                     await redis.del(`currentMember${roomNum}`);
-                }, 5000);
+                };
 
                 // 방의 timer id 저장.
                 await redis.set(`readyStatus${roomNum}`, readyStatus);

@@ -76,14 +76,6 @@ class RoomRepo {
         }
         return roomData.currentCount;
     };
-    // 방 번호 조회
-    getRoomNum = async (nickname) => {
-        const getRoomNum = await Room.findOne({ roomMaker: nickname });
-        if (!('roomMaker' in getRoomNum)) {
-            throw new Seterror('생성된 방이 없습니다.', 400);
-        }
-        return getRoomNum._id;
-    };
     // 방 상태 ture 전환
     getTrue = async (roomNum) => {
         await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });
