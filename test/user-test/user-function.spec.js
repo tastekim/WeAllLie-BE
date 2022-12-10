@@ -4,7 +4,7 @@ const {
     kakaoUserWithImg,
     allUserLen0,
     allUserNotLen0,
-} = require('../mockData/user-function-data');
+} = require('../mockData/user-data');
 
 // mockData
 
@@ -17,7 +17,7 @@ describe('getNewUser funtion TEST', () => {
         const allUser = allUserLen0;
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-        const propertyCount = await Object.keys(result).length;
+        const propertyCount = Object.keys(result).length;
         expect(propertyCount).toBe(4);
     });
 
@@ -26,8 +26,7 @@ describe('getNewUser funtion TEST', () => {
         const allUser = allUserLen0;
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-        const properties = Object.keys(result);
-        expect(properties).toEqual(expect.arrayContaining(expected));
+        expect(result.hasOwnProperty(...expected)).toBeTruthy();
     });
 
     it('인자로 전달받은 allUser 배열의 길이가 0이라면 리턴하는 객체의 _id 프로퍼티 값은 1이다.', async () => {
@@ -105,10 +104,7 @@ describe('getPlayRecord funtion TEST', () => {
         ];
         const user = allUserNotLen0;
         const result = await UserFunction.getPlayRecord(user);
-        const properties = Object.keys(result);
-        console.log(properties);
-
-        expect(properties).toEqual(expect.arrayContaining(expected));
+        expect(result.hasOwnProperty(...expected)).toBeTruthy();
     });
 
     it('유저 전적 totalCount === 0 이면 UserFunction.getPlayRecord 리턴하는 객체의 spyWinRating, voteSpyRating 프로퍼티 값이 모두 0이다.', async () => {

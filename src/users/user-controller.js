@@ -9,8 +9,8 @@ class UserController {
         const kakaoToken = await UserService.getKakaoToken(req.query.code);
         console.log('kakao에서 받아온 accessToken :::::::::::: ', kakaoToken);
 
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Content-Type', 'text/html; charset=utf-8');
+        // res.header('Access-Control-Allow-Origin', '*');
+        // res.header('Content-Type', 'text/html; charset=utf-8');
 
         return res.status(200).send({ accessToken: kakaoToken });
     };
@@ -48,6 +48,7 @@ class UserController {
             const { user } = res.locals;
 
             const userInfo = await UserService.getUserRecord(user._id);
+            console.log(userInfo);
             return res.status(200).send(userInfo);
         } catch (e) {
             console.log(e);

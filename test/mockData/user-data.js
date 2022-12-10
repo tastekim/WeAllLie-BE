@@ -119,11 +119,24 @@ const toSaveInfo = [
     },
 ];
 
+const toSendInfo = {
+    userId: 100,
+    nickname: 'Agent_100',
+    profileImg: 'default',
+    totayPlayCount: 0,
+    spyPlayCount: 0,
+    ctzPlayCount: 0,
+    spyWinRating: 0,
+    voteSpyRating: 0,
+    accessToken: '..-hsnQHlN7NzqE',
+};
+
 module.exports = {
     kakaoUserNotWithImg,
     kakaoUserWithImg,
     allUserLen0,
     allUserNotLen0,
     toSaveInfo,
+    toSendInfo,
     playRecord,
 };
