@@ -1,7 +1,14 @@
 const game = require('../socket');
 const GameProvider = require('./game-provider');
+const RoomProvider = require('../rooms/room-provider');
 
 game.on('connection', (socket) => {
+    // 게임방에 접속되어있는 유저 닉네임 리스트 전달
+    socket.on('userNickname', async (roomNum) => {
+        const userList = await RoomProvider.getCurrentMember(roomNum);
+        socket.emit('userNickname', userList);
+    });
+
     // 스파이 투표 중 스파이 유저 선택.
     socket.on('voteSpy', async (roomNum, nickname) => {
         try {
