@@ -1,6 +1,5 @@
 const socketIo = require('socket.io');
-// const { http, https } = require('./app');
-const http = require('./app');
+const { http, https } = require('./app');
 const cors = require('cors');
 const RoomProvider = require('./rooms/room-provider');
 const GameProvider = require('./game/game-provider');
