@@ -26,7 +26,7 @@ describe('getNewUser funtion TEST', () => {
         const allUser = allUserLen0;
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-        const properties = await Object.keys(result);
+        const properties = Object.keys(result);
         expect(properties).toEqual(expect.arrayContaining(expected));
     });
 

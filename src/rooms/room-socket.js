@@ -8,17 +8,21 @@ const redis = require('../redis');
 lobby.on('connection', async (socket) => {
     // 방 퇴장
     socket.on('leaveRoom', async (roomNum, nickname) => {
+        // 방의 currentCount 1 감소
         await RoomProvider.leaveRoom(roomNum);
-        //const leaveRoom = await RoomProvider.getRoom(roomNum);
+        // 방의 현재 인원 수 가져오기.
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
         socket.roomNum = null;
         if (currentCount > 0 && currentCount < 9) {
+            // 방의 유저 닉네임 명단 제거
             await RoomProvider.decMember(roomNum, nickname);
+            // 방의 유저 닉네임 명단 가져오기.
             const currentMember = await RoomProvider.getCurrentMember(roomNum);
+            // 전체 방 리스트 가져오기
             const getAllRoom = await RoomProvider.getAllRoom();
             socket.emit('leaveRoom' /*, leaveRoom*/);
             lobby.sockets.emit('showRoom', getAllRoom);
-            lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
+            lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
         } else if (currentCount <= 0) {
             console.log('방이 삭제 되었습니다.');
             await RoomProvider.deleteRoom(roomNum);
@@ -30,19 +34,23 @@ lobby.on('connection', async (socket) => {
 
     // 게임방생성
     socket.on('createRoom', async (gameMode, roomTitle, nickname) => {
-        await RoomProvider.createRoom(gameMode, roomTitle, nickname);
-        const roomNum = await RoomProvider.getRoomNum(nickname);
-        await RoomProvider.enterRoom(roomNum);
-        await RoomProvider.incMember(roomNum);
-        console.log(roomNum);
-        socket.roomNum = roomNum;
-        socket.isReady = false;
+        // 생성된 방 정보 객체
+        const roomData = await RoomProvider.createRoom(gameMode, roomTitle, nickname);
+
+        // 방의 currentCount 1 증가
+        await RoomProvider.enterRoom(roomData._id);
+
+        socket.roomNum = roomData._id;
+        socket.isReady = 0;
+        // 전체 방 리스트
         const showRoom = await RoomProvider.getAllRoom();
-        const createdRoom = await RoomProvider.getRoom(roomNum);
-        let currentMember = await RoomProvider.getCurrentMember(roomNum);
-        socket.join(`/gameRoom${roomNum}`);
+
+        // 유저 닉네임 배열 가져오기
+        const currentMember = await RoomProvider.getCurrentMember(roomData._id);
+
+        socket.emit('createRoom', roomData);
+        socket.join(`/gameRoom${roomData._id}`);
         lobby.sockets.emit('userNickname', currentMember);
-        socket.emit('createRoom', createdRoom);
         lobby.sockets.emit('showRoom', showRoom);
     });
 
