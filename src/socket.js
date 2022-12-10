@@ -63,6 +63,8 @@ io.on('connection', async (socket) => {
             console.log(`${socket.nickname} 방 퇴장`);
             const msg = `${socket.nickname} 님이 퇴장하셨습니다.`;
             if (socket.roomNum) {
+                let readyCount = await RoomProvider.readyCount(socket.roomNum);
+                const findRoom = await RoomProvider.getRoom(socket.roomNum);
                 const msgId = new Date().getTime().toString(36);
                 io.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, socket.roomNum);
                 console.log('비정상적인 퇴장 발생!');
@@ -71,27 +73,25 @@ io.on('connection', async (socket) => {
                 await RoomProvider.leaveRoom(socket.roomNum);
                 io.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
                 if (socket.isReady === 1) {
-                    const findRoom = await RoomProvider.getRoom(socket.roomNum);
                     await RoomProvider.unready(socket.roomNum);
                     await RoomProvider.decMember(socket.roomNum);
-                    let readyCount = await RoomProvider.readyCount(socket.roomNum);
-                    if (findRoom.currentCount === Number(readyCount) && findRoom.currentCount > 3) {
-                        console.log('게임 시작 ! ');
-                        // 스파이 랜덤 지정 후 게임 시작 전 emit.
-                        const spyUser = await GameProvider.selectSpy(roomNum);
-                        lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
-                        if (nickname === spyUser) {
-                            socket.isSpy = 1;
-                        }
-                        // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
-                        const gameData = await GameProvider.giveWord(roomNum);
-                        lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
-                        // 게임방 진행 활성화. 다른 유저 입장 제한.
-                        await RoomProvider.getTrue(roomNum);
-                        await redis.del(`ready${roomNum}`);
-                        await redis.del(`readyStatus${roomNum}`);
-                        await redis.del(`currentMember${roomNum}`);
+                }
+                if (findRoom.currentCount === Number(readyCount) && findRoom.currentCount > 3) {
+                    console.log('게임 시작 ! ');
+                    // 스파이 랜덤 지정 후 게임 시작 전 emit.
+                    const spyUser = await GameProvider.selectSpy(roomNum);
+                    lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
+                    if (nickname === spyUser) {
+                        socket.isSpy = 1;
                     }
+                    // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
+                    const gameData = await GameProvider.giveWord(roomNum);
+                    lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
+                    // 게임방 진행 활성화. 다른 유저 입장 제한.
+                    await RoomProvider.getTrue(roomNum);
+                    await redis.del(`ready${roomNum}`);
+                    await redis.del(`readyStatus${roomNum}`);
+                    await redis.del(`currentMember${roomNum}`);
                 }
                 if (socket.isSpy) {
                     const msg = `스파이가 퇴장하였습니다`;
