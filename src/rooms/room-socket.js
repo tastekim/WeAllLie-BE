@@ -7,19 +7,22 @@ const redis = require('../redis');
 // 로비에 연결 되었을때
 lobby.on('connection', async (socket) => {
     // 방 퇴장
-    socket.on('leaveRoom', async (roomNum) => {
+    socket.on('leaveRoom', async (roomNum, nickname) => {
+        // 방의 currentCount 1 감소
         await RoomProvider.leaveRoom(roomNum);
-        //const leaveRoom = await RoomProvider.getRoom(roomNum);
+        // 방의 현재 인원 수 가져오기.
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
         socket.roomNum = null;
-        const nickname = socket.nickname;
         if (currentCount > 0 && currentCount < 9) {
+            // 방의 유저 닉네임 명단 제거
             await RoomProvider.decMember(roomNum, nickname);
+            // 방의 유저 닉네임 명단 가져오기.
             const currentMember = await RoomProvider.getCurrentMember(roomNum);
+            // 전체 방 리스트 가져오기
             const getAllRoom = await RoomProvider.getAllRoom();
             socket.emit('leaveRoom' /*, leaveRoom*/);
             lobby.sockets.emit('showRoom', getAllRoom);
-            lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
+            lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
         } else if (currentCount <= 0) {
             console.log('방이 삭제 되었습니다.');
             await RoomProvider.deleteRoom(roomNum);
@@ -30,36 +33,39 @@ lobby.on('connection', async (socket) => {
     });
 
     // 게임방생성
-    socket.on('createRoom', async (gameMode, roomTitle) => {
-        await RoomProvider.createRoom(gameMode, roomTitle, socket.nickname);
-        const roomNum = await RoomProvider.getRoomNum(socket.nickname);
-        await RoomProvider.enterRoom(roomNum);
-        await RoomProvider.incMember(roomNum);
-        console.log(roomNum);
-        socket.roomNum = roomNum;
-        socket.isReady = false;
+    socket.on('createRoom', async (gameMode, roomTitle, nickname) => {
+        // 생성된 방 정보 객체
+        const roomData = await RoomProvider.createRoom(gameMode, roomTitle, nickname);
+
+        // 방의 currentCount 1 증가
+        await RoomProvider.enterRoom(roomData._id);
+
+        socket.roomNum = roomData._id;
+        socket.isReady = 0;
+        // 전체 방 리스트
         const showRoom = await RoomProvider.getAllRoom();
-        const createdRoom = await RoomProvider.getRoom(roomNum);
-        let currentMember = await RoomProvider.getCurrentMember(roomNum);
-        socket.join(`/gameRoom${roomNum}`);
+
+        // 유저 닉네임 배열 가져오기
+        const currentMember = await RoomProvider.getCurrentMember(roomData._id);
+
+        socket.emit('createRoom', roomData);
+        socket.join(`/gameRoom${roomData._id}`);
         lobby.sockets.emit('userNickname', currentMember);
-        socket.emit('createRoom', createdRoom);
         lobby.sockets.emit('showRoom', showRoom);
     });
 
     // 게임방입장
-    socket.on('enterRoom', async (roomNum) => {
+    socket.on('enterRoom', async (roomNum, nickname) => {
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
         const roomStatus = await RoomProvider.getRoomStatus(roomNum);
         let readyCount = await redis.get(`ready${roomNum}`);
         console.log(readyCount);
         socket.roomNum = roomNum;
         socket.isReady = 0;
-        const nickname = socket.nickname;
 
         // 방에 들어와있는 인원이 최대 인원 수 보다 적고 roomStatus 가 false 상태일 때 입장 가능.
         if (currentCount < 8 && roomStatus === false) {
-            console.log(`${socket.nickname} 님이 ${roomNum} 번 방에 입장하셨습니다`);
+            console.log(`${nickname} 님이 ${roomNum} 번 방에 입장하셨습니다`);
             await RoomProvider.enterRoom(roomNum);
             await RoomProvider.incMember(roomNum, nickname);
             const currentMember = await RoomProvider.getCurrentMember(roomNum);
@@ -74,22 +80,21 @@ lobby.on('connection', async (socket) => {
     });
 
     // 게임 준비
-    socket.on('ready', async (roomNum, isReady) => {
+    socket.on('ready', async (roomNum, isReady, nickname) => {
         const currentCount = await RoomProvider.getCurrentCount(roomNum);
         let readyCount;
-        const nickname = socket.nickname;
-        if (isReady) {
+        if (isReady === 'true') {
             // ready 버튼 활성화 시킬 때.
             socket.isReady = 1;
             await RoomProvider.ready(roomNum, nickname);
-            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, true);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, true);
             readyCount = await redis.get(`ready${roomNum}`);
             console.log(readyCount, '/', currentCount);
         } else {
             // ready 버튼 비활성화 시킬 때.
             socket.isReady = 0;
             await RoomProvider.unready(roomNum, nickname);
-            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', socket.nickname, false);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
             readyCount = await redis.get(`ready${roomNum}`);
             console.log(readyCount, '/', currentCount);
         }
@@ -106,7 +111,7 @@ lobby.on('connection', async (socket) => {
                 const spyUser = await GameProvider.selectSpy(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
 
-                if (socket.nickname === spyUser) {
+                if (nickname === spyUser) {
                     socket.isSpy = 1;
                 }
 
