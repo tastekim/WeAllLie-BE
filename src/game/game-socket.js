@@ -13,6 +13,7 @@ game.on('connection', (socket) => {
     socket.on('voteSpy', async (roomNum, nickname) => {
         try {
             socket.voteSpy = nickname;
+            await GameProvider.setVoteResult(roomNum, nickname);
             const [currCount, roomUsers] = await GameProvider.currVoteCount(roomNum);
             if (currCount === roomUsers) {
                 const result = await GameProvider.getVoteResult(roomNum);
@@ -20,6 +21,7 @@ game.on('connection', (socket) => {
                 game.sockets.in(`/gameRoom${roomNum}`).emit('spyWin', result);
             }
         } catch (err) {
+            console.log(err);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
