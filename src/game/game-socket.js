@@ -64,7 +64,7 @@ game.on('connection', (socket) => {
         try {
             const result = await GameProvider.getGuessResult(roomNum, word, nickname);
             console.log(word, result);
-            socket.emit('endGame', result);
+            game.sockets.in(`/gameRoom${roomNum}`).emit('endGame', result);
         } catch (err) {
             console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
