@@ -13,13 +13,15 @@ game.on('connection', (socket) => {
     socket.on('voteSpy', async (roomNum, nickname) => {
         try {
             socket.voteSpy = nickname;
+            await GameProvider.setVoteResult(roomNum, nickname);
             const [currCount, roomUsers] = await GameProvider.currVoteCount(roomNum);
-            if (currCount === roomUsers) {
+            if (Number(currCount) === Number(roomUsers)) {
                 const result = await GameProvider.getVoteResult(roomNum);
                 console.log(result);
                 game.sockets.in(`/gameRoom${roomNum}`).emit('spyWin', result);
             }
         } catch (err) {
+            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
@@ -41,6 +43,7 @@ game.on('connection', (socket) => {
             // redis에 각 방의 투표 내용 socket별로 저장.
             // await GameProvider.setVoteResult(roomNum, socket.voteSpy);
         } catch (err) {
+            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
@@ -61,8 +64,9 @@ game.on('connection', (socket) => {
         try {
             const result = await GameProvider.getGuessResult(roomNum, word, nickname);
             console.log(word, result);
-            socket.emit('endGame', result);
+            game.sockets.in(`/gameRoom${roomNum}`).emit('endGame', result);
         } catch (err) {
+            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
@@ -74,6 +78,7 @@ game.on('connection', (socket) => {
             const currGameUsers = await GameProvider.getGameRoomUsers(roomNum);
             socket.in(`/gameRoom${roomNum}`).emit('setNowVote', currGameUsers);
         } catch (err) {
+            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
@@ -90,6 +95,7 @@ game.on('connection', (socket) => {
                 currGameRoomUsers: max,
             });
         } catch (err) {
+            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
@@ -112,6 +118,7 @@ game.on('connection', (socket) => {
             socket.gameData = gameData;
             socket.emit('giveWord', gameData);
         } catch (err) {
+            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });
