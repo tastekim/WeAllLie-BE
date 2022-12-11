@@ -167,4 +167,24 @@ describe('updateNick', () => {
         expect(res._isEndCalled()).toBeTruthy();
         expect(res._getData()).toStrictEqual({ errorMessage: '닉네임 중복' });
     });
+
+    it('닉네임을 입력하지 않았다면 status code 400, errorMessage: "변경할 닉네임을 입력해주세요" 으로 응답한다.', async () => {
+        req.body.nickname = '';
+        await UserController.updateNick(req, res);
+
+        expect(res.statusCode).toBe(400);
+        expect(res._isEndCalled()).toBeTruthy();
+        expect(res._getData()).toStrictEqual({ errorMessage: '변경할 닉네임을 입력해주세요' });
+    });
+
+    it('닉네임에 공백이 있다면 status code 400, errorMessage: "닉네임에 공백이 포함될 수 없습니다." 으로 응답한다.', async () => {
+        req.body.nickname = '공 백 있 음';
+        await UserController.updateNick(req, res);
+
+        expect(res.statusCode).toBe(400);
+        expect(res._isEndCalled()).toBeTruthy();
+        expect(res._getData()).toStrictEqual({
+            errorMessage: '닉네임에 공백이 포함될 수 없습니다.',
+        });
+    });
 });
