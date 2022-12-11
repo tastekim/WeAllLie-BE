@@ -27,8 +27,9 @@ class UserController {
         try {
             const { authorization } = req.headers;
             const [authType, kakaoToken] = (authorization || '').split(' ');
+
             if (!authType || authType !== 'Bearer')
-                throw new UserError('authrization 헤더 타입 인증 실패', 400);
+                throw new UserError('authorization 헤더 타입 인증 실패', 400);
             if (!kakaoToken) throw new UserError('카카오 토큰이 헤더에 없습니다.', 400);
             console.log('kakaoToken:::::: ', kakaoToken);
             ///

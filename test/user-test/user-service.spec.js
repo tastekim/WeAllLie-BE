@@ -65,8 +65,6 @@ describe('getUserRecord', () => {
 
     it('updateNick 함수가 호출되었을 때, 내부에서 UserRepo.findOneById 함수가 1회 호출되고, 전달된 argument는 1개이다.', async () => {
         await UserService.getUserRecord(allUserNotLen0[4]._id);
-        console.log('mockFindOne calls :: ', mockFindOne.mock.calls[0]);
-        console.log('mockFindOne results :: ', mockFindOne.mock.results);
 
         expect(mockFindOne).toBeCalledTimes(1);
         expect(mockFindOne.mock.calls[0].length).toBe(1);
@@ -94,38 +92,33 @@ describe('updateNick', () => {
 
     it('updateNick 함수가 호출되었을 때, 내부에서 UserRepo.findOneByNickname 함수가 1회 호출된다.', () => {
         UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
-        console.log('mockFindOneByNickname calls :: ', mockFindOneByNickname.mock.calls[0]);
-        console.log('mockFindOneByNickname results :: ', mockFindOneByNickname.mock.results);
-
         expect(mockFindOneByNickname).toBeCalledTimes(1);
     });
 
-    it('updateNick 함수가 호출되었을 때, UserRepo.findOneByNickname 함수에 전달된 argument는 1개이고, 그 값은 updateNick의 두 번째 argument이다.', () => {
+    it('UserRepo.findOneByNickname 함수에 전달된 argument는 1개이다.', () => {
         UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
         expect(mockFindOneByNickname.mock.calls[0].length).toBe(1);
     });
 
-    it('updateNick 함수가 호출되었을 때, UserRepo.findOneByNickname 함수에 전달된 argument 값은 updateNick의 두 번째 argument이다.', () => {
+    it('UserRepo.findOneByNickname 함수에 전달된 argument 값은 updateNick의 두 번째 argument이다.', () => {
         UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
         expect(mockFindOneByNickname).toBeCalledWith(allUserNotLen0[1].nickname);
     });
 
-    it('updateNick 함수가 호출되었을 때, DB에 argument 로 전달된 닉네임과 동일한 닉네임이 있을 경우 UserError 가 발생한다.', async () => {
-        // message : '닉네임 중복', statusCode : 400 >> 발생한 에러가 정확히 일치하지 않으면 테스트 통과하지 못함.
+    it('동일한 닉네임이 있을 경우 UserError("닉네임 중복", 400) 가 발생한다.', async () => {
         await expect(async () => {
             UserRepo.findOneByNickname.mockResolvedValue('not null');
             await UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
         }).rejects.toThrowError(new UserError('닉네임 중복', 400));
     });
 
-    it('updateNick 함수가 호출되었을 때, DB에 argument 로 전달된 닉네임과 동일한 닉네임이 없다면 UserRepo.updateNick 함수가 1회 호출된다.', async () => {
+    it('동일한 닉네임이 없다면 UserRepo.updateNick 함수가 1회 호출된다.', async () => {
+        // 에러가 발생하지 않았다는 조건 추가 필요
         await UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
-        console.log('mockRepoUpdateNick calls :: ', mockRepoUpdateNick.mock.calls[0]);
-        console.log('mockRepoUpdateNick results :: ', mockRepoUpdateNick.mock.results);
         expect(mockRepoUpdateNick).toBeCalledTimes(1);
     });
 
-    it('updateNick 함수 내에서 UserRepo.updateNick 함수가 호출되었을 때, 전달된 argument는 2개이고, 그 값은 UserService.updateNick에 전달된 argument와 동일하다.', async () => {
+    it('UserRepo.updateNick 함수가 호출되었을 때, 전달된 argument는 2개이고, 그 값은 UserService.updateNick에 전달된 argument와 동일하다.', async () => {
         await UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
         const expectedArg = [allUserNotLen0[1]._id, allUserNotLen0[1].nickname];
         expect(mockRepoUpdateNick.mock.calls[0].length).toBe(2);
@@ -148,7 +141,7 @@ describe('getExUserInfo', () => {
         expect(typeof UserService.getExUserInfo).toBe('function');
     });
 
-    it('getExUserInfo 함수가 리턴하는 객체는 accessToken, userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
+    it('getExUserInfo 함수가 리턴하는 객체는 userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
         const expected = [
             'userId',
             'nickname',
@@ -170,7 +163,7 @@ describe('getExUserInfo', () => {
         expect(mockCreateAccessToken).toBeCalledTimes(1);
     });
 
-    it('getExUserInfo 함수가 호출될 때, jwtService.createAccessToken 함수에 전달된 argment는 1개이고, 그 값은 getExUserInfo함수 argument의 "_id" 프로퍼티 값이다.', async () => {
+    it('jwtService.createAccessToken 함수에 전달된 argment는 1개이고, 그 값은 getExUserInfo함수 argument의 "_id" 프로퍼티 값이다.', async () => {
         await UserService.getExUserInfo(allUserNotLen0[1]);
         const expectedArg = allUserNotLen0[1]._id;
         expect(mockCreateAccessToken.mock.calls[0].length).toBe(1);
@@ -182,7 +175,7 @@ describe('getExUserInfo', () => {
         expect(mockGetPlayRecord).toBeCalledTimes(1);
     });
 
-    it('getExUserInfo 함수가 호출될 때, UserFunction.getPlayRecord 함수에 전달된 argment는 1개이고, 그 값은 getExUserInfo 함수의 argument 값이다.', async () => {
+    it('UserFunction.getPlayRecord 함수에 전달된 argment는 1개이고, 그 값은 getExUserInfo 함수의 argument 값이다.', async () => {
         await UserService.getExUserInfo(allUserNotLen0[1]);
         const expectedArg = allUserNotLen0[1];
         expect(mockGetPlayRecord.mock.calls[0].length).toBe(1);
@@ -211,7 +204,7 @@ describe('createUserToken', () => {
         expect(typeof UserService.createUserToken).toBe('function');
     });
 
-    it('createUserToken 함수가 리턴하는 객체는 accessToken, userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
+    it('createUserToken 함수가 리턴하는 객체는 userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
         const expected = [
             'userId',
             'nickname',
@@ -242,7 +235,7 @@ describe('createUserToken', () => {
         expect(mockGetNewUser.mock.calls[0].length).toBe(2);
     });
 
-    it('createUserToken 함수가 호출될 때, UserFunction.getNewUser 함수에 전달된 argument 첫 번째는 createUserToken의 argument, 두 번쨰는 UserRepo.findAllUser() 의 결과값이다.', async () => {
+    it('UserFunction.getNewUser 함수에 전달된 argument 첫 번째는 createUserToken의 argument, 두 번쨰는 UserRepo.findAllUser() 의 결과값이다.', async () => {
         await UserService.createUserToken(kakaoUserWithImg);
         const expectedArg1 = kakaoUserWithImg;
         const expectedArg2 = await UserRepo.findAllUser();
@@ -258,7 +251,7 @@ describe('createUserToken', () => {
         expect(mockCreateUser.mock.calls[0].length).toBe(1);
     });
 
-    it('createUserToken 함수가 호출될 때, UserRepo.createUser 함수가 호출되며, 이 때 전달된 argment 값은 UserFunction.getNewUser 함수의 리턴값이다..', async () => {
+    it('UserRepo.createUser 함수에 전달된 argment 값은 UserFunction.getNewUser 함수의 리턴값이다..', async () => {
         await UserService.createUserToken(kakaoUserWithImg);
         const argument1 = await UserRepo.findAllUser();
         const argument2 = await UserFunction.getNewUser(kakaoUserWithImg, argument1);

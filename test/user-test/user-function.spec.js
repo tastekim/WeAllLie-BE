@@ -147,7 +147,7 @@ describe('getPlayRecord funtion TEST', () => {
         expect(result.spyWinRating < 100).toBeTruthy();
     });
 
-    it('유저 전적을 통해 가공한 결과인 voteSpyRating 값이 0이 아닐 경우, spyWinRating 은 0~100 사이의 정수값을 가진다.', async () => {
+    it('유저 전적을 통해 가공한 결과인 voteSpyRating 값이 0이 아닐 경우, voteSpyRating 은 0~100 사이의 정수값을 가진다.', async () => {
         const user = allUserNotLen0[3];
         const result = await UserFunction.getPlayRecord(user);
         expect(result.voteSpyRating % 1 === 0).toBeTruthy();
