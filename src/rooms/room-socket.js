@@ -22,6 +22,8 @@ lobby.on('connection', async (socket) => {
                 // 전체 방 리스트 가져오기
                 const getAllRoom = await RoomProvider.getAllRoom();
                 socket.emit('leaveRoom' /*, leaveRoom*/);
+                lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
+                await redis.set(`ready${roomNum}`, 0);
                 lobby.sockets.emit('showRoom', getAllRoom);
                 lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
             } else if (currentCount <= 0) {
@@ -77,9 +79,11 @@ lobby.on('connection', async (socket) => {
                 console.log(`${nickname} 님이 ${roomNum} 번 방에 입장하셨습니다`);
                 await RoomProvider.enterRoom(roomNum);
                 await RoomProvider.incMember(roomNum, nickname);
+                await socket.join(`/gameRoom${roomNum}`);
                 const currentMember = await RoomProvider.getCurrentMember(roomNum);
                 const currentRoom = await RoomProvider.getRoom(roomNum);
-                await socket.join(`/gameRoom${roomNum}`);
+                lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
+                await redis.set(`ready${roomNum}`, 0);
                 socket.emit('enterRoom', currentRoom);
                 lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
             } else if (currentCount >= 8) {
