@@ -132,10 +132,6 @@ const toSendInfo = {
 };
 
 const queryData1 = { code: '이건인가코드' };
-const sendData1 = { accessToken: '이건 카카오 토큰' };
-const reqHeaderData1 = {
-    authorization: 'Bearer 카카오토큰',
-};
 
 module.exports = {
     kakaoUserNotWithImg,
@@ -145,7 +141,5 @@ module.exports = {
     toSaveInfo,
     toSendInfo,
     playRecord,
-    sendData1,
     queryData1,
-    reqHeaderData1,
 };

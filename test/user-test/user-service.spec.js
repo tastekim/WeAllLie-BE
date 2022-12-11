@@ -113,7 +113,6 @@ describe('updateNick', () => {
     });
 
     it('동일한 닉네임이 없다면 UserRepo.updateNick 함수가 1회 호출된다.', async () => {
-        // 에러가 발생하지 않았다는 조건 추가 필요
         await UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
         expect(mockRepoUpdateNick).toBeCalledTimes(1);
     });

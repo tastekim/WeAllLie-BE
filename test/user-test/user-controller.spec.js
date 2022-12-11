@@ -4,13 +4,7 @@ const UserService = require('../../src/users/user-service');
 const UserFunction = require('../../src/users/util/user-function');
 const jwtService = require('../../src/users/util/jwt');
 const { UserError } = require('../../src/middlewares/exception');
-const {
-    sendData1,
-    queryData1,
-    toSendInfo,
-    reqHeaderData1,
-    allUserNotLen0,
-} = require('../mockData/user-data');
+const { toSendInfo, allUserNotLen0 } = require('../mockData/user-data');
 
 // 인가코드로 카카오 토큰 받아오기
 describe('getKakaoToken', () => {
@@ -19,7 +13,7 @@ describe('getKakaoToken', () => {
         jest.resetAllMocks();
         req = httpMocks.createRequest();
         res = httpMocks.createResponse();
-        req.query = queryData1;
+        req.query.code = '이건 인가코드';
         mockGetkakaoToken = jest.fn();
         UserService.getKakaoToken = mockGetkakaoToken;
         UserService.getKakaoToken.mockResolvedValue('이건 카카오 토큰');
@@ -36,7 +30,7 @@ describe('getKakaoToken', () => {
 
     it('UserService.getKakaoToken 함수에 전달되는 argument는 req.query.code 값이다.', async () => {
         await UserController.getKakaoToken(req, res);
-        expect(mockGetkakaoToken).toBeCalledWith(queryData1.code);
+        expect(mockGetkakaoToken).toBeCalledWith('이건 인가코드');
     });
 
     it('getKakaoToken 함수가 호출되었을 때, 정상 실행되었다면 status code는 200, 보내는 데이터는 받은 카카오토큰을 응답으로 전달한다.', async () => {
@@ -44,7 +38,7 @@ describe('getKakaoToken', () => {
 
         expect(res.statusCode).toBe(200);
         expect(res._isEndCalled()).toBeTruthy();
-        expect(res._getData()).toStrictEqual(sendData1);
+        expect(res._getData()).toStrictEqual({ accessToken: '이건 카카오 토큰' });
     });
 });
 
@@ -82,7 +76,7 @@ describe('getLoginInfo', () => {
 
     it('이미 회원가입한 유저가 로그인에 성공하면 status code를 200으로 응답하고, 유저 정보를 전달한다.', async () => {
         UserService.getLoginInfo.mockResolvedValue([toSendInfo, 200]);
-        req.headers = reqHeaderData1;
+        req.headers = { authorization: 'Bearer 카카오토큰' };
         await UserController.getLoginInfo(req, res);
 
         expect(res.statusCode).toBe(200);
@@ -92,7 +86,7 @@ describe('getLoginInfo', () => {
 
     it('신규 유저가 로그인에 성공하면 status code를 201으로 응답하고, 유저 정보를 전달한다.', async () => {
         UserService.getLoginInfo.mockResolvedValue([toSendInfo, 201]);
-        req.headers = reqHeaderData1;
+        req.headers = { authorization: 'Bearer 카카오토큰' };
         await UserController.getLoginInfo(req, res);
 
         expect(res.statusCode).toBe(201);
@@ -124,7 +118,7 @@ describe('getUserRecord', () => {
 
     it('UserService.getUserRecord 함수가 호출될 때 전달되는 argument는 res.locals.user._id 값이다.', async () => {
         await UserController.getUserRecord(req, res);
-        expect(mockGetUserRecord).toBeCalledWith(res.locals.user._id);
+        expect(mockGetUserRecord).toBeCalledWith(allUserNotLen0[0]._id);
     });
 
     it('유저 정보가 정상적으로 조회되면 status code 200으로 응답하고, 조회된 유저 정보를 전달한다.', async () => {
@@ -159,7 +153,7 @@ describe('updateNick', () => {
 
     it('UserService.updateNick 함수가 호출될 때 전달되는 argument는 res.locals.user._id와 req.body로 전달받은 nickname 이다.', async () => {
         await UserController.updateNick(req, res);
-        expect(mockUpdateNick).toBeCalledWith(res.locals.user._id, req.body.nickname);
+        expect(mockUpdateNick).toBeCalledWith(allUserNotLen0[0]._id, '수정요청닉네임');
     });
 
     it('중복된 닉네임일 경우 status code 400, errorMessage: "닉네임 중복" 으로 응답한다.', async () => {
