@@ -43,7 +43,7 @@ describe('UserRepo의 함수가 실행될 때 DB 요청이 함수들이 실행�
     it('createUser 함수가 호출되었을 때, 내부에서 User.create 함수가 1회 호출되고, argument로 createUser의 argument가 전달된다.', async () => {
         await UserRepo.createUser(toSaveInfo[0]);
         expect(mockCreate).toBeCalledTimes(1);
-        expect(mockCreate.mock.calls[0].length).toBe(1);
+        expect(mockCreate.mock.calls[0]).toHaveLength(1);
         expect(mockCreate).toBeCalledWith(toSaveInfo[0]);
     });
 
@@ -57,7 +57,7 @@ describe('UserRepo의 함수가 실행될 때 DB 요청이 함수들이 실행�
         await UserRepo.findOneByEmail(toSaveInfo[0].email);
 
         expect(mockFindOne).toBeCalledTimes(1);
-        expect(mockFindOne.mock.calls[0].length).toBe(1);
+        expect(mockFindOne.mock.calls[0]).toHaveLength(1);
         expect(mockFindOne).toBeCalledWith(expectedArg);
     });
 
@@ -66,7 +66,7 @@ describe('UserRepo의 함수가 실행될 때 DB 요청이 함수들이 실행�
         await UserRepo.findOneByNickname(toSaveInfo[0].nickname);
 
         expect(mockFindOne).toBeCalledTimes(1);
-        expect(mockFindOne.mock.calls[0].length).toBe(1);
+        expect(mockFindOne.mock.calls[0]).toHaveLength(1);
         expect(mockFindOne).toBeCalledWith(expectedArg);
     });
 
@@ -74,7 +74,7 @@ describe('UserRepo의 함수가 실행될 때 DB 요청이 함수들이 실행�
         await UserRepo.findOneById(toSaveInfo[0]._id);
 
         expect(mockFindId).toBeCalledTimes(1);
-        expect(mockFindId.mock.calls[0].length).toBe(1);
+        expect(mockFindId.mock.calls[0]).toHaveLength(1);
         expect(mockFindId).toBeCalledWith(toSaveInfo[0]._id);
     });
 
@@ -83,7 +83,7 @@ describe('UserRepo의 함수가 실행될 때 DB 요청이 함수들이 실행�
         await UserRepo.updateNick(toSaveInfo[0]._id, toSaveInfo[0].nickname);
 
         expect(mockUpdateNick).toBeCalledTimes(1);
-        expect(mockUpdateNick.mock.calls[0].length).toBe(2);
+        expect(mockUpdateNick.mock.calls[0]).toHaveLength(2);
         expect(mockUpdateNick).toBeCalledWith(...expectedArg);
     });
 });

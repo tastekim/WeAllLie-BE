@@ -1,3 +1,9 @@
+const kakaoTokenData = {
+    data: {
+        access_token: '카카오에서 받은 access_token',
+    },
+};
+
 const playRecord = {
     userId: 12,
     nickname: 'Agent_프리티강',
@@ -142,4 +148,5 @@ module.exports = {
     toSendInfo,
     playRecord,
     queryData1,
+    kakaoTokenData,
 };

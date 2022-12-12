@@ -1,14 +1,16 @@
+const axios = require('axios');
 const UserService = require('../../src/users/user-service');
 const UserRepo = require('../../src/users/user-repo');
 const UserFunction = require('../../src/users/util/user-function');
 const jwtService = require('../../src/users/util/jwt');
 const { UserError } = require('../../src/middlewares/exception');
 const {
+    kakaoTokenData,
     kakaoUserWithImg,
     allUserNotLen0,
     toSaveInfo,
-    playRecord,
     toSendInfo,
+    playRecord,
 } = require('../mockData/user-data');
 
 beforeEach(() => {
@@ -17,11 +19,21 @@ beforeEach(() => {
 
 // 인가코드로 카카오 토큰 받아오기
 describe('getKakaoToken', () => {
+    let mockAxios;
+    beforeEach(() => {
+        mockAxios = jest.fn();
+        // axios = mockAxios;
+        mockAxios.mockReturnValue(kakaoTokenData);
+    });
+
     it('UserService 에  getKaKaoToken function 이 존재한다', () => {
         expect(typeof UserService.getKakaoToken).toBe('function');
     });
 
     // Axios...?
+    // it('getKakaoToken 함수는 인가코드를 보내고 받아온 카카오토큰을 리턴한다.', async () => {
+    //     expect(await UserService.getKakaoToken('인가코드')).toBe('카카오에서 받은 access_token');
+    // });
 });
 
 // 로그인 시 프론트로 전달할 정보
@@ -48,32 +60,23 @@ describe('getUserRecord', () => {
     });
 
     it('getUserRecord 함수가 리턴하는 객체는 userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
-        const expected = [
-            'userId',
-            'nickname',
-            'profileImg',
-            'totalPlayCount',
-            'spyPlayCount',
-            'ctzPlayCount',
-            'spyWinRating',
-            'voteSpyRating',
-        ];
-
+        const expected = Object.keys(toSendInfo);
         const result = await UserService.getUserRecord(allUserNotLen0[4]._id);
-        expect(result.hasOwnProperty(...expected)).toBeTruthy();
+
+        expect(result).toHaveProperty(...expected);
     });
 
     it('updateNick 함수가 호출되었을 때, 내부에서 UserRepo.findOneById 함수가 1회 호출되고, 전달된 argument는 1개이다.', async () => {
         await UserService.getUserRecord(allUserNotLen0[4]._id);
 
         expect(mockFindOne).toBeCalledTimes(1);
-        expect(mockFindOne.mock.calls[0].length).toBe(1);
+        expect(mockFindOne.mock.calls[0]).toHaveLength(1);
     });
 
     it('getExUserInfo 함수가 호출될 때, UserFunction.getPlayRecord 함수가 1번 호출되고, 전달된 argument는 1개이다..', async () => {
         await UserService.getExUserInfo(allUserNotLen0[1]);
         expect(mockGetPlayRecord).toBeCalledTimes(1);
-        expect(mockGetPlayRecord.mock.calls[0].length).toBe(1);
+        expect(mockGetPlayRecord.mock.calls[0]).toHaveLength(1);
     });
 });
 
@@ -97,7 +100,7 @@ describe('updateNick', () => {
 
     it('UserRepo.findOneByNickname 함수에 전달된 argument는 1개이다.', () => {
         UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
-        expect(mockFindOneByNickname.mock.calls[0].length).toBe(1);
+        expect(mockFindOneByNickname.mock.calls[0]).toHaveLength(1);
     });
 
     it('UserRepo.findOneByNickname 함수에 전달된 argument 값은 updateNick의 두 번째 argument이다.', () => {
@@ -120,7 +123,7 @@ describe('updateNick', () => {
     it('UserRepo.updateNick 함수가 호출되었을 때, 전달된 argument는 2개이고, 그 값은 UserService.updateNick에 전달된 argument와 동일하다.', async () => {
         await UserService.updateNick(allUserNotLen0[1]._id, allUserNotLen0[1].nickname);
         const expectedArg = [allUserNotLen0[1]._id, allUserNotLen0[1].nickname];
-        expect(mockRepoUpdateNick.mock.calls[0].length).toBe(2);
+        expect(mockRepoUpdateNick.mock.calls[0]).toHaveLength(2);
         expect(mockRepoUpdateNick).toBeCalledWith(...expectedArg);
     });
 });
@@ -141,20 +144,10 @@ describe('getExUserInfo', () => {
     });
 
     it('getExUserInfo 함수가 리턴하는 객체는 userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
-        const expected = [
-            'userId',
-            'nickname',
-            'profileImg',
-            'totalPlayCount',
-            'spyPlayCount',
-            'ctzPlayCount',
-            'spyWinRating',
-            'voteSpyRating',
-            'accessToken',
-        ];
-
+        const expected = Object.keys(toSendInfo);
         const result = await UserService.getExUserInfo(allUserNotLen0[1]);
-        expect(result.hasOwnProperty(...expected)).toBeTruthy();
+
+        expect(result).toHaveProperty(...expected);
     });
 
     it('getExUserInfo 함수가 호출될 때, jwtService.createAccessToken 함수가 1번 호출된다.', async () => {
@@ -165,7 +158,7 @@ describe('getExUserInfo', () => {
     it('jwtService.createAccessToken 함수에 전달된 argment는 1개이고, 그 값은 getExUserInfo함수 argument의 "_id" 프로퍼티 값이다.', async () => {
         await UserService.getExUserInfo(allUserNotLen0[1]);
         const expectedArg = allUserNotLen0[1]._id;
-        expect(mockCreateAccessToken.mock.calls[0].length).toBe(1);
+        expect(mockCreateAccessToken.mock.calls[0]).toHaveLength(1);
         expect(mockCreateAccessToken).toBeCalledWith(expectedArg);
     });
 
@@ -177,7 +170,7 @@ describe('getExUserInfo', () => {
     it('UserFunction.getPlayRecord 함수에 전달된 argment는 1개이고, 그 값은 getExUserInfo 함수의 argument 값이다.', async () => {
         await UserService.getExUserInfo(allUserNotLen0[1]);
         const expectedArg = allUserNotLen0[1];
-        expect(mockGetPlayRecord.mock.calls[0].length).toBe(1);
+        expect(mockGetPlayRecord.mock.calls[0]).toHaveLength(1);
         expect(mockGetPlayRecord).toBeCalledWith(expectedArg);
     });
 });
@@ -204,34 +197,24 @@ describe('createUserToken', () => {
     });
 
     it('createUserToken 함수가 리턴하는 객체는 userId, nickname, profileImg, totalPlayCount, spyPlayCount, ctzPlayCount, spyWinRating, voteSpyRating, accessToken 프로퍼티를 가지고 있다.', async () => {
-        const expected = [
-            'userId',
-            'nickname',
-            'profileImg',
-            'totalPlayCount',
-            'spyPlayCount',
-            'ctzPlayCount',
-            'spyWinRating',
-            'voteSpyRating',
-            'accessToken',
-        ];
+        const expected = Object.keys(toSendInfo);
 
         const result = await UserService.createUserToken('kakaoUserInfo');
-        expect(result.hasOwnProperty(...expected)).toBeTruthy();
+        expect(result).toHaveProperty(...expected);
     });
 
     it('createUserToken 함수가 호출될 때, UserRepo.findAllUser 함수가 1번 호출되며, 이 때 전달된 argument는 없다.', async () => {
         await UserService.createUserToken(kakaoUserWithImg);
 
         expect(mockFindAllUser).toBeCalledTimes(1);
-        expect(mockFindAllUser.mock.calls[0].length).toBe(0);
+        expect(mockFindAllUser.mock.calls[0]).toHaveLength(0);
     });
 
     it('createUserToken 함수가 호출될 때, UserFunction.getNewUser 함수가 1번 호출되며, 이 때 전달된 argment는 2개이다.', async () => {
         await UserService.createUserToken(kakaoUserWithImg);
 
         expect(mockGetNewUser).toBeCalledTimes(1);
-        expect(mockGetNewUser.mock.calls[0].length).toBe(2);
+        expect(mockGetNewUser.mock.calls[0]).toHaveLength(2);
     });
 
     it('UserFunction.getNewUser 함수에 전달된 argument 첫 번째는 createUserToken의 argument, 두 번쨰는 UserRepo.findAllUser() 의 결과값이다.', async () => {
@@ -247,7 +230,7 @@ describe('createUserToken', () => {
         await UserService.createUserToken(kakaoUserWithImg);
 
         expect(mockCreateUser).toBeCalledTimes(1);
-        expect(mockCreateUser.mock.calls[0].length).toBe(1);
+        expect(mockCreateUser.mock.calls[0]).toHaveLength(1);
     });
 
     it('UserRepo.createUser 함수에 전달된 argment 값은 UserFunction.getNewUser 함수의 리턴값이다..', async () => {
@@ -262,13 +245,13 @@ describe('createUserToken', () => {
         await UserService.createUserToken(kakaoUserWithImg);
 
         expect(mockCreateAccessToken).toBeCalledTimes(1);
-        expect(mockCreateAccessToken.mock.calls[0].length).toBe(1);
+        expect(mockCreateAccessToken.mock.calls[0]).toHaveLength(1);
     });
 
     it('createUserToken 함수가 호출될 때, UserFunction.getPlayRecord 함수가 1번 호출되며, 이 때 전달된 argment는 1개이다.', async () => {
         await UserService.createUserToken(kakaoUserWithImg);
 
         expect(mockGetPlayRecord).toBeCalledTimes(1);
-        expect(mockGetPlayRecord.mock.calls[0].length).toBe(1);
+        expect(mockGetPlayRecord.mock.calls[0]).toHaveLength(1);
     });
 });
