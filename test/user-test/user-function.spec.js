@@ -4,6 +4,7 @@ const {
     kakaoUserWithImg,
     allUserLen0,
     allUserNotLen0,
+    playRecord,
 } = require('../mockData/user-data');
 
 // mockData
@@ -26,7 +27,7 @@ describe('getNewUser funtion TEST', () => {
         const allUser = allUserLen0;
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-        expect(result.hasOwnProperty(...expected)).toBeTruthy();
+        expect(result).toHaveProperty(...expected);
     });
 
     it('인자로 전달받은 allUser 배열의 길이가 0이라면 리턴하는 객체의 _id 프로퍼티 값은 1이다.', async () => {
@@ -112,23 +113,16 @@ describe('getPlayRecord funtion TEST', () => {
         const user = allUserNotLen0[0];
         const result = await UserFunction.getPlayRecord(user);
         const propertyCount = Object.keys(result).length;
+
         expect(propertyCount).toBe(8);
     });
 
     it('UserFunction.getPlayRecord 이 리턴하는 객체의 프로퍼티 이름은 "userId", "nickname", "profileImg", "totalPlayCount", "spyPlayCount", "ctzPlayCount", "spyWinRating", "voteSpyRating" 이다.', async () => {
-        const expected = [
-            'userId',
-            'nickname',
-            'profileImg',
-            'totalPlayCount',
-            'spyPlayCount',
-            'ctzPlayCount',
-            'spyWinRating',
-            'voteSpyRating',
-        ];
+        const expected = Object.keys(playRecord);
         const user = allUserNotLen0[0];
         const result = await UserFunction.getPlayRecord(user);
-        expect(result.hasOwnProperty(...expected)).toBeTruthy();
+
+        expect(result).toHaveProperty(...expected);
     });
 
     it('유저 전적 totalCount === 0 이면 UserFunction.getPlayRecord 리턴하는 객체의 spyWinRating, voteSpyRating 프로퍼티 값이 모두 0이다.', async () => {
