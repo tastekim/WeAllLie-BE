@@ -1,8 +1,6 @@
 const httpMocks = require('node-mocks-http');
 const UserController = require('../../src/users/user-controller');
 const UserService = require('../../src/users/user-service');
-const UserFunction = require('../../src/users/util/user-function');
-const jwtService = require('../../src/users/util/jwt');
 const { UserError } = require('../../src/middlewares/exception');
 const { toSendInfo, allUserNotLen0 } = require('../mockData/user-data');
 
@@ -127,6 +125,19 @@ describe('getUserRecord', () => {
         expect(res.statusCode).toBe(200);
         expect(res._isEndCalled()).toBeTruthy();
         expect(res._getData()).toStrictEqual(toSendInfo);
+    });
+
+    it('에러가 발생했을 경우 status code 500, errorMessage: "시스템에러메세지" 으로 응답한다.', async () => {
+        // 커스텀 에러 객체 예외처리한 부분이 없으므로 에러가 발생했다면 시스템 에러가 발생했을 것.
+        mockGetUserRecord.mockImplementation(() => {
+            throw new Error('시스템에러메세지');
+        });
+
+        await UserController.getUserRecord(req, res);
+
+        expect(res.statusCode).toBe(500);
+        expect(res._isEndCalled()).toBeTruthy();
+        expect(res._getData()).toStrictEqual({ errorMessage: '시스템에러메세지' });
     });
 });
 
