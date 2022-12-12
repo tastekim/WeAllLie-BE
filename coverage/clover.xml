@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1670821859106" clover="3.2.0">
-  <project timestamp="1670821859106" name="All files">
+<coverage generated="1670821995703" clover="3.2.0">
+  <project timestamp="1670821995703" name="All files">
     <metrics statements="200" coveredstatements="174" conditionals="34" coveredconditionals="29" methods="29" coveredmethods="24" elements="263" coveredelements="227" complexity="0" loc="200" ncloc="200" packages="5" files="8" classes="8"/>
     <package name="src.middlewares">
       <metrics statements="10" coveredstatements="4" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="1"/>
@@ -41,18 +41,18 @@
         <line num="10" count="3" type="stmt"/>
         <line num="15" count="3" type="stmt"/>
         <line num="24" count="1" type="stmt"/>
-        <line num="25" count="4" type="stmt"/>
-        <line num="27" count="4" type="stmt"/>
-        <line num="28" count="4" type="stmt"/>
-        <line num="29" count="4" type="cond" truecount="1" falsecount="1"/>
-        <line num="31" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="5" type="stmt"/>
+        <line num="27" count="5" type="stmt"/>
+        <line num="28" count="5" type="stmt"/>
+        <line num="29" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="31" count="5" type="cond" truecount="2" falsecount="0"/>
         <line num="32" count="1" type="stmt"/>
-        <line num="33" count="3" type="cond" truecount="2" falsecount="0"/>
-        <line num="34" count="2" type="stmt"/>
-        <line num="36" count="2" type="stmt"/>
+        <line num="33" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="36" count="3" type="stmt"/>
         <line num="37" count="2" type="stmt"/>
-        <line num="40" count="2" type="stmt"/>
-        <line num="41" count="2" type="stmt"/>
+        <line num="40" count="3" type="stmt"/>
+        <line num="41" count="3" type="stmt"/>
         <line num="46" count="1" type="stmt"/>
         <line num="47" count="4" type="stmt"/>
         <line num="48" count="4" type="stmt"/>
