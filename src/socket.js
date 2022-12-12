@@ -74,7 +74,7 @@ io.on('connection', async (socket) => {
                 await RoomProvider.leaveRoom(roomNum);
                 await RoomProvider.decMember(roomNum, nickname);
                 let currentMember = await RoomProvider.getCurrentMember(roomNum);
-                io.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
+                io.to(`/gameRoom${roomNum}`).emit('ready', nickname, false);
                 io.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
                 await redis.set(`ready${roomNum}`, 0);
             }
