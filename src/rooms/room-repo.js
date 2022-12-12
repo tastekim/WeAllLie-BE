@@ -75,12 +75,6 @@ class RoomRepo {
     };
     // 방 상태 ture 전환
     getTrue = async (roomNum) => {
-        if (!isNaN(roomNum)) {
-            throw new SetError('유효하지 않은 방 번호 입니다.', 400);
-        }
-        if (!roomNum) {
-            throw new SetError('존재하지 않는 방 입니다.', 400);
-        }
         await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });
     };
 }
