@@ -76,7 +76,6 @@ class RoomProvider {
             throw new SetError('존재하지 않는 방 입니다.', 400);
         }
         await RoomRepo.enterRoom(roomNum);
-        return;
     };
     // 방 퇴장
     leaveRoom = async (roomNum) => {
@@ -87,7 +86,6 @@ class RoomProvider {
             throw new SetError('이미 삭제된 방입니다.', 400);
         }
         await RoomRepo.leaveRoom(roomNum);
-        return;
     };
     // 방 삭제
     deleteRoom = async (roomNum) => {

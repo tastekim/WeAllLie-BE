@@ -131,7 +131,6 @@ lobby.on('connection', async (socket) => {
                 await RoomProvider.getTrue(roomNum);
                 await redis.del(`ready${roomNum}`);
                 await redis.del(`readyStatus${roomNum}`);
-                await redis.del(`currentMember${roomNum}`);
             }
         } catch (err) {
             socket.emit('error', (err.statusCode ??= 500), err.message);
