@@ -72,6 +72,14 @@ describe('getLoginInfo', () => {
         expect(res._getData()).toStrictEqual({ errorMessage: '카카오 토큰이 헤더에 없습니다.' });
     });
 
+    it('요청헤더에 authType과 kakaoToken 값이 정상적으로 담겨있다면 UserService.getLoginInfo 함수가 1회 실행된다.', async () => {
+        req.headers = { authorization: 'Bearer 카카오토큰' };
+        await UserController.getLoginInfo(req, res);
+
+        expect(mockGetLoginInfo).toBeCalledTimes(1);
+        expect(mockGetLoginInfo.mock.calls[0]).toHaveLength(1);
+    });
+
     it('이미 회원가입한 유저가 로그인에 성공하면 status code를 200으로 응답하고, 유저 정보를 전달한다.', async () => {
         UserService.getLoginInfo.mockResolvedValue([toSendInfo, 200]);
         req.headers = { authorization: 'Bearer 카카오토큰' };
