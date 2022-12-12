@@ -29,7 +29,7 @@ class RoomRepo {
             { _id: roomNum },
             { $inc: { currentCount: 1 } }
         );
-        if (enterRoom === -1) {
+        if (!enterRoom) {
             throw new SetError('존재하지 않는 방입니다.', 400);
         }
     };
