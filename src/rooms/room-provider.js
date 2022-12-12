@@ -61,6 +61,7 @@ class RoomProvider {
     // 방 생성
     createRoom = async (gameMode, roomTitle, nickname) => {
         const createRoom = await RoomRepo.createRoom(gameMode, roomTitle, nickname);
+        await RoomRepo.enterRoom(createRoom._id);
         await redis.rpush(`currentMember${createRoom._id}`, nickname);
         await redis.set(`ready${createRoom._id}`, 0);
         await redis.set(`readyStatus${createRoom._id}`, '');

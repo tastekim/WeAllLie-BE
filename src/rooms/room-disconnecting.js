@@ -17,11 +17,7 @@ io.on('connection', async (socket) => {
                 if (socket.isReady === 1) {
                     // 방에 있다가 준비를 한 상태로 퇴장한 경우
                     await RoomProvider.unready(roomNum);
-                    socket.emit('leaveRoom');
-                } else {
-                    // 준비를 안한 상태로 퇴장한 경우
-                    socket.emit('leaveRoom');
-                }
+                } // 준비를 안한 상태로 퇴장하면 leaveRoom에서 처리
                 await RoomProvider.leaveRoom(roomNum);
                 await RoomProvider.decMember(roomNum);
                 let currentMember = await RoomProvider.getCurrentMember(roomNum);
