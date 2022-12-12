@@ -1,11 +1,9 @@
-const axios = require('axios');
 const UserService = require('../../src/users/user-service');
 const UserRepo = require('../../src/users/user-repo');
 const UserFunction = require('../../src/users/util/user-function');
 const jwtService = require('../../src/users/util/jwt');
 const { UserError } = require('../../src/middlewares/exception');
 const {
-    kakaoTokenData,
     kakaoUserWithImg,
     allUserNotLen0,
     toSaveInfo,
@@ -19,21 +17,9 @@ beforeEach(() => {
 
 // 인가코드로 카카오 토큰 받아오기
 describe('getKakaoToken', () => {
-    let mockAxios;
-    beforeEach(() => {
-        mockAxios = jest.fn();
-        // axios = mockAxios;
-        mockAxios.mockReturnValue(kakaoTokenData);
-    });
-
     it('UserService 에  getKaKaoToken function 이 존재한다', () => {
         expect(typeof UserService.getKakaoToken).toBe('function');
     });
-
-    // Axios...?
-    // it('getKakaoToken 함수는 인가코드를 보내고 받아온 카카오토큰을 리턴한다.', async () => {
-    //     expect(await UserService.getKakaoToken('인가코드')).toBe('카카오에서 받은 access_token');
-    // });
 });
 
 // 로그인 시 프론트로 전달할 정보
@@ -41,8 +27,6 @@ describe('getLoginInfo', () => {
     it('UserService 에  getLoginInfo function 이 존재한다', () => {
         expect(typeof UserService.getLoginInfo).toBe('function');
     });
-
-    // Axios...?
 });
 
 // 유저 정보 조회
