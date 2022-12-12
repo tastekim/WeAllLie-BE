@@ -24,12 +24,12 @@ class UserService {
             }),
 
             // BE test
-            data: qs.stringify({
-                grant_type: 'authorization_code',
-                client_id: process.env.CLIENT_ID,
-                redirectUri: process.env.CALLBACK_URL_LOCAL,
-                code: code,
-            }),
+            // data: qs.stringify({
+            //     grant_type: 'authorization_code',
+            //     client_id: process.env.CLIENT_ID,
+            //     redirectUri: process.env.CALLBACK_URL_LOCAL,
+            //     code: code,
+            // }),
         });
 
         return kakaoToken.data.access_token;

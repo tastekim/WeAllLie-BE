@@ -16,12 +16,9 @@ io.on('connection', async (socket) => {
                 io.sockets.emit('receiveRoomMsg', { notice: msg }, msgId, roomNum);
                 await RoomProvider.leaveRoom(roomNum);
                 await RoomProvider.decMember(roomNum);
-                let currentMember = await RoomProvider.getCurrentMember(roomNum);
-                io.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
                 if (socket.isReady === 1) {
                     // 방에 있다가 준비를 한 상태로 퇴장한 경우
                     await RoomProvider.unready(roomNum);
-                    await RoomProvider.decMember(roomNum);
                     socket.emit('leaveRoom');
                     let currentMember = await RoomProvider.getCurrentMember(roomNum);
                     io.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
@@ -29,7 +26,6 @@ io.on('connection', async (socket) => {
                     await redis.set(`ready${roomNum}`, 0);
                 } else {
                     // 준비를 안한 상태로 퇴장한 경우
-                    await RoomProvider.decMember(roomNum);
                     socket.emit('leaveRoom');
                     let currentMember = await RoomProvider.getCurrentMember(roomNum);
                     io.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
