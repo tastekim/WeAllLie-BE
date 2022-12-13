@@ -22,9 +22,6 @@ if (process.env.NODE_ENV == 'production') {
     console.log('io : HTTP 로 서버가 실행되었습니다. 포트 :: ' + process.env.PORT);
 }
 
-io = socketIo(http);
-console.log('io : HTTP 로 서버가 실행되었습니다. 포트 :: ' + process.env.PORT);
-
 let userCnt = 0;
 
 io.on('connection', async (socket) => {
