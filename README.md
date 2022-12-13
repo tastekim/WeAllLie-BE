@@ -16,7 +16,7 @@
 | Position | Name | Email | Github |
 | - | - | - | - |
 | Backend, L | 김연석 |  | https://github.com/tastekim |
-| Backend | 김형석 |  | https://github.com/chamchimayo |
+| Backend | 김형석 | stone1207@naver.com | https://github.com/chamchimayo |
 | Backend | 송민형 |  | https://github.com/chamchimayo |
 | Backend | 최윤진 | yunjin5450@gmail.com | https://github.com/yunjin5450 |
 | Frontend, VL | 강승훈 | tmdgns4321@gmail.com | https://github.com/seunghoonKang |
