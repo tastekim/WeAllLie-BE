@@ -39,6 +39,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', userRouter);
+app.use('/', userRouter, webRTCRouter);
 
 module.exports = { http, https };
