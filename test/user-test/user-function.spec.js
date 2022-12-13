@@ -51,11 +51,13 @@ describe('getNewUser funtion TEST', () => {
         expect(result.email).toBe(kakaoUserInfo.kakao_account.email);
     });
 
-    it('첫 번째 argument에 thumbnail_image 값이 존재하지 않는다면 UserFunction.getNewUser 함수가 리턴하는 객체의 profileImg 프로퍼티 값은 "default" 이다.', async () => {
+    it('첫 번째 argument에 thumbnail_image 값이 존재하지 않는다면 UserFunction.getNewUser 함수가 리턴하는 객체의 profileImg 프로퍼티 값은 "https://velog.velcdn.com/images/parkharoi/post/3250cb60-3193-46bc-a471-b46b0e075ba5/image.svg" 이다.', async () => {
         const allUser = allUserNotLen0;
         const kakaoUserInfo = kakaoUserNotWithImg;
         const result = await UserFunction.getNewUser(kakaoUserInfo, allUser);
-        expect(result.profileImg).toBe('default');
+        expect(result.profileImg).toBe(
+            'https://velog.velcdn.com/images/parkharoi/post/3250cb60-3193-46bc-a471-b46b0e075ba5/image.svg'
+        );
     });
 
     it('첫 번째 argument에 thumbnail_image 값이 존재한다면 UserFunction.getNewUser 함수가 리턴하는 객체의 profileImg 프로퍼티 값은 kakaoUserInfo.properties.thumbnail_image 이다.', async () => {

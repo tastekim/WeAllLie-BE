@@ -27,7 +27,7 @@ class UserRepo {
     };
 
     updateNick = async (_id, nickname) => {
-        await User.updateOne({ _id }, { nickname });
+        return await User.updateOne({ _id }, { nickname });
     };
 }
 

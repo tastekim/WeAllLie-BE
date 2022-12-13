@@ -28,7 +28,7 @@ class UserFunction {
             email: kakaoUserInfo.kakao_account.email,
             profileImg: kakaoUserInfo.properties.thumbnail_image
                 ? kakaoUserInfo.properties.thumbnail_image
-                : 'default',
+                : 'https://velog.velcdn.com/images/parkharoi/post/3250cb60-3193-46bc-a471-b46b0e075ba5/image.svg',
         };
     };
 

@@ -14,7 +14,7 @@ describe('getKakaoToken', () => {
         req.query.code = '이건 인가코드';
         mockGetkakaoToken = jest.fn();
         UserService.getKakaoToken = mockGetkakaoToken;
-        UserService.getKakaoToken.mockResolvedValue('이건 카카오 토큰');
+        UserService.getKakaoToken.mockReturnValue('이건 카카오 토큰');
     });
 
     it('UserController 에  getKaKaoToken function 이 존재한다', () => {
