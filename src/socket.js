@@ -1,7 +1,6 @@
 const socketIo = require('socket.io');
 const redis = require('./redis');
 const { http, https } = require('./app');
-//const http = require('./app');
 const cors = require('cors');
 const RoomProvider = require('./rooms/room-provider');
 require('dotenv').config();
