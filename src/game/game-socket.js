@@ -43,7 +43,6 @@ game.on('connection', (socket) => {
             // redis에 각 방의 투표 내용 socket별로 저장.
             // await GameProvider.setVoteResult(roomNum, socket.voteSpy);
         } catch (err) {
-            console.log(err.message);
             socket.emit('error', (err.statusCode ??= 500), err.message);
         }
     });

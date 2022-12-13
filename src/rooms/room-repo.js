@@ -54,11 +54,6 @@ class RoomRepo {
         const roomData = await Room.findById(roomNum);
         return roomData.currentCount;
     };
-    // 방 번호 조회
-    getRoomNum = async (nickname) => {
-        const getRoomNum = await Room.findOne({ roomMaker: nickname });
-        return getRoomNum._id;
-    };
     // 방 상태 ture 전환
     getTrue = async (roomNum) => {
         await Room.findOneAndUpdate({ _id: roomNum }, { roomStatus: true });

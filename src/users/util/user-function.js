@@ -12,7 +12,7 @@ class UserFunction {
             // DB에 유저가 있을 경우
             const n = +allUser[allUserCount - 1]._id + 1;
             // n이 1000이상이면 Agent_ 뒤에 그대로 붙이고, 1000보다 작으면 001 의 형태로 붙이기
-            if (n < 1000) {
+            if (n < 999) {
                 nickNum = (0.001 * n).toFixed(3).toString().slice(2);
                 nickname = `Agent_${nickNum}`;
             } else {
@@ -39,7 +39,7 @@ class UserFunction {
             userId: user._id,
             nickname: user.nickname,
             profileImg: user.profileImg,
-            totayPlayCount: user.totalCount,
+            totalPlayCount: user.totalCount,
             spyPlayCount: user.spyPlayCount,
             ctzPlayCount: user.totalCount - user.spyPlayCount,
         };
