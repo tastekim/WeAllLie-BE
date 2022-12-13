@@ -1,6 +1,5 @@
 //const { findById } = require('../schemas/room');
 const Room = require('../schemas/room');
-const { SetError } = require('../middlewares/exception');
 
 const autoIncrease = function () {
     let a = 1;
@@ -25,30 +24,15 @@ class RoomRepo {
     };
     // 방 입장
     enterRoom = async (roomNum) => {
-        const enterRoom = await Room.findByIdAndUpdate(
-            { _id: roomNum },
-            { $inc: { currentCount: 1 } }
-        );
-        if (!enterRoom) {
-            throw new SetError('존재하지 않는 방입니다.', 400);
-        }
+        await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: 1 } });
     };
     // 방 퇴장
     leaveRoom = async (roomNum) => {
-        const leaveRoom = await Room.findByIdAndUpdate(
-            { _id: roomNum },
-            { $inc: { currentCount: -1 } }
-        );
-        if (leaveRoom === -1) {
-            throw new SetError('존재하지 않는 방입니다.', 400);
-        }
+        await Room.findByIdAndUpdate({ _id: roomNum }, { $inc: { currentCount: -1 } });
     };
     // 방 삭제
     deleteRoom = async (roomNum) => {
-        const deleteRoom = await Room.deleteOne({ _id: roomNum });
-        if (deleteRoom === -1) {
-            throw new SetError('존재하지 않는 방입니다.', 400);
-        }
+        await Room.deleteOne({ _id: roomNum });
     };
     // 방 전체 조회
     getAllRoom = async () => {
@@ -58,9 +42,6 @@ class RoomRepo {
     // 방 조회
     getRoom = async (roomNum) => {
         const getRoom = await Room.findById(roomNum);
-        if (!getRoom) {
-            throw new SetError('존재하지 않는 방입니다.', 400);
-        }
         return getRoom;
     };
     // 방 상태 조회
