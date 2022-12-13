@@ -15,7 +15,7 @@ class GameRepo {
     };
 
     getSpy = async (roomNum) => {
-        const roomData = await Room.findOne({ _id: roomNum });
+        const roomData = await this.Room.findOne({ _id: roomNum });
         if (!('spyUser' in roomData)) {
             throw new SetError('방 정보가 없습니다.', 400);
         }
@@ -23,7 +23,7 @@ class GameRepo {
     };
 
     catchSpy = async (nickname) => {
-        const userData = await User.findOne({ nickname: nickname });
+        const userData = await this.User.findOne({ nickname: nickname });
         if (!('nickname' in userData)) {
             throw new SetError('유저의 정보가 없습니다.', 400);
         }
@@ -71,4 +71,4 @@ class GameRepo {
     };
 }
 
-module.exports = GameRepo;
+module.exports = new GameRepo();

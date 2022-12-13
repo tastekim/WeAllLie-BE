@@ -73,8 +73,5 @@ describe('getPlayRecord funtion', () => {
         expect(typeof UserFunction.getPlayRecord).toBe('function');
     });
 
-    it('UserFunction.getPlayRecord 이 리턴하는 객체의 프로퍼티의 개수는 4개이다.', async () => {
-        
-    }
-    
+    it('UserFunction.getPlayRecord 이 리턴하는 객체의 프로퍼티의 개수는 4개이다.', async () => {});
 });

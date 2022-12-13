@@ -1,6 +1,6 @@
 const GameProvider = require('../../src/game/game-provider');
 
-const mockGameReopo = () => ({
+const mockGameRepo = () => ({
     getRoomCurrentCount: jest.fn(),
     getSpy: jest.fn(),
     catchSpy: jest.fn(),
@@ -9,25 +9,32 @@ const mockGameReopo = () => ({
     giveWord: jest.fn(),
 });
 
+// const mockRoomRepo = () => ({
+//     currentCount: jest.fn(),
+// });
+
 describe('game-provider test', () => {
     let gameProvider = new GameProvider();
-    gameProvider = mockGameReopo();
+    gameProvider.GameRepo = mockGameRepo();
+    //gameProvider.RoomRepo = mockRoomRepo();
 
     beforeEach(() => {
-        //gameProvider.gameRepo = Object.assign({}, mockGameReopo);
-
+        //gameProvider.gameRepo = Object.assign({}, mockGameRepo);
+        // 모든 Mock을 초기화
         jest.resetAllMocks();
     });
 
     test('getGameRoomUsers의 Test Case', async () => {
-        const getGameRoomUsersResult = [];
+        const getGameRoomUsersResult = {
+            roomNum: 1,
+        };
 
         gameProvider.gameRepo.getRoomCurrentCount = jest.fn(() => {
             return getGameRoomUsersResult;
         });
 
         await gameProvider.getGameRoomUsers({
-            roomNum: 1,
+            getGameRoomUsersResult,
         });
         expect(gameProvider.gameRepo.getRoomCurrentCount).toHaveBeenCalledTimes(1);
     });

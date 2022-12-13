@@ -1,14 +1,13 @@
 const gameRepo = require('./game-repo');
-const RoomRepo = require('../rooms/room-repo');
+const roomRepo = require('../rooms/room-repo');
 const redis = require('../redis');
 const shuffle = require('shuffle-array');
 const { SetError } = require('../middlewares/exception');
 
 class GameProvider {
-    GameRepo = new gameRepo();
-
     constructor() {
         this.GameRepo = gameRepo;
+        this.RoomRepo = roomRepo;
     }
 
     getGameRoomUsers = async (roomNum) => {
@@ -19,11 +18,11 @@ class GameProvider {
         if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
-        return await GameRepo.getSpy(roomNum);
+        return await this.GameRepo.getSpy(roomNum);
     };
 
     catchSpy = async (nickname) => {
-        await GameRepo.catchSpy(nickname);
+        await this.GameRepo.catchSpy(nickname);
     };
 
     setPlayCount = async (nickname) => {
@@ -37,7 +36,7 @@ class GameProvider {
     currVoteCount = async (roomNum) => {
         await redis.incr(`voteCount${roomNum}`);
         const count = await redis.get(`voteCount${roomNum}`);
-        const roomUsers = await RoomRepo.currentCount(roomNum);
+        const roomUsers = await this.RoomRepo.currentCount(roomNum);
         return [count, roomUsers];
     };
 
@@ -50,7 +49,7 @@ class GameProvider {
             throw new SetError('투표를 하지 않은 유저가 있습니다.', 400);
         }
         // spy 유저인 닉네임.
-        const spyUser = await GameRepo.getSpy(roomNum);
+        const spyUser = await this.GameRepo.getSpy(roomNum);
 
         // 게임이 끝난 후 redis 메모리 정리.
         await redis.del(`gameRoom${roomNum}Result`);
@@ -79,13 +78,13 @@ class GameProvider {
     };
 
     getGuessResult = async (roomNum, word, nickname) => {
-        const roomData = await RoomRepo.getRoom(roomNum);
+        const roomData = await this.RoomRepo.getRoom(roomNum);
         if (roomData.gameWord === null) {
             throw new SetError('게임방 제시어 설정이 되어있지 않습니다.', 500);
         }
 
         if (roomData.gameWord === word) {
-            await GameRepo.setSpyWinCount(nickname);
+            await this.GameRepo.setSpyWinCount(nickname);
         }
         return roomData.gameWord === word;
     };
@@ -112,7 +111,7 @@ class GameProvider {
             await redis.decr(`nowVote${roomNum}`);
         }
         const currNowVote = await redis.get(`nowVote${roomNum}`);
-        const roomCurrentCount = await GameRepo.getRoomCurrentCount(roomNum);
+        const roomCurrentCount = await this.GameRepo.getRoomCurrentCount(roomNum);
         return [roomCurrentCount, currNowVote];
     };
 
@@ -128,7 +127,7 @@ class GameProvider {
         const spy = shuffleList.pop();
 
         //스파이 저장
-        await GameRepo.setSpy(roomNum, spy);
+        await this.GameRepo.setSpy(roomNum, spy);
         return spy;
     };
 
@@ -136,7 +135,7 @@ class GameProvider {
         //category 랜덤으로 출력
         const exists = await redis.exists('allCategory');
         if (exists !== 1) {
-            const allCategory = await GameRepo.giveCategory();
+            const allCategory = await this.GameRepo.giveCategory();
             await redis.lpush('allCategory', allCategory);
         }
         const givecategory = await redis.lrange('allCategory', 0, -1);
@@ -144,9 +143,9 @@ class GameProvider {
         let categoryFix = shuffle(givecategory).pop();
 
         //mongoose 에 있는 카테고리
-        const showWords = await GameRepo.giveWord(categoryFix);
+        const showWords = await this.GameRepo.giveWord(categoryFix);
         const answerWord = shuffle(showWords).pop();
-        await GameRepo.setGameWord(roomNum, answerWord);
+        await this.GameRepo.setGameWord(roomNum, answerWord);
         showWords.push(answerWord);
         return {
             category: categoryFix,
@@ -185,4 +184,4 @@ class GameProvider {
     // };
 }
 
-module.exports = GameProvider;
+module.exports = new GameProvider();

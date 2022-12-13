@@ -3,6 +3,7 @@ const GameProvider = require('./game-provider');
 
 game.on('connection', (socket) => {
     // 스파이 투표 중 스파이 유저 선택.
+
     socket.on('voteSpy', async (roomNum, nickname) => {
         try {
             socket.voteSpy = nickname;
