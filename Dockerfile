@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:16
 
 # 앱 디렉터리 생성
 WORKDIR /usr/src/server

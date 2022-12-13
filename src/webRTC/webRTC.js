@@ -3,16 +3,18 @@ const express = require('express');
 const router = express.Router();
 require('dotenv').config();
 
-console.warn('Application server connecting to OpenVidu at ' + process.env.OPENVIDU_URL);
-
 const openvidu = new OpenVidu(process.env.OPENVIDU_URL, process.env.OPENVIDU_SECRET);
 
-router.post('/api/sessions', async (req, res) => {
+console.warn('Application server connecting to OpenVidu at ' + process.env.OPENVIDU_URL);
+
+router.post('/openvidu/api/sessions', async (req, res) => {
+    console.log('session 연결~~');
     const session = await openvidu.createSession(req.body);
     res.send(session.sessionId);
 });
 
-router.post('/api/sessions/:sessionId/connections', async (req, res) => {
+router.post('/openvidu/api/sessions/:sessionId/connections', async (req, res) => {
+    console.log('그 다음 연결~~');
     const session = openvidu.activeSessions.find((s) => s.sessionId === req.params.sessionId);
     if (!session) {
         res.status(404).send();

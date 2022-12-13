@@ -98,40 +98,29 @@ lobby.on('connection', async (socket) => {
             readyCount = await redis.get(`ready${roomNum}`);
             console.log(readyCount, '/', currentCount);
         }
-        // 해당하는 방의 setTimeout 의 timer id 값 가져오기.
-        const readyStatus = await redis.get(`readyStatus${roomNum}`);
+
         readyCount = await redis.get(`ready${roomNum}`);
         if (currentCount === Number(readyCount) && currentCount > 3) {
             console.log('게임시작 5초전!');
 
             // 특정 방의 timer identifier 를 저장, 나중에 누군가가 ready 가 취소됬을 때 해당하는 timer id 를 찾아서 멈추기 위해.
-            const readyStatus = setTimeout(async () => {
-                console.log('게임 시작 ! ');
-                // 스파이 랜덤 지정 후 게임 시작 전 emit.
-                const spyUser = await GameProvider.selectSpy(roomNum);
-                lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
+            console.log('게임 시작 ! ');
+            // 스파이 랜덤 지정 후 게임 시작 전 emit.
+            const spyUser = await GameProvider.selectSpy(roomNum);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
 
-                if (nickname === spyUser) {
-                    socket.isSpy = 1;
-                }
+            if (nickname === spyUser) {
+                socket.isSpy = 1;
+            }
 
-                // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
-                const gameData = await GameProvider.giveWord(roomNum);
-                lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
+            // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
+            const gameData = await GameProvider.giveWord(roomNum);
+            lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
 
-                // 게임방 진행 활성화. 다른 유저 입장 제한.
-                await RoomProvider.getTrue(roomNum);
-                await redis.del(`ready${roomNum}`);
-                await redis.del(`readyStatus${roomNum}`);
-                await redis.del(`currentMember${roomNum}`);
-            }, 5000);
-
-            // 방의 timer id 저장.
-            await redis.set(`readyStatus${roomNum}`, readyStatus);
-        } else if (readyStatus !== '') {
-            // setTimeout 이 실행된 후 누군가 ready 를 취소했을 때 그 방의 setTimeout 정지시키기.
-            clearTimeout(readyStatus);
-            await redis.set(`readyStatus${roomNum}`, '');
+            // 게임방 진행 활성화. 다른 유저 입장 제한.
+            await RoomProvider.getTrue(roomNum);
+            await redis.del(`ready${roomNum}`);
+            await redis.del(`readyStatus${roomNum}`);
         }
     });
 });
