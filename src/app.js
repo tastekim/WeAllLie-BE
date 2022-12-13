@@ -5,6 +5,7 @@ const fs = require('fs');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const userRouter = require('./users/user-route');
+const webRTCRouter = require('./webRTC/webRTC');
 const cors = require('cors');
 
 require('dotenv').config();
@@ -38,7 +39,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', userRouter);
+app.use('/', userRouter, webRTCRouter);
 
 //module.exports = { http, https };
 module.exports = { http };
