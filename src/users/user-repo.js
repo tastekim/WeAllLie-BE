@@ -1,6 +1,6 @@
 const User = require('../schemas/user');
 
-class UserRefo {
+class UserRepo {
     createUser = async (user) => {
         const newUser = await User.create(user);
         return newUser;
@@ -31,4 +31,4 @@ class UserRefo {
     };
 }
 
-module.exports = new UserRefo();
+module.exports = new UserRepo();

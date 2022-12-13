@@ -29,9 +29,9 @@ class GameProvider {
         await this.GameRepo.setPlayCount(nickname);
     };
 
-    // setVoteResult = async (roomNum, nickname) => {
-    //     await redis.lpush(`gameRoom${roomNum}Result`, nickname);
-    // };
+    setVoteResult = async (roomNum, nickname) => {
+        await redis.lpush(`gameRoom${roomNum}Result`, nickname);
+    };
 
     currVoteCount = async (roomNum) => {
         await redis.incr(`voteCount${roomNum}`);

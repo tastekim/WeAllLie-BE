@@ -6,6 +6,7 @@ const axios = require('axios');
 const qs = require('qs');
 
 class UserService {
+    // 인가코드 주고 카카오 토큰 받아오기
     getKakaoToken = async (code) => {
         const kakaoToken = await axios({
             method: 'POST',
@@ -22,6 +23,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            /*
 
             // BE test
             data: qs.stringify({
@@ -30,6 +32,7 @@ class UserService {
                 redirectUri: process.env.CALLBACK_URL_LOCAL,
                 code: code,
             }),
+            */
         });
 
         return kakaoToken.data.access_token;
@@ -80,14 +83,11 @@ class UserService {
 
     // 유저 닉네임 수정
     updateNick = async (_id, nickname) => {
-        try {
-            const isExistNick = await UserRepo.findOneByNickname(nickname);
-            if (isExistNick) throw new UserError('닉네임 중복', 400);
-            await UserRepo.updateNick(_id, nickname);
-            return;
-        } catch (e) {
-            throw e;
-        }
+        const isExistNick = await UserRepo.findOneByNickname(nickname);
+
+        if (isExistNick && isExistNick._id !== _id) throw new UserError('닉네임 중복', 400);
+        await UserRepo.updateNick(_id, nickname);
+        return;
     };
 
     // 가입된 유저 : 토큰 발급하여 프론트에 보낼 상태로 가공해서 리턴

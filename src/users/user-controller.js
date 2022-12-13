@@ -9,8 +9,8 @@ class UserController {
         const kakaoToken = await UserService.getKakaoToken(req.query.code);
         console.log('kakao에서 받아온 accessToken :::::::::::: ', kakaoToken);
 
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Content-Type', 'text/html; charset=utf-8');
+        // res.header('Access-Control-Allow-Origin', '*');
+        // res.header('Content-Type', 'text/html; charset=utf-8');
 
         return res.status(200).send({ accessToken: kakaoToken });
     };
@@ -27,8 +27,9 @@ class UserController {
         try {
             const { authorization } = req.headers;
             const [authType, kakaoToken] = (authorization || '').split(' ');
-            if (!authType || authType !== 'Bearer')
-                throw new UserError('authrization 헤더 타입 인증 실패', 400);
+
+            if (authType !== 'Bearer')
+                throw new UserError('authorization 헤더 타입 인증 실패', 400);
             if (!kakaoToken) throw new UserError('카카오 토큰이 헤더에 없습니다.', 400);
             console.log('kakaoToken:::::: ', kakaoToken);
             ///
@@ -48,6 +49,7 @@ class UserController {
             const { user } = res.locals;
 
             const userInfo = await UserService.getUserRecord(user._id);
+            console.log(userInfo);
             return res.status(200).send(userInfo);
         } catch (e) {
             console.log(e);
@@ -60,11 +62,9 @@ class UserController {
         try {
             const { user } = res.locals;
             const { nickname } = req.body;
-
             if (!nickname) throw new UserError('변경할 닉네임을 입력해주세요', 400);
             if (nickname.match(/\s/g))
                 throw new UserError('닉네임에 공백이 포함될 수 없습니다.', 400);
-
             await UserService.updateNick(user._id, nickname);
             return res.status(200).json({ nickname });
         } catch (e) {
