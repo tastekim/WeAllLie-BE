@@ -66,8 +66,6 @@ lobby.on('connection', async (socket) => {
         try {
             const currentCount = await RoomProvider.getCurrentCount(roomNum);
             const roomStatus = await RoomProvider.getRoomStatus(roomNum);
-            let readyCount = await redis.get(`ready${roomNum}`);
-            console.log(readyCount);
             socket.roomNum = roomNum;
             socket.isReady = 0;
 
@@ -79,10 +77,10 @@ lobby.on('connection', async (socket) => {
                 await socket.join(`/gameRoom${roomNum}`);
                 const currentMember = await RoomProvider.getCurrentMember(roomNum);
                 const currentRoom = await RoomProvider.getRoom(roomNum);
+                socket.emit('enterRoom', currentRoom);
+                lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
                 await redis.set(`ready${roomNum}`, 0);
-                socket.emit('enterRoom', currentRoom);
-                lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
             } else if (currentCount >= 8) {
                 socket.emit('fullRoom');
                 console.log('풀방입니다.');
