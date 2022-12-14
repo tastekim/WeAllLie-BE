@@ -14,9 +14,13 @@ lobby.on('connection', async (socket) => {
             // 방의 현재 인원 수 가져오기.
             const currentCount = await RoomProvider.getCurrentCount(roomNum);
             socket.roomNum = null;
+            // 추가로직 > bool값이 담긴 배열에서 currentMember 배열의 닉네임이랑 같은 인덱스의 값을 false 로 교체.
+            await RoomProvider.updateBoolList(roomNum, nickname, 'false');
             if (currentCount > 0 && currentCount < 9) {
                 // 방의 유저 닉네임 명단 제거
                 await RoomProvider.decMember(roomNum, nickname);
+                // 추가로직 > bool값이 담긴 배열과 currentMember 배열을 가지고 [{nickname: 'Agent_001', boolkey: true}, ...] 형태로 변환.
+                const currBoolList = await RoomProvider.getUpdateBoolList(roomNum);
                 // 방의 유저 닉네임 명단 가져오기.
                 const currentMember = await RoomProvider.getCurrentMember(roomNum);
                 // 전체 방 리스트 가져오기
@@ -26,8 +30,11 @@ lobby.on('connection', async (socket) => {
                 await redis.set(`ready${roomNum}`, 0);
                 lobby.sockets.emit('showRoom', getAllRoom);
                 lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
+                // 추가로직 > 방에 있는 유저들에게 emit.
+                lobby.sockets.in(`/gameRoom${roomNum}`).emit('readyList', currBoolList);
             } else if (currentCount <= 0) {
                 console.log('방이 삭제 되었습니다.');
+                await redis.del(`boolList${roomNum}`);
                 await RoomProvider.deleteRoom(roomNum);
                 const getAllRoom = await RoomProvider.getAllRoom();
                 socket.emit('leaveRoom');
@@ -44,8 +51,8 @@ lobby.on('connection', async (socket) => {
             // 생성된 방 정보 객체
             const roomData = await RoomProvider.createRoom(gameMode, roomTitle, nickname);
 
-            // 방의 currentCount 1 증가
-            await RoomProvider.enterRoom(roomData._id);
+            // 추가로직 > false 가 담긴 길이 8의 배열 생성.
+            await RoomProvider.setBoolList(roomData._id);
 
             socket.roomNum = roomData._id;
             socket.isReady = 0;
@@ -80,12 +87,20 @@ lobby.on('connection', async (socket) => {
                 await RoomProvider.enterRoom(roomNum);
                 await RoomProvider.incMember(roomNum, nickname);
                 await socket.join(`/gameRoom${roomNum}`);
+
+                // 추가로직 > false 가 담긴 길이 8의 배열로 앞의 ready 상태 전부 초기화.
+                await RoomProvider.setBoolList(roomNum);
+                // 추가로직 > bool값이 담긴 배열과 currentMember 배열을 가지고 [{nickname: 'Agent_001', boolkey: true}, ...] 형태로 변환.
+                const currBoolList = await RoomProvider.getUpdateBoolList(roomNum);
+
                 const currentMember = await RoomProvider.getCurrentMember(roomNum);
                 const currentRoom = await RoomProvider.getRoom(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
                 await redis.set(`ready${roomNum}`, 0);
                 socket.emit('enterRoom', currentRoom);
                 lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
+                // 추가로직 > 방에 있는 유저들에게 emit.
+                lobby.sockets.in(`/gameRoom${roomNum}`).emit('readyList', currBoolList);
             } else if (currentCount >= 8) {
                 socket.emit('fullRoom');
                 console.log('풀방입니다.');
@@ -104,14 +119,26 @@ lobby.on('connection', async (socket) => {
                 // ready 버튼 활성화 시킬 때.
                 socket.isReady = 1;
                 await RoomProvider.ready(roomNum, nickname);
+                // 추가로직 > bool값이 담긴 배열에서 currentMember 배열의 닉네임이랑 같은 인덱스의 값을 isReady 와 같은 값으로 교체.
+                await RoomProvider.updateBoolList(roomNum, nickname, isReady);
+                // 추가로직 > bool값이 담긴 배열과 currentMember 배열을 가지고 [{nickname: 'Agent_001', boolkey: true}, ...] 형태로 변환.
+                const currBoolList = await RoomProvider.getUpdateBoolList(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, true);
+                // 추가로직 > 방에 있는 유저들에게 emit.
+                lobby.sockets.in(`/gameRoom${roomNum}`).emit('readyList', currBoolList);
                 readyCount = await redis.get(`ready${roomNum}`);
                 console.log(readyCount, '/', currentCount);
             } else {
                 // ready 버튼 비활성화 시킬 때.
                 socket.isReady = 0;
                 await RoomProvider.unready(roomNum, nickname);
+                // 추가로직 > bool값이 담긴 배열에서 currentMember 배열의 닉네임이랑 같은 인덱스의 값을 isReady 와 같은 값으로 교체.
+                await RoomProvider.updateBoolList(roomNum, nickname, isReady);
+                // 추가로직 > bool값이 담긴 배열과 currentMember 배열을 가지고 [{nickname: 'Agent_001', boolkey: true}, ...] 형태로 변환.
+                const currBoolList = await RoomProvider.getUpdateBoolList(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
+                // 추가로직 > 방에 있는 유저들에게 emit.
+                lobby.sockets.in(`/gameRoom${roomNum}`).emit('readyList', currBoolList);
                 readyCount = await redis.get(`ready${roomNum}`);
                 console.log(readyCount, '/', currentCount);
             }
