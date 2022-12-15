@@ -51,9 +51,6 @@ lobby.on('connection', async (socket) => {
             // 생성된 방 정보 객체
             const roomData = await RoomProvider.createRoom(gameMode, roomTitle, nickname);
 
-            // 방의 currentCount 1 증가
-            await RoomProvider.enterRoom(roomData._id);
-
             socket.roomNum = roomData._id;
             socket.isReady = 0;
             // 전체 방 리스트
@@ -62,9 +59,16 @@ lobby.on('connection', async (socket) => {
             // 유저 닉네임 배열 가져오기
             const currentMember = await RoomProvider.getCurrentMember(roomData._id);
 
+            // 추가로직 > false 가 담긴 길이 8의 배열로 앞의 ready 상태 전부 초기화.
+            await RoomProvider.setBoolList(roomData._id);
+            // 추가로직 > bool값이 담긴 배열과 currentMember 배열을 가지고 [{nickname: 'Agent_001', boolkey: true}, ...] 형태로 변환.
+            const currBoolList = await RoomProvider.getUpdateBoolList(roomData._id);
+
             socket.emit('createRoom', roomData);
             socket.join(`/gameRoom${roomData._id}`);
             lobby.sockets.in(`/gameRoom${roomData._id}`).emit('userNickname', currentMember);
+            // 추가로직 > 방에 있는 유저들에게 emit.
+            lobby.sockets.in(`/gameRoom${roomData._id}`).emit('readyList', currBoolList);
             lobby.sockets.emit('showRoom', showRoom);
         } catch (err) {
             socket.emit('error', (err.statusCode ??= 500), err.message);
@@ -158,6 +162,8 @@ lobby.on('connection', async (socket) => {
                 await RoomProvider.getTrue(roomNum);
                 await redis.del(`ready${roomNum}`);
                 await redis.del(`readyStatus${roomNum}`);
+                const showRoom = await RoomProvider.getAllRoom();
+                lobby.sockets.emit('showRoom', showRoom);
             }
         } catch (err) {
             socket.emit('error', (err.statusCode ??= 500), err.message);
