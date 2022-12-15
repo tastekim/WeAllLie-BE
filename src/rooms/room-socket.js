@@ -51,8 +51,8 @@ lobby.on('connection', async (socket) => {
             // 생성된 방 정보 객체
             const roomData = await RoomProvider.createRoom(gameMode, roomTitle, nickname);
 
-            // 추가로직 > false 가 담긴 길이 8의 배열 생성.
-            await RoomProvider.setBoolList(roomData._id);
+            // 방의 currentCount 1 증가
+            await RoomProvider.enterRoom(roomData._id);
 
             socket.roomNum = roomData._id;
             socket.isReady = 0;
@@ -64,7 +64,7 @@ lobby.on('connection', async (socket) => {
 
             socket.emit('createRoom', roomData);
             socket.join(`/gameRoom${roomData._id}`);
-            lobby.sockets.emit('userNickname', currentMember);
+            lobby.sockets.in(`/gameRoom${roomData._id}`).emit('userNickname', currentMember);
             lobby.sockets.emit('showRoom', showRoom);
         } catch (err) {
             socket.emit('error', (err.statusCode ??= 500), err.message);
@@ -95,10 +95,10 @@ lobby.on('connection', async (socket) => {
 
                 const currentMember = await RoomProvider.getCurrentMember(roomNum);
                 const currentRoom = await RoomProvider.getRoom(roomNum);
+                socket.emit('enterRoom', currentRoom);
+                lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
                 await redis.set(`ready${roomNum}`, 0);
-                socket.emit('enterRoom', currentRoom);
-                lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
                 // 추가로직 > 방에 있는 유저들에게 emit.
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('readyList', currBoolList);
             } else if (currentCount >= 8) {
