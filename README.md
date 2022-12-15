@@ -13,16 +13,16 @@
 
 ## 👨‍💻팀원
 
-| Position | Name | Role | blog | Github |
-|:----------:|:----------:|:----------:|:----------:|:----------:|
-| BE `L` | 김연석 | Game 관련 socket 로직, 프로젝트 셋팅 | [tastekim.notion.site](https://tastekim.notion.site/tastekim_Devlog-fe856eb9ac6e416db3807c12fcab39c5) | https://github.com/tastekim |
-| BE | 김형석 | Room, Chat 관련 socket 로직 | [stone1207.tistory.com](https://stone1207.tistory.com/) | https://github.com/chamchimayo |
-| BE | 송민형 | User, Chat 관련 socket 로직, 인증 관련 API | [notion.so/Home](https://www.notion.so/Home-355200dabb9747fa93658bee658e23d2) | https://github.com/chamchimayo |
-| BE | 최윤진 | Game 관련 socket 로직 | [velog.io/@yunjin5450](https://velog.io/@yunjin5450) | https://github.com/yunjin5450 |
-| FE `VL` | 강승훈 |  | [velog.io/@deepthink](https://velog.io/@deepthink) | https://github.com/seunghoonKang |
-| FE | 박하은 |   |  [haro-e.tistory.com](https://haro-e.tistory.com/) | https://github.com/parkharoi |
-| FE | 최진영 |   | [notion.so/yoooooooung](www.notion.so/yoooooooung/6f65b151350f486f8696c9090504a15b) | https://github.com/yoooooooung |
-| Design | 이주은 | 웹페이지 디자인 |  |  |
+|Position|　Name　|blog|Github|
+|:------:|:------:|:-------:|:-------:|
+|BE `L`|김연석|https://tastekim.notion.site/tastekim_Devlog-fe856eb9ac6e416db3807c12fcab39c5|https://github.com/tastekim|
+|BE|김형석|https://stone1207.tistory.com/ |https://github.com/kimhsno1|
+|BE|송민형|https://www.notion.so/Home-355200dabb9747fa93658bee658e23d2| https://github.com/Minhyeong-S|
+|BE|최윤진|https://velog.io/@yunjin5450|https://github.com/yunjin5450|
+|FE `VL`|강승훈|https://velog.io/@deepthink|https://github.com/seunghoonKang|
+|FE|박하은|https://haro-e.tistory.com/|https://github.com/parkharoi|
+|FE|최진영|www.notion.so/yoooooooung/6f65b151350f486f8696c9090504a15b|https://github.com/yoooooooung|
+|Design|이주은|-|**Gmail :** zooni0630@gmail.com|
 
 <br>
 
@@ -43,12 +43,11 @@
 
 | 방만들기페이지 | 방페이지 | 게임페이지 |
 |:----------:|:----------:|:----------:|
-| <img width="1394" alt="스크린샷 2022-12-14 오전 11 46 12" src="https://user-images.githubusercontent.com/113876583/207493612-870bfaae-ddbd-47f7-bd1d-a5ed371bf094.png"> | <img width="1395" alt="스크린샷 2022-12-14 오전 11 46 38" src="https://user-images.githubusercontent.com/113876583/207494929-4c54144c-b936-4aed-a7d6-c0c63fe52715.png">
- |  |
+| <img width="1394" alt="스크린샷 2022-12-14 오전 11 46 12" src="https://user-images.githubusercontent.com/113876583/207493612-870bfaae-ddbd-47f7-bd1d-a5ed371bf094.png"> | <img width="1395" alt="스크린샷 2022-12-14 오전 11 46 38" src="https://user-images.githubusercontent.com/113876583/207494929-4c54144c-b936-4aed-a7d6-c0c63fe52715.png"> | 이미지사진 |
 
 | 방만들기페이지 | 방페이지 | 게임페이지 |
 |:----------:|:----------:|:----------:|
-|  |  |  |
+| 이미지사진 | 이미지사진 | 이미지사진 |
 
 ## 🔍기능소개
 
