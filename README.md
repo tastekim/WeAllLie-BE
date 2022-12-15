@@ -297,7 +297,7 @@
     </div>
     </details>
 
-　　👉 [기술적 의사 결정](https://www.notion.so/SIDE-PROJECT-a569695123b0458aa599641a5419a3e4)
+　　👉 [기술적 의사 결정](https://github.com/tastekim/WeAllLie-BE/wiki/2.-%EB%9D%BC%EC%9D%B4%EB%B8%8C%EB%9F%AC%EB%A6%AC-%EC%84%A0%ED%83%9D)
 
 ## ⚽트러블슈팅 
  
@@ -305,9 +305,14 @@
 
 　　👉 [카카오소셜 로그인 : 프론트로 데이터 전달 불가](https://aluminum-root-238.notion.site/76b50c99bbd04d0a84b9952dec1a5996) <br>
   
-　　👉 [특정 룸으로 채팅메세지 전달 불가 (Socket.io)](https://aluminum-root-238.notion.site/socket-io-d9151a97e0e54ad89c7062f78370a7c1) <br>
+　　👉 [socket.js 기능별 분리 중 연결 안됨](https://github.com/tastekim/WeAllLie-BE/issues/27) <br>
+   
+　　👉 [특정 룸으로 채팅메세지 전달 불가 (Socket.io)](https://aluminum-root-238.notion.site/socket-io-d9151a97e0e54ad89c7062f78370a7c1) <br>   
+  
+　　👉 [docker image로 서버 실행 시 'Javascript heap out of memory' 현상](https://github.com/tastekim/WeAllLie-BE/issues/105) <br>
+   
+　　👉 [docker에서 openvidu 서버를 활용한 SFU 방식 테스트 진행 내용](https://github.com/tastekim/WeAllLie-BE/issues/132) <br>   
 
-　　👉 [Https서버 배포시 Socket접속 불가](https://aluminum-root-238.notion.site/Https-15381227cbb74d98a3854ec1deb4130d) <br>
 
 <br>
 
