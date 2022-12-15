@@ -4,7 +4,7 @@ const { SetError } = require('../middlewares/exception');
 class RoomProvider {
     // 현재 인원 조회
     getCurrentCount = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -15,7 +15,7 @@ class RoomProvider {
     };
     // 방 게임 상태 조회
     getRoomStatus = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -26,7 +26,7 @@ class RoomProvider {
     };
     // 현재 인원이 들어있는 redis 배열
     getCurrentMember = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -38,7 +38,7 @@ class RoomProvider {
     };
     // 입장인원 추가
     incMember = async (roomNum, nickname) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -50,7 +50,7 @@ class RoomProvider {
     };
     // 입장인원 제거
     decMember = async (roomNum, nickname) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -69,7 +69,7 @@ class RoomProvider {
     };
     // 방 입장
     enterRoom = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -79,7 +79,7 @@ class RoomProvider {
     };
     // 방 퇴장
     leaveRoom = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -89,7 +89,7 @@ class RoomProvider {
     };
     // 방 삭제
     deleteRoom = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -106,7 +106,7 @@ class RoomProvider {
     };
     // 방 조회
     getRoom = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -116,7 +116,7 @@ class RoomProvider {
     };
     // 게임 준비
     ready = async (roomNum, nickname) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -129,7 +129,7 @@ class RoomProvider {
     };
     // 준비 취소
     unready = async (roomNum, nickname) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -142,7 +142,7 @@ class RoomProvider {
     };
     // 준비 조회
     readyCount = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {
@@ -152,7 +152,7 @@ class RoomProvider {
     };
     // 게임상태 true로 수정
     getTrue = async (roomNum) => {
-        if (!isNaN(roomNum)) {
+        if (isNaN(roomNum)) {
             throw new SetError('유효하지 않은 방 번호 입니다.', 400);
         }
         if (!roomNum) {

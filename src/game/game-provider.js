@@ -60,7 +60,7 @@ class GameProvider {
             });
             if (count >= maxVoteUser[1]) {
                 if ((user === spyUser || maxVoteUser[0] === spyUser) && count === maxVoteUser[1]) {
-                    maxVoteUser[0] = user === spyUser ? user : maxVoteUser[0];
+                    maxVoteUser[0] = user === spyUser ? maxVoteUser[0] : user;
                     maxVoteUser[1] = count;
                 } else {
                     maxVoteUser[0] = user;

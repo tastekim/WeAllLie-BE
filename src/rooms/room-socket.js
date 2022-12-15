@@ -44,9 +44,6 @@ lobby.on('connection', async (socket) => {
             // 생성된 방 정보 객체
             const roomData = await RoomProvider.createRoom(gameMode, roomTitle, nickname);
 
-            // 방의 currentCount 1 증가
-            await RoomProvider.enterRoom(roomData._id);
-
             socket.roomNum = roomData._id;
             socket.isReady = 0;
             // 전체 방 리스트
@@ -57,7 +54,7 @@ lobby.on('connection', async (socket) => {
 
             socket.emit('createRoom', roomData);
             socket.join(`/gameRoom${roomData._id}`);
-            lobby.sockets.emit('userNickname', currentMember);
+            lobby.sockets.in(`/gameRoom${roomData._id}`).emit('userNickname', currentMember);
             lobby.sockets.emit('showRoom', showRoom);
         } catch (err) {
             socket.emit('error', (err.statusCode ??= 500), err.message);
@@ -69,8 +66,6 @@ lobby.on('connection', async (socket) => {
         try {
             const currentCount = await RoomProvider.getCurrentCount(roomNum);
             const roomStatus = await RoomProvider.getRoomStatus(roomNum);
-            let readyCount = await redis.get(`ready${roomNum}`);
-            console.log(readyCount);
             socket.roomNum = roomNum;
             socket.isReady = 0;
 
@@ -82,10 +77,10 @@ lobby.on('connection', async (socket) => {
                 await socket.join(`/gameRoom${roomNum}`);
                 const currentMember = await RoomProvider.getCurrentMember(roomNum);
                 const currentRoom = await RoomProvider.getRoom(roomNum);
+                socket.emit('enterRoom', currentRoom);
+                lobby.to(`/gameRoom${roomNum}`).emit('userNickname', currentMember);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('ready', nickname, false);
                 await redis.set(`ready${roomNum}`, 0);
-                socket.emit('enterRoom', currentRoom);
-                lobby.to(`/gameRoom${socket.roomNum}`).emit('userNickname', currentMember);
             } else if (currentCount >= 8) {
                 socket.emit('fullRoom');
                 console.log('풀방입니다.');
