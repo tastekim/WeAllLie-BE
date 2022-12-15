@@ -152,9 +152,6 @@ lobby.on('connection', async (socket) => {
                 // 스파이 랜덤 지정 후 게임 시작 전 emit.
                 const spyUser = await GameProvider.selectSpy(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('spyUser', spyUser);
-                if (nickname === spyUser) {
-                    socket.isSpy = 1;
-                }
                 // 카테고리 및 제시어 랜덤 지정 후 게임 시작과 같이 emit.
                 const gameData = await GameProvider.giveWord(roomNum);
                 lobby.sockets.in(`/gameRoom${roomNum}`).emit('gameStart', gameData);
