@@ -2,6 +2,30 @@ const RoomRepo = require('./room-repo');
 const redis = require('../redis');
 const { SetError } = require('../middlewares/exception');
 class RoomProvider {
+    setBoolList = async (roomNum) => {
+        await redis.set(`boolList${roomNum}`, 'false,false,false,false,false,false,false,false');
+    };
+
+    updateBoolList = async (roomNum, nickname, isReady) => {
+        const getList = (await redis.get(`boolList${roomNum}`)).split(',');
+        const getUserList = await redis.lrange(`currentMember${roomNum}`, 0, -1);
+        for (let i = 0; i < getUserList.length; i++) {
+            if (getUserList[i] === nickname) {
+                getList[i] = isReady;
+            }
+        }
+        await redis.set(`boolList${roomNum}`, getList.join(','));
+    };
+
+    getUpdateBoolList = async (roomNum) => {
+        const getList = (await redis.get(`boolList${roomNum}`)).split(',');
+        const getUserList = await redis.lrange(`currentMember${roomNum}`, 0, -1);
+        let newList = [];
+        for (let i = 0; i < getUserList.length; i++) {
+            newList.push({ nickname: getUserList[i], boolkey: getList[i] });
+        }
+        return newList;
+    };
     // 현재 인원 조회
     getCurrentCount = async (roomNum) => {
         if (isNaN(roomNum)) {
