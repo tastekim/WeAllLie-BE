@@ -1,3 +1,4 @@
 {
-  "presets": ["@babel/env"]
+    "presets": ["@babel/env"],
+    "plugins": [["transform-remove-console", { "exclude": ["error", "warn"] }]]
 }
