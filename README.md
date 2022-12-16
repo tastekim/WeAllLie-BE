@@ -1,8 +1,8 @@
-## 🐱온라인 화상채팅 보드게임, We Are Lion
+## 🐱온라인 화상채팅 보드게임, We All Lion
 
 ![600](https://user-images.githubusercontent.com/113876583/207038393-fdc23118-2da2-4974-b46e-fbe5fc00956f.jpg)
 
-**'We Are Lion'** 은 보드게임 **'스파이 폴'** 을 모티브로 만든 온라인 화상 채팅 보드게임 플랫폼 입니다.
+**'We All Lion'** 은 보드게임 **'스파이 폴'** 을 모티브로 만든 온라인 화상 채팅 보드게임 플랫폼 입니다.
 
 <br>
 
@@ -10,7 +10,7 @@
 
 ## 📝Notion
 
-### 👉 ['We Are Lion' 노션 주소](https://bald-crop-238.notion.site/We-All-Lion-866ef71edc17476aaac679b81e1be6a7)
+### 👉 ['We All Lion' 노션 주소](https://bald-crop-238.notion.site/We-All-Lion-866ef71edc17476aaac679b81e1be6a7)
 
 ## 📆기간
 - ### 2022.11.04 ~ 2022.12.16 (6주)
@@ -38,7 +38,7 @@
 - 우리끼리?! 지인들과 즐길 수 있도록 **비밀방 설정**이 가능합니다.
 - 실시간 채팅과 캠으로 유저들과 소통하며 온라인으로 **지금 당장** 게임을 즐겨보세요!
 
-### 👉 [We Are Lion 바로가기](https://we-all-lie.vercel.app/)
+### 👉 [We All Lion 바로가기](https://we-all-lie.vercel.app/)
 
 ## 📰페이지 소개
 | 게임설명 & 로그인 페이지 | 로비 페이지  |
@@ -297,7 +297,7 @@
     </div>
     </details>
 
-　　👉 [기술적 의사 결정](https://www.notion.so/SIDE-PROJECT-a569695123b0458aa599641a5419a3e4)
+　　👉 [기술적 의사 결정](https://github.com/tastekim/WeAllLie-BE/wiki/2.-%EB%9D%BC%EC%9D%B4%EB%B8%8C%EB%9F%AC%EB%A6%AC-%EC%84%A0%ED%83%9D)
 
 ## ⚽트러블슈팅 
  
@@ -305,14 +305,18 @@
 
 　　👉 [카카오소셜 로그인 : 프론트로 데이터 전달 불가](https://aluminum-root-238.notion.site/76b50c99bbd04d0a84b9952dec1a5996) <br>
   
-　　👉 [특정 룸으로 채팅메세지 전달 불가 (Socket.io)](https://aluminum-root-238.notion.site/socket-io-d9151a97e0e54ad89c7062f78370a7c1) <br>
+　　👉 [socket.js 기능별 분리 중 연결 에러](https://github.com/tastekim/WeAllLie-BE/issues/27) <br>
 
-　　👉 [Https서버 배포시 Socket접속 불가](https://aluminum-root-238.notion.site/Https-15381227cbb74d98a3854ec1deb4130d) <br>
+　　👉 [특정 룸으로 채팅메세지 전달 불가 (Socket.io)](https://aluminum-root-238.notion.site/socket-io-d9151a97e0e54ad89c7062f78370a7c1) <br>   
+
+　　👉 [docker image로 서버 실행 시 'Javascript heap out of memory' 현상](https://github.com/tastekim/WeAllLie-BE/issues/105) <br>
+
+　　👉 [docker에서 openvidu 서버를 활용한 SFU 방식 테스트 진행 내용](https://github.com/tastekim/WeAllLie-BE/issues/132) <br> 
 
 <br>
 
 > # 4. 기타
 
 ## 💻GitHub
-  - ### BackEnd: [WeAreLion-BE](https://github.com/tastekim/WeAllLie-BE)
-  - ### FrontEnd: [WeAreLion-FE](https://github.com/seunghoonKang/we-all-lie-fe)
+  - ### BackEnd: [WeAllLion-BE](https://github.com/tastekim/WeAllLie-BE)
+  - ### FrontEnd: [WeAllLion-FE](https://github.com/seunghoonKang/we-all-lie-fe)
